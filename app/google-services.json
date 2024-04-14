@@ -1,0 +1,207 @@
+{
+  "project_info": {
+    "project_number": "216609891980",
+    "firebase_url": "https://fast-feast-2b68a-default-rtdb.firebaseio.com",
+    "project_id": "fast-feast-2b68a",
+    "storage_bucket": "fast-feast-2b68a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216609891980:android:ce0d919614165da2e63da9",
+        "android_client_info": {
+          "package_name": "com.wayplaner.learn_room"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216609891980-19pnvb5hrb3n4tkvu8rpjbkbv9agb6eh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wayplaner.learn_room",
+            "certificate_hash": "5db943ac17cc5818d7ed71c464988eeb7c95e051"
+          }
+        },
+        {
+          "client_id": "216609891980-rv7np97qktmfnnkpsn32edladob8blld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5NAe5Oo7gxfj6SzcTOgk1OS99DJadwdw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216609891980-p02bfblphqkq14jf7iubd94t019pfo79.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216609891980:android:e5cb3b23e7e192c0e63da9",
+        "android_client_info": {
+          "package_name": "ge.fastfeast.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216609891980-2pft266ri9urd1nhtp6dsk14upuqqkl9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.fastfeast.android",
+            "certificate_hash": "e93519ec2b6be2d5f13d547177adebc4e75a6de7"
+          }
+        },
+        {
+          "client_id": "216609891980-a81k5n3ivfp68on6je65ntco60tb4jpl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.fastfeast.android",
+            "certificate_hash": "3d2d90d2f503794837194670907802319a700056"
+          }
+        },
+        {
+          "client_id": "216609891980-rv7np97qktmfnnkpsn32edladob8blld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5NAe5Oo7gxfj6SzcTOgk1OS99DJadwdw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216609891980-p02bfblphqkq14jf7iubd94t019pfo79.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216609891980:android:33f0a472ce7143cfe63da9",
+        "android_client_info": {
+          "package_name": "ge.fastfeast.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216609891980-dd2brdki4d5j5fo2um48fel66557d12a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.fastfeast.app",
+            "certificate_hash": "5db943ac17cc5818d7ed71c464988eeb7c95e051"
+          }
+        },
+        {
+          "client_id": "216609891980-h0rvodnmjemon1jmcld3mftl02m8gkp4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.fastfeast.app",
+            "certificate_hash": "e93519ec2b6be2d5f13d547177adebc4e75a6de7"
+          }
+        },
+        {
+          "client_id": "216609891980-kn4milefb76sq14ksqgev4iqr70l9b3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.fastfeast.app",
+            "certificate_hash": "82dd2e78efbee6bf112b5aea34ddb7af11b1b83e"
+          }
+        },
+        {
+          "client_id": "216609891980-ku00ifoc99u0m92vu4iq22of3o85sf0j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.fastfeast.app",
+            "certificate_hash": "2609c1afb3b36fa844df10182c32800266bcbad3"
+          }
+        },
+        {
+          "client_id": "216609891980-lh800r6qrqoejrvf7tqiqh0eihrki8g9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.fastfeast.app",
+            "certificate_hash": "3d2d90d2f503794837194670907802319a700056"
+          }
+        },
+        {
+          "client_id": "216609891980-rv7np97qktmfnnkpsn32edladob8blld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5NAe5Oo7gxfj6SzcTOgk1OS99DJadwdw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216609891980-p02bfblphqkq14jf7iubd94t019pfo79.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216609891980:android:2b6501bc054b2ee1e63da9",
+        "android_client_info": {
+          "package_name": "ge.feastfeastexpress.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216609891980-djc8aroi30psgg47ojbci0uabpbo871g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.feastfeastexpress.app",
+            "certificate_hash": "82dd2e78efbee6bf112b5aea34ddb7af11b1b83e"
+          }
+        },
+        {
+          "client_id": "216609891980-lujmtpisb4g4l0dqtsdl88int5gpocd3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ge.feastfeastexpress.app",
+            "certificate_hash": "5db943ac17cc5818d7ed71c464988eeb7c95e051"
+          }
+        },
+        {
+          "client_id": "216609891980-rv7np97qktmfnnkpsn32edladob8blld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5NAe5Oo7gxfj6SzcTOgk1OS99DJadwdw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216609891980-p02bfblphqkq14jf7iubd94t019pfo79.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
