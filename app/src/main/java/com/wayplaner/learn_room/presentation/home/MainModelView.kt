@@ -36,6 +36,8 @@ class MainModelView @Inject constructor(
 
     private val image = MutableLiveData<Bitmap?>()
 
+    private val ima1ge = MutableLiveData<Bitmap?>()
+
     fun getCountry() = organizationsLiveData
     fun getCategories() = categories
 
