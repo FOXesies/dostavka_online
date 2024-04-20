@@ -1,3 +1,4 @@
+import org.gradle.internal.impldep.com.fasterxml.jackson.core.JsonPointer.compile
 import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
 
 plugins {
@@ -55,6 +56,11 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 
 
@@ -81,7 +87,7 @@ dependencies {
 
     //Retrofit 2
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.3.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
     //Timber
     implementation ("com.jakewharton.timber:timber:5.0.1")
@@ -89,6 +95,12 @@ dependencies {
     //OkHttp3
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
     implementation ("com.squareup.okhttp3:okhttp-urlconnection:4.4.1")
+
+    //Yandex Map
+    implementation("com.yandex.android:maps.mobile:4.3.2-full")
+
+    //Card Search Bank
+    implementation("com.github.SteliosPapamichail:CreditCardHelper:v1.0.0")
 
     //Coil
     implementation("io.coil-kt:coil-compose:2.6.0")

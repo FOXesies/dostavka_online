@@ -1,17 +1,19 @@
 package com.wayplaner.learn_room.di
 
-import com.wayplaner.learn_room.data.repository.AuthCustomerRepositoryImpl
-import com.wayplaner.learn_room.data.repository.HomeApiRepositoryImpl
-import com.wayplaner.learn_room.data.repository.ImageApiImpl
-import com.wayplaner.learn_room.data.repository.OrganizationApiImpl
-import com.wayplaner.learn_room.data.repository.ProductRepositoryImpl
+import com.wayplaner.learn_room.auth.data.repository.AuthCustomerRepositoryImpl
+import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
+import com.wayplaner.learn_room.organization.data.repository.OrganizationApiImpl
+import com.wayplaner.learn_room.product.data.repository.ProductRepositoryImpl
 import dagger.Module
 import dagger.Provides
-import com.wayplaner.learn_room.domain.repository.AuthCustomerRepository
-import com.wayplaner.learn_room.domain.repository.HomeApi
-import com.wayplaner.learn_room.domain.repository.ImageApi
-import com.wayplaner.learn_room.domain.repository.OrganizationApi
-import com.wayplaner.learn_room.domain.repository.ProductRepository
+import com.wayplaner.learn_room.auth.domain.repository.AuthCustomerRepository
+import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
+import com.wayplaner.learn_room.basket.domain.repository.BasketApi
+import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
+import com.wayplaner.learn_room.createorder.domain.repository.OrderApi
+import com.wayplaner.learn_room.home.domain.repository.HomeApi
+import com.wayplaner.learn_room.organization.domain.repository.OrganizationApi
+import com.wayplaner.learn_room.product.domain.repository.ProductRepository
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
@@ -24,7 +26,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class AppModule {
 
-    private val BASE_URL = "http://192.168.0.103:8080/api/v1/"
+    private val BASE_URL = "http://192.168.200.253:8080/api/v1/"
 
     @Singleton
     @Provides
@@ -65,7 +67,17 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideOrganizationApiService(retrofit: Retrofit): OrganizationApi = retrofit.create(OrganizationApi::class.java)
+    fun provideBasketApiService(retrofit: Retrofit): BasketApi = retrofit.create(
+        BasketApi::class.java)
+
+    @Singleton
+    @Provides
+    fun basketRepository(basketApi: BasketApi) = BasketApiImpl(basketApi)
+
+    @Singleton
+    @Provides
+    fun provideOrganizationApiService(retrofit: Retrofit): OrganizationApi = retrofit.create(
+        OrganizationApi::class.java)
 
     @Singleton
     @Provides
@@ -73,15 +85,17 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideProductApiService(retrofit: Retrofit): ProductRepository = retrofit.create(ProductRepository::class.java)
+    fun provideProductApiService(retrofit: Retrofit): ProductRepository = retrofit.create(
+        ProductRepository::class.java)
 
     @Singleton
     @Provides
-    fun imageRepository(imageApi: ImageApi) = ImageApiImpl(imageApi)
+    fun orderRepository(orderApi: OrderApi) = OrderApiImpl(orderApi)
 
     @Singleton
     @Provides
-    fun provideImageApiService(retrofit: Retrofit): ImageApi = retrofit.create(ImageApi::class.java)
+    fun provideOrderApiService(retrofit: Retrofit): OrderApi = retrofit.create(
+        OrderApi::class.java)
 
     @Provides
     @Singleton

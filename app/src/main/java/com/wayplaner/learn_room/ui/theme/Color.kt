@@ -24,6 +24,7 @@ val grayList = Color(0xFFD3D2D2)
 val blackTransperent = Color(0xC1272727)
 val grayColor = Color(0xFF757575)
 val grayColor_Text = Color(0xFF363636)
+val gray_light = Color(0xFFF3F3F3)
 
 val textFieldBack = Color(0xFFE6E5E5)
 val textFieldFocus = Color(0xFFCE2B2B)
