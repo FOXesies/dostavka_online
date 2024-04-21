@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.organization.data.repository.OrganizationApiImpl
-import com.wayplaner.learn_room.organization.domain.model.OrganizationIdDTO
+import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import com.wayplaner.learn_room.utils.navigation.AppDestinations.ORGANIZATION_ID_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

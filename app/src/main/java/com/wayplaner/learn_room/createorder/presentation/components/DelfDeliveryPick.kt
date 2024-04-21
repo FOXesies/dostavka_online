@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.wayplaner.learn_room.createorder.presentation.CreateOrderModelView
 import com.wayplaner.learn_room.ui.theme.grayColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redLogoColor
@@ -43,7 +44,7 @@ import com.yandex.mapkit.search.SearchFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelfDeliveryPick() {
+fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
     var textColorValue = TextFieldDefaults.textFieldColors(
         containerColor = Color.Transparent,
         cursorColor = redLogoColor,
@@ -57,6 +58,10 @@ fun SelfDeliveryPick() {
         .background(color = lightGrayColor)
         .padding(horizontal = 2.dp)
         .verticalScroll(rememberScrollState())) {
+
+        PhoneViewCard(vmCreateOrder)
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Card(
             shape = RoundedCornerShape(10.dp),
@@ -103,7 +108,6 @@ fun SelfDeliveryPick() {
                         .height(160.dp)) {
                     AndroidView(factory = {
 
-
                         val mapFragment = MapFragment()
                         val inflater = LayoutInflater.from(it)
                         val container: ViewGroup? = null
@@ -127,9 +131,9 @@ fun SelfDeliveryPick() {
 
                     TextField(
                         colors = textColorValue,
-                        value = "",
+                        value = vmCreateOrder.comment.value,
                         modifier = Modifier.fillMaxWidth(),
-                        onValueChange = {},
+                        onValueChange = { vmCreateOrder.comment.value = it },
                         label = { Text(text = "Комментарий") },
                     )
                 }
@@ -146,5 +150,5 @@ fun SelfDeliveryPick() {
 @Composable
 @Preview
 fun previewcreateor(){
-    SelfDeliveryPick()
+    //SelfDeliveryPick(vmCreateOrder)
 }

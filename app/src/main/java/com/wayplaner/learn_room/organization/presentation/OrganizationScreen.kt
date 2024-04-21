@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wayplaner.learn_room.R
-import com.wayplaner.learn_room.organization.domain.model.OrganizationIdDTO
+import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.ui.theme.categoryColor
 import com.wayplaner.learn_room.ui.theme.grayColor
@@ -186,7 +186,7 @@ fun OrganizationCardOrg(
                         )
 
                         Text(
-                            text = "Адрес: ${organization_const.city}, ${organization_const.address}",
+                            text = "Адрес: ${organization_const.locationsAll.keys.first()}, ${organization_const.locationsAll.values.first()[0].address}",
                             fontFamily = FontFamily(Font(R.font.ag_cooper_cyr, FontWeight.Medium)),
                             modifier = Modifier
                                 .padding(top = 30.dp)

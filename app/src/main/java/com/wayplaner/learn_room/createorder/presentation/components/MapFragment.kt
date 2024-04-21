@@ -23,7 +23,7 @@ class MapFragment: Fragment() {
     ): View {
         //super.onCreate(savedInstanceState
 
-        MapKitFactory.setApiKey("1e8845c3-b492-4939-9356-2fe8447e8dcb")
+        //MapKitFactory.setApiKey("1e8845c3-b492-4939-9356-2fe8447e8dcb")
 
         binding_ = FragmentMapBinding.inflate(inflater, container, false)
 

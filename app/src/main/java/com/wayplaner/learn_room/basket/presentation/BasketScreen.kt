@@ -48,7 +48,6 @@ fun BasketScreen(
     navigateUp: () -> Unit,
     navigateCreateOrder: () -> Unit,
     vmBasket: BasketModelView = hiltViewModel(),
-    vmOrder: CreateOrderModelView = hiltViewModel(),
 ){
     Box(
         contentAlignment = Alignment.BottomCenter,
@@ -72,9 +71,9 @@ fun BasketScreen(
         val uiEvent = vmBasket.uiBasketEvent.observeAsState()
         when(uiEvent.value!!){
             is UiBasketEvent.EmptyBasket -> ViewEmptyBasket()
-            is UiBasketEvent.NormalBasket -> ViewNormalBasket(basket.value!!, vmBasket, vmOrder, navigateCreateOrder)
+            is UiBasketEvent.NormalBasket -> ViewNormalBasket(basket.value!!, vmBasket, navigateCreateOrder)
             is UiBasketEvent.ErrorAction -> {
-                ViewNormalBasket(basket.value!!, vmBasket, vmOrder, navigateCreateOrder)
+                ViewNormalBasket(basket.value!!, vmBasket, navigateCreateOrder)
                 Toast.makeText(LocalContext.current, (uiEvent.value as UiBasketEvent.ErrorAction).error, Toast.LENGTH_LONG).show()
             }
         }
@@ -109,7 +108,7 @@ fun ViewEmptyBasket(){
 }
 
 @Composable
-fun ViewNormalBasket(value: BasketItem, vmBasket: BasketModelView, vmOrder: CreateOrderModelView, navigateCreateOrder: () -> Unit) {
+fun ViewNormalBasket(value: BasketItem, vmBasket: BasketModelView, navigateCreateOrder: () -> Unit) {
     Card(modifier = Modifier
         .fillMaxSize()
         .padding(top = 80.dp),
@@ -148,7 +147,7 @@ fun ViewNormalBasket(value: BasketItem, vmBasket: BasketModelView, vmOrder: Crea
             Button(
                 onClick = {
                     navigateCreateOrder()
-                    vmOrder.saveProducts(vmBasket.basketItem.value!!)
+                    vmBasket.saveInfoInOrder()
                 },
                 colors = ButtonDefaults.buttonColors(redBlackColor),
                 shape = RoundedCornerShape(20),

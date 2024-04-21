@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
 import com.wayplaner.learn_room.basket.domain.model.SendBasketProduct
+import com.wayplaner.learn_room.basket.util.Basketproduct
 import com.wayplaner.learn_room.basket.util.UiBasketEvent
 import com.wayplaner.learn_room.order.data.model.BasketItem
 import com.wayplaner.learn_room.order.data.model.ProductInBasket
@@ -18,7 +19,7 @@ class BasketModelView @Inject constructor(
     private val basketApiImpl: BasketApiImpl
 ): ViewModel() {
 
-    private val basket_ = MutableLiveData<BasketItem?>(null)
+    private val basket_ = MutableLiveData(BasketItem())
     val basketItem: LiveData<BasketItem?> = basket_
 
     private val uiBasketEvent_ = MutableLiveData<UiBasketEvent>(UiBasketEvent.EmptyBasket)
@@ -26,6 +27,10 @@ class BasketModelView @Inject constructor(
 
     init {
         loadBasket()
+    }
+
+    fun saveInfoInOrder(){
+        Basketproduct.summ = basketItem.value?.summ
     }
 
     private fun loadBasket(){

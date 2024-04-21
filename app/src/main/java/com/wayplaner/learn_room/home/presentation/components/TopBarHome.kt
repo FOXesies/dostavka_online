@@ -50,7 +50,7 @@ fun TopBarHome(organizations: State<List<OrganizationDTO>?>,
     TopAppBar(
         modifier = Modifier.height(55.dp),
         title = {
-            val cities = organizations.value!!.map { it.city }.toSet().toMutableList()
+            val cities = organizations.value!!.flatMap { it.cities.keys }.toSet().toMutableList()
             cities.add(0, "Не выбрано")
             DropDownCity(cities, homeViewModel)
                 },
