@@ -58,7 +58,7 @@ fun Organization(
                 //if (!organization.images.isNullOrEmpty())
                     AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data("http://192.168.13.26:8080/api/v1/upload/img/" + organization.idImage)
+                                .data("http://192.168.0.103:8080/api/v1/upload/img/" + organization.idImage)
                                 .build(),
                         contentDescription = "organization_image",
                         contentScale = ContentScale.Crop,
@@ -66,15 +66,6 @@ fun Organization(
                             .fillMaxWidth()
                             .height(170.dp)
                     )
-               /* else
-                    Image(
-                        painter = painterResource(id = R.drawable.cat_money),
-                        contentDescription = "organization_image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(170.dp)
-                    )*/
 
             Card(
                 modifier = Modifier
@@ -106,7 +97,6 @@ fun Organization(
 
                         }*/
                     }
-
 
                     Spacer(Modifier.width(8.dp))
 

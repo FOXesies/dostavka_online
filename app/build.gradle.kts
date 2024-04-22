@@ -63,8 +63,6 @@ android {
         viewBinding = true
     }
 
-
-
 }
 
 

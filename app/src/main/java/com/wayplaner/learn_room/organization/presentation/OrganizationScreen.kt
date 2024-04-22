@@ -186,7 +186,10 @@ fun OrganizationCardOrg(
                         )
 
                         Text(
-                            text = "Адрес: ${organization_const.locationsAll.keys.first()}, ${organization_const.locationsAll.values.first()[0].address}",
+                            text = "Адрес: ${organization_const.locationsAll.values.first()
+                                .map {
+                                    organization_const.locationsAll.keys.first() + ", " + it.address
+                                }.joinToString { it + "\n" }}",
                             fontFamily = FontFamily(Font(R.font.ag_cooper_cyr, FontWeight.Medium)),
                             modifier = Modifier
                                 .padding(top = 30.dp)

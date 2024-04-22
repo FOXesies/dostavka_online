@@ -7,6 +7,7 @@ data class Order(
     var idOrganization: String = "",
 
     var addressUser: Address? = null,
+    var idLocation: Long? = null,
     var phoneUser: String? = null,
     var toTimeDelivery: String? = "now",
     var productOrder: List<ProductInOrder> = mutableListOf(),

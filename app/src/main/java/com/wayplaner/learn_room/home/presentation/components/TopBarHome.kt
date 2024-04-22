@@ -1,14 +1,19 @@
 package com.wayplaner.learn_room.home.presentation.components
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -16,6 +21,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -27,12 +34,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.R
@@ -50,9 +60,8 @@ fun TopBarHome(organizations: State<List<OrganizationDTO>?>,
     TopAppBar(
         modifier = Modifier.height(55.dp),
         title = {
-            val cities = organizations.value!!.flatMap { it.cities.keys }.toSet().toMutableList()
-            cities.add(0, "Не выбрано")
-            DropDownCity(cities, homeViewModel)
+            val cities = homeViewModel.getCity().value
+            DropDownCity(cities!!, homeViewModel)
                 },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = whiteColor,
@@ -81,23 +90,63 @@ fun TopBarHome(organizations: State<List<OrganizationDTO>?>,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropDownCity(state: List<String?>, homeViewModel: MainModelView){
+fun DropDownCity(state: List<String>, homeViewModel: MainModelView){
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(state[0]) }
 
-    Box(
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        // Back arrow here
+        Row(Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .clickable { // Anchor view
+            expanded = !expanded
+        }) { // A
+            // nchor view
+            Text(text = selectedText, fontSize = 14.sp) // City name label
+            Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = null)
+            DropdownMenu(expanded = expanded,
+                onDismissRequest = {
+                    expanded = false
+                }) {
+                state.forEach { city ->
+
+                    val isSelected = city == selectedText
+                    val style = if (isSelected) {
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    } else {
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    DropdownMenuItem(
+                        text =  { Text(city!!, style = style) },
+                        onClick = {
+                            expanded = false
+                            selectedText = city
+                            homeViewModel.getOrganizationsByCity(selectedText)
+                        }
+                    )
+                }
+                //Text("Popup content \nhere", Modifier.padding(24.dp))
+            }
+        }
+    }
+
+    /*Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 10.dp,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .background(lightGrayColor),
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.Transparent),
     ) {
-        ExposedDropdownMenuBox(
+        DropdownMenu(
             expanded = expanded,
-            onExpandedChange = {
+            onDismissRequest = {
                 expanded = !expanded
             }
         ) {
@@ -108,12 +157,11 @@ fun DropDownCity(state: List<String?>, homeViewModel: MainModelView){
                     readOnly = true,
                     colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
                     textStyle = LocalTextStyle.current.merge(TextStyle(fontSize = 12.sp)),
-                    leadingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor()
+                    leadingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
                 )
             }
 
-            ExposedDropdownMenu(
+            DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
@@ -134,5 +182,5 @@ fun DropDownCity(state: List<String?>, homeViewModel: MainModelView){
                 }
             }
         }
-    }
+    }*/
 }

@@ -36,9 +36,9 @@ class BasketModelView @Inject constructor(
     private fun loadBasket(){
         viewModelScope.launch {
             basket_.value = basketApiImpl.getBasket(1).body()
-            uiBasketEvent_.value = when(basket_.value!!.productsPick.size == 0){
+            uiBasketEvent_.value = when(basket_.value?.productsPick?.size == 0){
                 false -> UiBasketEvent.NormalBasket
-                true -> UiBasketEvent.NormalBasket
+                true -> UiBasketEvent.EmptyBasket
             }
         }
     }

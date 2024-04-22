@@ -21,19 +21,17 @@ class MainModelView @Inject constructor(
     private val organizationsLiveData = MutableLiveData<List<OrganizationDTO>?>()
     private val all_organizations = MutableLiveData<List<OrganizationDTO>?>()
 
-    init {
-        loadOrganizations()
-    }
-
     private val categories_ = MutableLiveData<List<CategoryDTO>?>()
     val categories: LiveData<List<CategoryDTO>?> = categories_
     private val pick_categoties: MutableList<CategoryDTO> = mutableListOf()
 
-    private val image = MutableLiveData<Bitmap?>()
+    private var cities = MutableLiveData<List<String>>()
 
-    private val ima1ge = MutableLiveData<Bitmap?>()
-
+    init {
+        getCities()
+    }
     fun getCountry() = organizationsLiveData
+    fun getCity() = cities
 
     fun addCategoryPick(categoryDTO: CategoryDTO){
         pick_categoties.add(categoryDTO)
@@ -59,10 +57,14 @@ class MainModelView @Inject constructor(
         Timber.i(organizationsLiveData.value!!.size.toString())
     }
 
-    private fun loadOrganizations(){
+    fun getOrganizationsByCity(city: String){
+        loadOrganizations(city)
+    }
+
+    private fun loadOrganizations(city: String){
         viewModelScope.launch {
 
-            val response = repository.getOrganizations()
+            val response = repository.getOrganizations(city)
 
             if (response.isSuccessful) {
                 var organizationsList = listOf<OrganizationDTO>()
@@ -89,8 +91,24 @@ class MainModelView @Inject constructor(
         }
     }
 
+    private fun getCities(){
+        viewModelScope.launch{
+            val response = repository.getCities()
+            if (response.isSuccessful) {
+                val cities_ = response.body()
+                Timber.i(cities_.toString())
 
-
+                cities.postValue(cities_!!)
+                loadOrganizations(cities_[0])
+            } else {
+                // Обработка ошибки
+                val errorBody = response.errorBody()
+                if (errorBody != null) {
+                    Timber.e(errorBody.string())
+                }
+            }
+        }
+    }
 
     /*private fun loadImage(){
         viewModelScope.launch {

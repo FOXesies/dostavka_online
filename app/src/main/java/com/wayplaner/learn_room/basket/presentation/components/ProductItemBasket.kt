@@ -78,7 +78,10 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
                         .size(26.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(lightGrayColor),
                         onClick = {
-                            vmBasket.minusProduct(productInBasket.product!!.idProduct!!)
+                            if(productInBasket.count - 1 == 0)
+                                vmBasket.deleteProduct(productInBasket.product!!.idProduct!!)
+                            else
+                                vmBasket.minusProduct(productInBasket.product!!.idProduct!!)
                         }) {
                         Icon(
                             modifier = Modifier
@@ -94,7 +97,8 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
                         .size(26.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(lightGrayColor),
                         onClick = {
-                            vmBasket.plusProduct(productInBasket.product!!.idProduct!!)
+                            if(productInBasket.count < 99)
+                                vmBasket.plusProduct(productInBasket.product!!.idProduct!!)
                         }) {
                         Icon(
                             modifier = Modifier
