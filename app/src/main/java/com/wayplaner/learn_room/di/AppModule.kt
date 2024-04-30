@@ -1,19 +1,21 @@
 package com.wayplaner.learn_room.di
 
 import com.wayplaner.learn_room.auth.data.repository.AuthCustomerRepositoryImpl
-import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
-import com.wayplaner.learn_room.organization.data.repository.OrganizationApiImpl
-import com.wayplaner.learn_room.product.data.repository.ProductRepositoryImpl
-import dagger.Module
-import dagger.Provides
 import com.wayplaner.learn_room.auth.domain.repository.AuthCustomerRepository
 import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
 import com.wayplaner.learn_room.basket.domain.repository.BasketApi
 import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
 import com.wayplaner.learn_room.createorder.domain.repository.OrderApi
+import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
 import com.wayplaner.learn_room.home.domain.repository.HomeApi
+import com.wayplaner.learn_room.orderlist.data.repository.ListOrderImpl
+import com.wayplaner.learn_room.orderlist.domain.repository.ListOrderApi
+import com.wayplaner.learn_room.organization.data.repository.OrganizationApiImpl
 import com.wayplaner.learn_room.organization.domain.repository.OrganizationApi
+import com.wayplaner.learn_room.product.data.repository.ProductRepositoryImpl
 import com.wayplaner.learn_room.product.domain.repository.ProductRepository
+import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
@@ -73,6 +75,14 @@ class AppModule {
     @Singleton
     @Provides
     fun basketRepository(basketApi: BasketApi) = BasketApiImpl(basketApi)
+
+    @Provides
+    @Singleton
+    fun provideOrderListApiService(retrofit: Retrofit) = retrofit.create(ListOrderApi::class.java)
+
+    @Singleton
+    @Provides
+    fun provideOrderList(listOrderApi: ListOrderApi) = ListOrderImpl(listOrderApi)
 
     @Singleton
     @Provides

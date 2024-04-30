@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -36,8 +37,9 @@ import com.wayplaner.learn_room.ui.theme.whiteColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Organization(
+    navController: NavController,
     organization: OrganizationDTO,
-    navigateToSelectedOrganization: (Long) -> Unit
+    route: String
 ) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(2.dp),
@@ -48,7 +50,7 @@ fun Organization(
         shape = MaterialTheme.shapes.small,
         colors = CardDefaults.cardColors(whiteColor),
         onClick = {
-            navigateToSelectedOrganization(organization.idOrganization!!)
+            navController.navigate(route)
         }
     ) {
         val lazyListState = rememberLazyListState()
@@ -86,16 +88,6 @@ fun Organization(
 
                         Spacer(Modifier.height(8.dp))
 
-                        /*LazyRow(state = lazyListState){
-                            items(organization.categories!!){
-                                Button(onClick = { *//*TODO*//* },
-                                    shape = RoundedCornerShape(20.dp),
-                                    modifier = Modifier.height(30.dp)){
-                                    Text(text = it, fontSize = 12.sp)
-                                }
-                            }
-
-                        }*/
                     }
 
                     Spacer(Modifier.width(8.dp))

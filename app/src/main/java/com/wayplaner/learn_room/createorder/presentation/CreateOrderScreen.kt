@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.util.Basketproduct
 import com.wayplaner.learn_room.createorder.presentation.components.DeliveryPick
@@ -56,7 +57,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CreateOrderScreen(
-    navigateUp:() -> Unit,
+    navController: NavController,
     vmCreateOrder: CreateOrderModelView = hiltViewModel()) {
 
     if(!InitMaps.isInit) {
@@ -86,7 +87,13 @@ fun CreateOrderScreen(
         val pagerState = rememberPagerState {
             2
         }
+
         Box(contentAlignment = Alignment.BottomCenter) {
+
+            LaunchedEffect(pagerState.currentPage) {
+                // Обработка изменения страницы
+
+            }
 
             Column(
                 modifier = Modifier
@@ -169,13 +176,13 @@ fun CreateOrderScreen(
 
             }
 
-            BottomPayCard(vmCreateOrder)
+            BottomPayCard(vmCreateOrder, pagerState.currentPage == 1)
         }
     }
 }
 
 @Composable
-private fun BottomPayCard(vmCreateOrder: CreateOrderModelView) {
+private fun BottomPayCard(vmCreateOrder: CreateOrderModelView, isSelf: Boolean) {
 
         Card(modifier = Modifier
             .wrapContentHeight()
@@ -198,7 +205,7 @@ private fun BottomPayCard(vmCreateOrder: CreateOrderModelView) {
 
                     Spacer(modifier = Modifier.width(20.dp))
 
-                    Button(onClick = { vmCreateOrder.onValidateEvent(OrderFormState.Sumbit) },
+                    Button(onClick = { vmCreateOrder.onValidateEvent(OrderFormState.Sumbit(isSelf)) },
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(redActionColor),
                         modifier = Modifier

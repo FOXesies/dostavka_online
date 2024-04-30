@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -36,6 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.home.domain.model.OrganizationDTO
 import com.wayplaner.learn_room.home.presentation.components.CategoryList
 import com.wayplaner.learn_room.home.presentation.components.Organization
@@ -45,16 +48,17 @@ import com.wayplaner.learn_room.ui.theme.lightGrayColor
 
 
 @Composable
-fun HomeScreen(
+fun HomeScreen(drawerState: DrawerState?,/*
     navigateToOrganization: (Long) -> Unit,
-    navigateToBasket: (Long) -> Unit,
+    navigateToBasket: (Long) -> Unit,*/
+    navController: NavController,
     homeViewModel: MainModelView = hiltViewModel()){
 
     val organizations = homeViewModel.getCountry().observeAsState()
     if (organizations.value != null && organizations.value!!.isNotEmpty()) {
 
         Scaffold(
-            topBar = { TopBarHome(organizations, homeViewModel, navigateToBasket) })
+            topBar = { TopBarHome(drawerState, homeViewModel) })
         { innerPadding ->
 
             val lazyListState = rememberLazyListState()
@@ -75,7 +79,7 @@ fun HomeScreen(
                     Spacer(Modifier.height(8.dp))
                 }
                 items(organizations.value!!) { organization ->
-                    Organization(organization, navigateToOrganization)
+                    Organization(navController, organization, "${MainRoute.Organization.name}/${organization.idOrganization}")
                 }
 
             }

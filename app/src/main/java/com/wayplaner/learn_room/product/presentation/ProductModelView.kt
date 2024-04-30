@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.product.data.repository.ProductRepositoryImpl
 import com.wayplaner.learn_room.product.domain.model.Product
-import com.wayplaner.learn_room.utils.navigation.AppDestinations.PRODUCT_ID_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -17,16 +16,11 @@ class ProductModelView @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val productRepositoryImpl: ProductRepositoryImpl
 ): ViewModel() {
-    private val productId: Long = checkNotNull(savedStateHandle[PRODUCT_ID_KEY])
 
     private val product = MutableLiveData<Product>()
     fun getProduct() = product;
 
-    init {
-        loadProductById(productId)
-    }
-
-    private fun loadProductById(productId: Long) {
+    fun loadProductById(productId: Long) {
         viewModelScope.launch {
             val response = productRepositoryImpl.getProductinfo(productId)
             if(response.isSuccessful)

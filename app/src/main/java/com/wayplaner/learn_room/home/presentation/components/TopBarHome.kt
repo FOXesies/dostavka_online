@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,12 +53,14 @@ import com.wayplaner.learn_room.home.presentation.MainModelView
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarHome(organizations: State<List<OrganizationDTO>?>,
-               homeViewModel: MainModelView,
-               navigateToBasket: (Long) -> Unit,) {
+fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView,
+               /*navigateToBasket: (Long) -> Unit,*/) {
+    val coroutineScope = rememberCoroutineScope()
+
     TopAppBar(
         modifier = Modifier.height(55.dp),
         title = {
@@ -68,16 +72,18 @@ fun TopBarHome(organizations: State<List<OrganizationDTO>?>,
             titleContentColor = redActionColor,
         ),
         navigationIcon = {
-            IconButton(modifier = Modifier.padding(top = 4.dp),
-            onClick = { /*TODO*/ }) {
-            Icon(
-                modifier = Modifier.size(35.dp),
-                painter = painterResource(id = R.drawable.hamburger_button_menu_icon_155296),
-                contentDescription = "home_nav",
-                tint = redActionColor)
-        }},
+            if (drawerState != null) {
+                IconButton(onClick = {
+                    coroutineScope.launch {
+                        drawerState.open()
+                    }
+                }) {
+                    Icon(painterResource(id = R.drawable.hamburger_button_menu_icon_155296), contentDescription = "")
+                }
+            }
+        },
         actions = {
-            IconButton(modifier = Modifier.padding(top = 4.dp), onClick = { navigateToBasket(1) }) {
+            IconButton(modifier = Modifier.padding(top = 4.dp), onClick = { /*navigateToBasket(1)*/ }) {
                 Icon(
                     Icons.Filled.ShoppingBasket,
                     contentDescription = "Basket",
@@ -125,7 +131,7 @@ fun DropDownCity(state: List<String>, homeViewModel: MainModelView){
                     }
 
                     DropdownMenuItem(
-                        text =  { Text(city!!, style = style) },
+                        text =  { Text(city, style = style) },
                         onClick = {
                             expanded = false
                             selectedText = city

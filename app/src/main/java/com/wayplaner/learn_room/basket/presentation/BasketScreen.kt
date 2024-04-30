@@ -21,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -34,9 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.basket.presentation.components.ProductItemBasket
 import com.wayplaner.learn_room.basket.util.UiBasketEvent
-import com.wayplaner.learn_room.createorder.presentation.CreateOrderModelView
 import com.wayplaner.learn_room.order.data.model.BasketItem
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.gray_light
@@ -44,9 +46,8 @@ import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redBlackColor
 
 @Composable
-fun BasketScreen(
-    navigateUp: () -> Unit,
-    navigateCreateOrder: () -> Unit,
+fun BasketScreen(drawerState: DrawerState?,
+    navController: NavController,
     vmBasket: BasketModelView = hiltViewModel(),
 ){
     Box(
@@ -58,22 +59,21 @@ fun BasketScreen(
         Row(modifier = Modifier
             .fillMaxSize()
             .padding(start = 15.dp, top = 20.dp)){
-            IconButton(onClick = {navigateUp()}, modifier = Modifier.size(30.dp)){
+            IconButton(onClick = { navController.navigateUp() }, modifier = Modifier.size(30.dp)){
                 Icon(imageVector = Icons.Filled.ArrowBackIosNew,
                     tint = Color.White,
                     contentDescription = null,
                 )
             }
-
         }
 
         val basket = vmBasket.basketItem.observeAsState()
         val uiEvent = vmBasket.uiBasketEvent.observeAsState()
         when(uiEvent.value!!){
             is UiBasketEvent.EmptyBasket -> ViewEmptyBasket()
-            is UiBasketEvent.NormalBasket -> ViewNormalBasket(basket.value!!, vmBasket, navigateCreateOrder)
+            is UiBasketEvent.NormalBasket -> ViewNormalBasket(navController, basket.value!!, vmBasket)
             is UiBasketEvent.ErrorAction -> {
-                ViewNormalBasket(basket.value!!, vmBasket, navigateCreateOrder)
+                ViewNormalBasket(navController, basket.value!!, vmBasket)
                 Toast.makeText(LocalContext.current, (uiEvent.value as UiBasketEvent.ErrorAction).error, Toast.LENGTH_LONG).show()
             }
         }
@@ -108,7 +108,7 @@ fun ViewEmptyBasket(){
 }
 
 @Composable
-fun ViewNormalBasket(value: BasketItem, vmBasket: BasketModelView, navigateCreateOrder: () -> Unit) {
+fun ViewNormalBasket(navController: NavController, value: BasketItem, vmBasket: BasketModelView) {
     Card(modifier = Modifier
         .fillMaxSize()
         .padding(top = 80.dp),
@@ -146,8 +146,8 @@ fun ViewNormalBasket(value: BasketItem, vmBasket: BasketModelView, navigateCreat
 
             Button(
                 onClick = {
-                    navigateCreateOrder()
                     vmBasket.saveInfoInOrder()
+                    navController.navigate(MainRoute.CreateOrder.name)
                 },
                 colors = ButtonDefaults.buttonColors(redBlackColor),
                 shape = RoundedCornerShape(20),

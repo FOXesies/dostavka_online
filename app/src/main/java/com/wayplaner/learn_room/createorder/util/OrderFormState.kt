@@ -15,5 +15,5 @@ sealed class OrderFormState {
 
     data class PodiezdChanged(val podiezd: String): OrderFormState()
 
-    data object Sumbit: OrderFormState()
+    data class Sumbit(val isSelf: Boolean): OrderFormState()
 }

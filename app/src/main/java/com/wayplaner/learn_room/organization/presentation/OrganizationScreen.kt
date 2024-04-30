@@ -58,6 +58,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import com.wayplaner.learn_room.product.domain.model.Product
@@ -72,10 +74,11 @@ import com.wayplaner.learn_room.ui.theme.whiteColor
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OrganizationCardOrg(
-    navigateUp: () -> Unit,
-    navigateToSelectedProduct: (Long) -> Unit,
+    id: Long,
+    navController: NavController,
     organizationViewModel: OrganizationModelView = hiltViewModel()){
 
+    organizationViewModel.loadOrganization(id)
     val organization = organizationViewModel.getOrganization().observeAsState()
 
     if (organization.value != null) {
@@ -196,7 +199,7 @@ fun OrganizationCardOrg(
                         )
                     }
                     Column {
-                        MainContent(organization_const, navigateToSelectedProduct)
+                        MainContent(organization_const, navController)
                         //RowCategory(listOf("все", "десерты", "супы", "роллы", "пицца", "алкоголь", "шашлыки"))
                     }
                 }
@@ -208,7 +211,7 @@ fun OrganizationCardOrg(
                         .padding(top = 8.dp, start = 10.dp)
                         .size(45.dp),
                     containerColor = whiteColor,
-                    onClick = { navigateUp() }) {
+                    onClick = { navController.navigateUp() }) {
                     Icon(
                         Icons.Filled.KeyboardArrowLeft,
                         tint = redActionColor,
@@ -224,7 +227,7 @@ fun OrganizationCardOrg(
                         .padding(top = 8.dp, end = 10.dp)
                         .size(45.dp),
                     containerColor = redActionColor,
-                    onClick = { /*navigateUp()*/ }) {
+                    onClick = {  }) {
                     Icon(
                         Icons.Filled.FavoriteBorder,
                         tint = whiteColor,
@@ -250,7 +253,7 @@ fun parseCountToString(count: Int): String{
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainContent(oraganization_const: OrganizationIdDTO, navigateToSelectedProduct: (Long) -> Unit) {
+fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavController) {
     val categories = oraganization_const.category.toMutableList()
     categories.add(0, "Все")
 
@@ -305,7 +308,7 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navigateToSelectedProduc
                     else
                         oraganization_const.products[selectedCategory]!!
                 ) {
-                    ProductCard(it, navigateToSelectedProduct)
+                    ProductCard(it, navController)
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
@@ -314,10 +317,10 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navigateToSelectedProduc
 }
 
 @Composable
-fun ProductCard(product: Product, navigateToSelectedProduct: (Long) -> Unit ) {
+fun ProductCard(product: Product, navController: NavController ) {
     Card(modifier = Modifier
         .wrapContentHeight(Alignment.CenterVertically)
-        .clickable { navigateToSelectedProduct(product.idProduct!!) },
+        .clickable { navController.navigate("${MainRoute.Product.name}/${product.idProduct}") },
         elevation = CardDefaults.elevatedCardElevation(4.dp),
         colors = CardDefaults.cardColors(whiteColor)) {
         Row(modifier = Modifier

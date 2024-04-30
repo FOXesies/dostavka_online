@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
 import com.wayplaner.learn_room.product.domain.model.Product
@@ -66,12 +67,14 @@ import com.wayplaner.learn_room.ui.theme.whiteColor
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductScreen(
-    navigateUp: () -> Unit,
+    id: Long,
+    navController: NavController,
     productModelView: ProductModelView = hiltViewModel(),
     vmBasket: BasketModelView = hiltViewModel()
 
 ) {
     val images = listOf(painterResource(id = R.drawable.burger), (painterResource(id = R.drawable.burger_2)))
+    productModelView.loadProductById(id)
 
     val product = productModelView.getProduct().observeAsState()
 
@@ -162,7 +165,7 @@ fun ProductScreen(
                         .padding(top = 8.dp, start = 10.dp)
                         .size(45.dp),
                     containerColor = whiteColor,
-                    onClick = { navigateUp() }) {
+                    onClick = { navController.navigateUp() }) {
                     Icon(
                         Icons.Filled.KeyboardArrowLeft,
                         tint = redActionColor,
@@ -267,13 +270,13 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
                 )
             }
 
-/*            Icon(
-                modifier = Modifier
-                    .padding(2.dp),
-                painter = painterResource(id = R.drawable.add_bascket),
-                tint = redActionColor,
-                contentDescription = "add_i_product"
-            )*/
+            /*            Icon(
+                            modifier = Modifier
+                                .padding(2.dp),
+                            painter = painterResource(id = R.drawable.add_bascket),
+                            tint = redActionColor,
+                            contentDescription = "add_i_product"
+                        )*/
         }
     }
 }

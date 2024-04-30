@@ -2,7 +2,6 @@ package com.wayplaner.learn_room.basket.domain.repository
 
 import com.wayplaner.learn_room.basket.domain.model.SendBasketProduct
 import com.wayplaner.learn_room.order.data.model.BasketItem
-import com.wayplaner.learn_room.order.data.model.ProductInBasket
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
