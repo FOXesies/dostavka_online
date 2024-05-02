@@ -9,9 +9,9 @@ import com.wayplaner.learn_room.basket.domain.model.SendBasketProduct
 import com.wayplaner.learn_room.basket.util.Basketproduct
 import com.wayplaner.learn_room.basket.util.UiBasketEvent
 import com.wayplaner.learn_room.order.data.model.BasketItem
-import com.wayplaner.learn_room.order.data.model.ProductInBasket
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +24,28 @@ class BasketModelView @Inject constructor(
 
     private val uiBasketEvent_ = MutableLiveData<UiBasketEvent>(UiBasketEvent.EmptyBasket)
     val uiBasketEvent: LiveData<UiBasketEvent> = uiBasketEvent_
+
+    private val productBasketCount = MutableLiveData<Int>()
+
+    fun setCountInProducts(count: Int) {
+        productBasketCount.postValue(count)
+    }
+    fun isInBasket() = productBasketCount
+
+    fun getInBasket(userId: Long, productId: Long) {
+        viewModelScope.launch {
+            val response = basketApiImpl.checkInBasket(userId, productId)
+            if(response.isSuccessful)
+                productBasketCount.postValue(response.body()?.valueInt?: 0)
+            else{
+                // Обработка ошибки
+                val errorBody = response.errorBody()
+                if (errorBody != null) {
+                    Timber.e(errorBody.string())
+                }
+            }
+        }
+    }
 
     init {
         loadBasket()
@@ -53,6 +75,7 @@ class BasketModelView @Inject constructor(
     fun deleteProduct(productId: Long) {
         viewModelScope.launch {
             basketApiImpl.deleteProduct(SendBasketProduct(productId, 1))
+            productBasketCount.postValue(0)
             loadBasket()
         }
     }

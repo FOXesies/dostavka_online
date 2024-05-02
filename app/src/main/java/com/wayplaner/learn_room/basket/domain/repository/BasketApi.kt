@@ -2,6 +2,7 @@ package com.wayplaner.learn_room.basket.domain.repository
 
 import com.wayplaner.learn_room.basket.domain.model.SendBasketProduct
 import com.wayplaner.learn_room.order.data.model.BasketItem
+import com.wayplaner.learn_room.orderlist.domain.model.ResponeInt
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,5 +20,6 @@ interface BasketApi {
     suspend fun plusProduct(@Body productId: SendBasketProduct)
     @POST("basket/minus_product")
     suspend fun minusProduct(@Body product: SendBasketProduct)
-
+    @GET("basket/{idUser}/check_basket_product/{idProduct}")
+    suspend fun checkInBasket(@Path("idUser") idUser: Long, @Path("idProduct") idProduct: Long): Response<ResponeInt>
 }

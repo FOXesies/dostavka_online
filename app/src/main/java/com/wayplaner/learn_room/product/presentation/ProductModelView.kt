@@ -16,30 +16,13 @@ class ProductModelView @Inject constructor(
 ): ViewModel() {
 
     private val product = MutableLiveData<Product>()
-    private val inBasket = MutableLiveData<Boolean>()
     fun getProduct() = product
-    fun isInBasket() = inBasket
 
     fun loadProductById(productId: Long) {
         viewModelScope.launch {
             val response = productRepositoryImpl.getProductinfo(productId)
             if(response.isSuccessful)
                 product.postValue(response.body())
-            else{
-                // Обработка ошибки
-                val errorBody = response.errorBody()
-                if (errorBody != null) {
-                    Timber.e(errorBody.string())
-                }
-            }
-        }
-    }
-
-    fun getInBasket(userId: Long, productId: Long) {
-        viewModelScope.launch {
-            val response = productRepositoryImpl.checkInBasket(userId, productId)
-            if(response.isSuccessful)
-                inBasket.postValue(response.body())
             else{
                 // Обработка ошибки
                 val errorBody = response.errorBody()

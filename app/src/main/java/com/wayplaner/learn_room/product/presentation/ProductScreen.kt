@@ -3,17 +3,18 @@ package com.wayplaner.learn_room.product.presentation
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,11 +34,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
+import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.no_pickRedColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
@@ -67,13 +68,12 @@ fun ProductScreen(
     navController: NavController,
     productModelView: ProductModelView = hiltViewModel(),
     vmBasket: BasketModelView = hiltViewModel()
-
 ) {
     val images = listOf(painterResource(id = R.drawable.burger), (painterResource(id = R.drawable.burger_2)))
     productModelView.loadProductById(id)
+    vmBasket.getInBasket(1, id)
 
     val product = productModelView.getProduct().observeAsState()
-    val inBasket = productModelView.isInBasket().observeAsState()
 
     if (product.value != null) {
         val productValue = product.value!!
@@ -193,7 +193,7 @@ fun ProductScreen(
                         .shadow(20.dp)
                         .height(60.dp)
                 ) {
-                    CreateBottomView(false/*productValue, vmBasket*/)
+                    CreateBottomView(productValue, vmBasket)
                 }
             }
         }
@@ -201,70 +201,96 @@ fun ProductScreen(
 }
 
 @Composable
-fun CreateBottomView(/*productValue: Product, vmBasket: BasketModelView,*/ flag: Boolean) {
-    val countCurCroduct = remember {
-        mutableIntStateOf(1)
-    }
+fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
 
-    if (flag) {
+    val productBasketCount = vmBasket.isInBasket().observeAsState()
 
+    if (productBasketCount.value != 0) {
+        Row(
+            modifier = Modifier
+                .background(redActionColor)
+                .clip(RoundedCornerShape(0.dp))
+                .height(55.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .weight(1f).fillMaxHeight(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .clickable {
+                            if(productBasketCount.value != 1) {
+                                vmBasket.minusProduct(productValue.idProduct!!)
+                                vmBasket.setCountInProducts(productBasketCount.value!! - 1)
+                            }
+                        }
+                        .size(24.dp),
+                    painter = painterResource(id = R.drawable.minus_111123),
+                    tint = whiteColor,
+                    contentDescription = "add_i_product"
+                )
+                Text(
+                    text = productBasketCount.value.toString(),
+                    fontSize = 18.sp,
+                    color = whiteColor,
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                )
+                Icon(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .clickable {
+                            if(productBasketCount.value != 99) {
+                                vmBasket.plusProduct(productValue.idProduct!!)
+                                vmBasket.setCountInProducts(productBasketCount.value!! + 1)
+                            }
+                        }
+                        .size(24.dp),
+                    imageVector = Icons.Filled.Add,
+                    tint = whiteColor,
+                    contentDescription = "add_i_product"
+                )
+            }
+
+            Button(shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 12.dp)
+                    .height(40.dp),
+                colors = ButtonDefaults.buttonColors(whiteColor),
+                onClick = {
+                    vmBasket.deleteProduct(productValue.idProduct!!)
+                    vmBasket.setCountInProducts(0)
+                }) {
+                Text(
+                    text = "Удалить",
+                    fontSize = 14.sp,
+                    color = redBlackColor,
+                    textAlign = TextAlign.Center
+                )
+
+            }
+        }
+    } else {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(end = 15.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-
-                    Text(
-                        text = "${/*productValue.price!! * */countCurCroduct.intValue} р.",
-                        fontSize = 18.sp,
-                    )
-
-                Spacer(modifier = Modifier.width(15.dp))
-
-                TextButton(
-                    colors = ButtonDefaults.buttonColors(redBlackColor),
-                    onClick = { " vmBasket.addProduct(productValue.idProduct!!) " })
-                {
-                    Text(
-                        text = "В корзину",
-                        fontSize = 16.sp,
-                        color = whiteColor
-                    )
+                .background(redActionColor)
+                .clip(RoundedCornerShape(0.dp))
+                .clickable {
+                    vmBasket.addProduct(productValue.idProduct!!)
+                    vmBasket.setCountInProducts(1)
                 }
-
-                /*            Icon(
-                            modifier = Modifier
-                                .padding(2.dp),
-                            painter = painterResource(id = R.drawable.add_bascket),
-                            tint = redActionColor,
-                            contentDescription = "add_i_product"
-                        )*/
-            }
-
-        }
-    }
-    else {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .background(redActionColor)
-            .clip(RoundedCornerShape(0.dp)),
-            horizontalArrangement = Arrangement.Center
-            //onClick = { if (countCurCroduct.intValue != 99) countCurCroduct.intValue++ }
+                .height(55.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 modifier = Modifier
                     .padding(vertical = 8.dp)
-                    .size(25.dp),
+                    .size(32.dp),
                 imageVector = Icons.Filled.Add,
                 tint = whiteColor,
                 contentDescription = "add_i_product"
@@ -312,6 +338,4 @@ fun DotsIndicator(
 @Composable
 @Preview(showSystemUi = true)
 fun previewProduct(){
-    CreateBottomView(false)
-    CreateBottomView(true)
 }
