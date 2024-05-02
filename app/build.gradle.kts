@@ -100,6 +100,9 @@ dependencies {
     //Card Search Bank
     implementation("com.github.SteliosPapamichail:CreditCardHelper:v1.0.0")
 
+    //Balloon
+    implementation("com.github.skydoves:balloon-compose:1.6.4")
+
     //Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
 

@@ -13,19 +13,19 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,12 +55,13 @@ fun ListOrderScreen(navController: NavController,
         ) {
             val typesOrder = listOf("Активные", "Завершённые", "Отмененые")
             var selectedType by remember { mutableStateOf(typesOrder[0]) }
-            var selectedIndex by remember { mutableStateOf(0) }
+            var selectedIndex by remember { mutableIntStateOf(0) }
             val pagerState = rememberPagerState { 3 }
             Column() {
-
-                TabRow(selectedTabIndex = selectedIndex,
-                    containerColor = Transparent,
+                ScrollableTabRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    selectedTabIndex = selectedIndex,
+                    containerColor = Color.Transparent,
                     contentColor = Color(0xFFFEFEFA),
                     indicator = {
                         Spacer(
@@ -71,7 +72,8 @@ fun ListOrderScreen(navController: NavController,
                         )
                     }) {
                     typesOrder.forEachIndexed { index, tab ->
-                        Tab(selected = selectedIndex == index,
+                        Tab(modifier = Modifier.fillMaxWidth().weight(1f),
+                            selected = selectedIndex == index,
                             onClick = {
                                 selectedIndex = index
                                 selectedType = tab
@@ -79,16 +81,17 @@ fun ListOrderScreen(navController: NavController,
                             Text(
                                 color = if (selectedIndex == index) redActionColor else categoryColor,
                                 text = tab,
-                                modifier = Modifier.padding(12.dp)
+                                modifier = Modifier.padding(14.dp)
                             )
                         }
                     }
                 }
 
                 HorizontalPager(
+                    verticalAlignment = Alignment.Top,
                     state = pagerState,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .background(lightGrayColor)
                 ) { index ->
                     when (selectedIndex) {

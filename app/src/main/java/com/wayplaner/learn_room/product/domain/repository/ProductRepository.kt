@@ -11,4 +11,6 @@ interface ProductRepository {
 
     @GET("products/{id}")
     suspend fun getProductInfo(@Path("id")idProduct: Long): Response<Product>
+    @GET("basket/{idUser}/check_basket_product/{idProduct}")
+    suspend fun checkInBasket(@Path("idUser") idUser: Long, @Path("idProduct") idProduct: Long): Response<Boolean>
 }

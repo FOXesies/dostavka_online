@@ -30,8 +30,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -56,8 +54,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
-import com.wayplaner.learn_room.product.domain.model.Product
-import com.wayplaner.learn_room.ui.theme.grayColor
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.no_pickRedColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
@@ -77,6 +73,7 @@ fun ProductScreen(
     productModelView.loadProductById(id)
 
     val product = productModelView.getProduct().observeAsState()
+    val inBasket = productModelView.isInBasket().observeAsState()
 
     if (product.value != null) {
         val productValue = product.value!!
@@ -196,7 +193,7 @@ fun ProductScreen(
                         .shadow(20.dp)
                         .height(60.dp)
                 ) {
-                    CreateBottomView(productValue, vmBasket)
+                    CreateBottomView(false/*productValue, vmBasket*/)
                 }
             }
         }
@@ -204,79 +201,74 @@ fun ProductScreen(
 }
 
 @Composable
-fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
+fun CreateBottomView(/*productValue: Product, vmBasket: BasketModelView,*/ flag: Boolean) {
     val countCurCroduct = remember {
         mutableIntStateOf(1)
     }
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 20.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        IconButton(modifier = Modifier
-            .clip(CircleShape)
-            .size(32.dp),
-            colors = IconButtonDefaults.filledIconButtonColors(grayColor),
-            onClick = {if(countCurCroduct.intValue != 1) countCurCroduct.intValue--}) {
-            Icon(
-                modifier = Modifier
-                    .padding(3.dp),
-                painter = painterResource(id = R.drawable.minus_111123),
-                tint = whiteColor,
-                contentDescription = "add_i_product"
-            )
-        }
-
-        Text(
-            text = countCurCroduct.intValue.toString(),
-            fontSize = 18.sp,
-            modifier = Modifier.padding(start = 10.dp, end = 10.dp)
-        )
-
-        IconButton(modifier = Modifier
-            .clip(shape = RoundedCornerShape(10.dp))
-            .size(32.dp),
-            colors = IconButtonDefaults.filledIconButtonColors(redBlackColor),
-            onClick = {if(countCurCroduct.intValue != 99) countCurCroduct.intValue++}) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                tint = whiteColor,
-                contentDescription = "add_i_product"
-            )
-        }
+    if (flag) {
 
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 15.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End) {
+                .fillMaxWidth()
+                .padding(start = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-            Text(
-                text = "${productValue.price!! * countCurCroduct.intValue} р.",
-                fontSize = 18.sp,
-            )
 
-            Spacer(modifier = Modifier.width(15.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(end = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
 
-            TextButton(
-                colors = ButtonDefaults.buttonColors(redBlackColor),
-                onClick = { vmBasket.addProduct(productValue.idProduct!!) })
-            {
-                Text(
-                    text = "В корзину",
-                    fontSize = 16.sp,
-                    color = whiteColor
-                )
-            }
+                    Text(
+                        text = "${/*productValue.price!! * */countCurCroduct.intValue} р.",
+                        fontSize = 18.sp,
+                    )
 
-            /*            Icon(
+                Spacer(modifier = Modifier.width(15.dp))
+
+                TextButton(
+                    colors = ButtonDefaults.buttonColors(redBlackColor),
+                    onClick = { " vmBasket.addProduct(productValue.idProduct!!) " })
+                {
+                    Text(
+                        text = "В корзину",
+                        fontSize = 16.sp,
+                        color = whiteColor
+                    )
+                }
+
+                /*            Icon(
                             modifier = Modifier
                                 .padding(2.dp),
                             painter = painterResource(id = R.drawable.add_bascket),
                             tint = redActionColor,
                             contentDescription = "add_i_product"
                         )*/
+            }
+
+        }
+    }
+    else {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .background(redActionColor)
+            .clip(RoundedCornerShape(0.dp)),
+            horizontalArrangement = Arrangement.Center
+            //onClick = { if (countCurCroduct.intValue != 99) countCurCroduct.intValue++ }
+        ) {
+            Icon(
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .size(25.dp),
+                imageVector = Icons.Filled.Add,
+                tint = whiteColor,
+                contentDescription = "add_i_product"
+            )
         }
     }
 }
@@ -320,5 +312,6 @@ fun DotsIndicator(
 @Composable
 @Preview(showSystemUi = true)
 fun previewProduct(){
-    //ProductScreen()
+    CreateBottomView(false)
+    CreateBottomView(true)
 }

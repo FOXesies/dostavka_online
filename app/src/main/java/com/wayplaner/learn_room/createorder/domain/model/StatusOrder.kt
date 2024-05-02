@@ -6,5 +6,6 @@ enum class StatusOrder {
     PROCESS_COOKING,
     COOKING_END,
     ON_TWE_WAY,
-    COMPLETE_WAY
+    COMPLETE_WAY,
+    COMPLETE_ORDER
 }
