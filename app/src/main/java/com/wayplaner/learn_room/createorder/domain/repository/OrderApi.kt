@@ -1,9 +1,8 @@
 package com.wayplaner.learn_room.createorder.domain.repository
 
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
-import org.example.order.model.Order
+import com.wayplaner.learn_room.createorder.domain.model.Order
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.POST
 import javax.inject.Singleton
 

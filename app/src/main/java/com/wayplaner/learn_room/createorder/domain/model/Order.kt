@@ -1,12 +1,13 @@
-package org.example.order.model
+package com.wayplaner.learn_room.createorder.domain.model
 
-import com.wayplaner.learn_room.createorder.domain.model.Address
-import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
+import org.example.order.model.ProductInOrder
 
 data class Order(
     var orderId: Long? = null,
     var idUser: Long = 1,
     var idOrganization: String = "",
+
+    var uuid: UUIDCustom? = null,
 
     var addressUser: Address? = null,
     var idLocation: Long? = null,

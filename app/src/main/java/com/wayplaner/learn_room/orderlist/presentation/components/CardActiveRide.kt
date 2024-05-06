@@ -29,6 +29,7 @@ import com.skydoves.balloon.BalloonSizeSpec
 import com.skydoves.balloon.compose.Balloon
 import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.wayplaner.learn_room.R
+import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
 import com.wayplaner.learn_room.ui.theme.cookingStatus
@@ -52,10 +53,9 @@ import com.wayplaner.learn_room.ui.theme.testButton
 import com.wayplaner.learn_room.ui.theme.testText
 import com.wayplaner.learn_room.ui.theme.waitStatus
 import com.wayplaner.learn_room.ui.theme.waitStatusBack
-import org.example.order.model.Order
 
 @Composable
-private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, isDelivery: Boolean) {
+private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, isDelivery: Boolean, loginCancel: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(Color.White)) {
@@ -94,7 +94,7 @@ private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, is
 
                 Button(shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(testButton),
-                    onClick = { /*TODO*/ }) {
+                    onClick = { loginCancel() }) {
                     Text(text = "Отменить", color = redActionColor,
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         textAlign = TextAlign.Center)
@@ -105,13 +105,13 @@ private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, is
 }
 
 @Composable
-fun createCardOrderActive(order: Order){
-    CardActiveOrder(order.orderId.toString(), "10 марта", order.summ.toString(), true)
+fun createCardOrderActive(order: Order, loginCancel: () -> Unit){
+    CardActiveOrder(order.uuid!!.id.toString(), "10 марта", order.summ.toString(), true, loginCancel)
 }
 
 @Composable
-fun createCardOrderActive(orderSelf: OrderSelfDelivery){
-    CardActiveOrder(orderSelf.idOrder.toString(), "10 марта", orderSelf.summ.toString(), false)
+fun createCardOrderActive(orderSelf: OrderSelfDelivery, loginCancel: () -> Unit){
+    CardActiveOrder(orderSelf.uuid!!.id.toString(), "10 марта", orderSelf.summ.toString(), false, loginCancel)
 }
 
 @Composable
@@ -269,5 +269,5 @@ private fun cardForStatus(pick: StatusOrder){
 @Preview
 @Composable
 fun cardActivity(){
-    CardActiveOrder("1", "10 февраля", "12266 руб.", false)
+    //CardActiveOrder("1", "10 февраля", "12266 руб.", false)
 }

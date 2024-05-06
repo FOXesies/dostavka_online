@@ -18,17 +18,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrder
+import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrderSelf
 import com.wayplaner.learn_room.ui.theme.blackTransperent
 import com.wayplaner.learn_room.ui.theme.errorStatus
 import com.wayplaner.learn_room.ui.theme.errorStatusBack
 import com.wayplaner.learn_room.ui.theme.testText
 
 @Composable
-fun CardCanceledOrder() {
+fun CardCanceledOrder(orderId: Long, canceledTime: String?, summ: Double?, isDelivery: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(Color.White)) {
         Column(modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
+            cardForStatusDelivery(isDelivery)
+
             Card(
                 colors = CardDefaults.cardColors(errorStatusBack)
             ) {
@@ -43,15 +47,15 @@ fun CardCanceledOrder() {
                     .padding(top = 15.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = "ID заказа", color = testText)
-                    Text(text = "123456789")
+                    Text(text = "$orderId")
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = "Дата", color = testText)
-                    Text(text = "10 марта")
+                    Text(text = canceledTime!!)
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = "Цена", color = testText)
-                    Text(text = "150 руб")
+                    Text(text = "$summ руб")
                 }
             }
 
@@ -69,8 +73,17 @@ fun CardCanceledOrder() {
     }
 }
 
+@Composable
+fun createCancelOrderCard(canceledOrder: CanceledOrder){
+    CardCanceledOrder(canceledOrder.uuid!!, canceledOrder.toTimeDelivery, canceledOrder.summ, true)
+}
+@Composable
+fun createCancelOrderCard(canceledOrderSelf: CanceledOrderSelf){
+    CardCanceledOrder(canceledOrderSelf.uuid!!, canceledOrderSelf.toTimeCooling, canceledOrderSelf.summ, false)
+}
+
 @Preview
 @Composable
 fun CcardActivityOrders(){
-    CardCanceledOrder()
+    //CardCanceledOrder(canceledOrder.orderId, canceledOrder.CanceledTime, canceledOrder.summ)
 }

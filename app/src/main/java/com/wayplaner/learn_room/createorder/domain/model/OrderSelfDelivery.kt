@@ -3,9 +3,11 @@ package com.wayplaner.learn_room.createorder.domain.model
 import org.example.order.model.ProductInOrder
 
 data class OrderSelfDelivery (
-    var idOrder: Long = 1,
-    var idUser: Long = 1,
+    var idOrderSelf: Long? = null,
+    var idUser: Long? = null,
     var idOrganization: String = "",
+
+    var uuid: UUIDCustom? = null,
 
     var idLocation: Long? = null,
     var phoneUser: String? = null,

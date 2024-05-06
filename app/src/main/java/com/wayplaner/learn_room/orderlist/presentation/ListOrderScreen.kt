@@ -97,7 +97,7 @@ fun ListOrderScreen(navController: NavController,
                     when (selectedIndex) {
                         0 -> ActiveOrders(vmListorder)
                         1 -> CompleteOrders()
-                        2 -> CanceledOrders()
+                        2 -> CanceledOrders(vmListorder)
                     }
 
                 }

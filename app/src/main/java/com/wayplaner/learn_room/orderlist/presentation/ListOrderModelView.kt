@@ -4,13 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.orderlist.data.repository.ListOrderImpl
+import com.wayplaner.learn_room.orderlist.domain.model.ResponseCancel
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 import com.wayplaner.learn_room.orderlist.util.UiOrderListEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import org.example.order.model.Order
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,14 +31,14 @@ class ListOrderModelView @Inject constructor(
     private val eventCanceled_ = MutableLiveData<UiOrderListEvent>()
     val eventCanceled: LiveData<UiOrderListEvent> = eventCanceled_
 
-    private val order_ = MutableLiveData<List<Order>>()
-    val orders: LiveData<List<Order>> = order_
-
-    private val orderSelf_ = MutableLiveData<List<OrderSelfDelivery>>()
-    val ordersSelf: LiveData<List<OrderSelfDelivery>> = orderSelf_
-
     private val combineOrder_ = MutableLiveData<List<Any>?>(mutableListOf())
     val combineOrder: LiveData<List<Any>?> = combineOrder_
+
+    private val cancelCombineOrder_ = MutableLiveData<List<Any>?>(mutableListOf())
+    val cancelCombineOrder: LiveData<List<Any>?> = cancelCombineOrder_
+
+    private val completeCombineOrder_ = MutableLiveData<List<Any>?>(mutableListOf())
+    val completeCombineOrder: LiveData<List<Any>?> = completeCombineOrder_
 
     fun onEvent(event: UiOrderEvent){
         when(event){
@@ -45,6 +46,16 @@ class ListOrderModelView @Inject constructor(
                 loadOrders(1)
             }
             is UiOrderEvent.OpenActiveOrderSelf -> {
+            }
+            is UiOrderEvent.CancelOrder -> {
+                if(event.isDeliviry){
+                    cancelOrder(event.idOrder)
+                    return
+                }
+                cancelOrderSelf(event.idOrder)
+            }
+            is UiOrderEvent.OpenCanceledOrder -> {
+                loadAllCanceledOrder(1)
             }
             else -> {}
         }
@@ -74,30 +85,68 @@ class ListOrderModelView @Inject constructor(
         }
     }
 
-    private fun loadOrdersSelf(uid: Long) {
-        viewModelScope.launch {
-            val response = listOrderImpl.getAllSelfOrder(uid)
-            if(response.isSuccessful) {/*
-                orderSelf_.value = listOrderImpl.getAllSelfOrder(uid).body()*/
-                //combineOrder_.value!!.addAll(listOrderImpl.getAllSelfOrder(uid).body()?: listOf())
-                //combineOrder_.value!!.addAll(orderSelf_.value!!)
-                //sort(mutList)
-                setUiValueActive(UiOrderListEvent.NormalActiveSelfOrder)
-            }
-            setUiValueActive(UiOrderListEvent.EmptyActiveSelfOrderList)
-        }
-    }
-
     private fun sort(mutList: MutableList<Any>) {
         val sortedList = mutList.sortedBy {
             when (it) {
-                is OrderSelfDelivery -> it.idOrder
+                is OrderSelfDelivery -> it.idOrderSelf
                 is Order -> it.orderId ?: 0
                 else -> 0
             }
         }
 
         combineOrder_.postValue(sortedList)
+    }
+
+    private fun loadAllCanceledOrder(idUser: Long) {
+        viewModelScope.launch {
+            val mutList = mutableListOf<Any>()
+
+            val response = listOrderImpl.getAllCanceledOrder(idUser)
+            if(response.isSuccessful) {
+                mutList.addAll(response.body()!!.toMutableList())
+            }
+
+            val responseSelf = listOrderImpl.getAllCanceledOrderSelf(idUser)
+            if(responseSelf.isSuccessful) {
+                mutList.addAll(responseSelf.body()!!.toMutableList())
+            }
+
+            if(response.isSuccessful || responseSelf.isSuccessful){
+                cancelCombineOrder_.postValue(mutList)
+                return@launch
+            }
+            cancelCombineOrder_.postValue(listOf())
+        }
+    }
+
+    private fun cancelOrder(idOrder: Long) {
+        viewModelScope.launch {
+            listOrderImpl.cancelOrder(ResponseCancel(idOrder, ""))
+            val value = combineOrder_.value!!.toMutableList()
+            value.removeIf {
+                if (it.javaClass == OrderSelfDelivery::class.java)
+                    (it as OrderSelfDelivery).idOrderSelf == idOrder
+                else
+                    false
+            }
+
+            combineOrder_.postValue(value)
+        }
+    }
+
+    private fun cancelOrderSelf(idOrder: Long) {
+        viewModelScope.launch {
+            listOrderImpl.cancelOrderSelf(ResponseCancel(idOrder, ""))
+            val value = combineOrder_.value!!.toMutableList()
+            value.removeIf {
+                if (it.javaClass == OrderSelfDelivery::class.java)
+                    (it as OrderSelfDelivery).idOrderSelf == idOrder
+                else
+                    false
+            }
+
+            combineOrder_.postValue(value)
+        }
     }
 
     fun setUiValueActive(event: UiOrderListEvent){

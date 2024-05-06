@@ -16,7 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.example.order.model.Order
+import com.wayplaner.learn_room.createorder.domain.model.Order
 import org.example.order.model.ProductInOrder
 import javax.inject.Inject
 
