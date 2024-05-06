@@ -18,11 +18,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +33,7 @@ import com.wayplaner.learn_room.orderlist.presentation.components.CompleteOrders
 import com.wayplaner.learn_room.ui.theme.categoryColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -54,32 +51,30 @@ fun ListOrderScreen(navController: NavController,
             verticalArrangement = Arrangement.Top
         ) {
             val typesOrder = listOf("Активные", "Завершённые", "Отмененые")
-            var selectedType by remember { mutableStateOf(typesOrder[0]) }
-            var selectedIndex by remember { mutableIntStateOf(0) }
             val pagerState = rememberPagerState { 3 }
+            val coroutineScope = rememberCoroutineScope()
             Column() {
                 ScrollableTabRow(
                     modifier = Modifier.fillMaxWidth(),
-                    selectedTabIndex = selectedIndex,
+                    selectedTabIndex = pagerState.currentPage,
                     containerColor = Color.Transparent,
                     contentColor = Color(0xFFFEFEFA),
                     indicator = {
                         Spacer(
                             Modifier
-                                .tabIndicatorOffset(it[selectedIndex])
+                                .tabIndicatorOffset(it[pagerState.currentPage])
                                 .height(2.5.dp)
                                 .background(redActionColor)
                         )
                     }) {
                     typesOrder.forEachIndexed { index, tab ->
                         Tab(modifier = Modifier.fillMaxWidth().weight(1f),
-                            selected = selectedIndex == index,
+                            selected = pagerState.currentPage == index,
                             onClick = {
-                                selectedIndex = index
-                                selectedType = tab
+                                coroutineScope.launch { pagerState.animateScrollToPage(index) }
                             }) {
                             Text(
-                                color = if (selectedIndex == index) redActionColor else categoryColor,
+                                color = if (pagerState.currentPage == index) redActionColor else categoryColor,
                                 text = tab,
                                 modifier = Modifier.padding(14.dp)
                             )
@@ -93,8 +88,8 @@ fun ListOrderScreen(navController: NavController,
                     modifier = Modifier
                         .fillMaxSize()
                         .background(lightGrayColor)
-                ) { index ->
-                    when (selectedIndex) {
+                ) {
+                    when (pagerState.currentPage) {
                         0 -> ActiveOrders(vmListorder)
                         1 -> CompleteOrders()
                         2 -> CanceledOrders(vmListorder)

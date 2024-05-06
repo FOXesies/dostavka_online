@@ -37,12 +37,8 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,6 +66,7 @@ import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.redBlackColor
 import com.wayplaner.learn_room.ui.theme.titleProductColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -257,21 +254,20 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
     val categories = oraganization_const.category.toMutableList()
     categories.add(0, "Все")
 
-    var selectedIndex by remember { mutableIntStateOf(0) }
-    var selectedCategory by remember { mutableStateOf("Все") }
+    val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState {
         categories.size
     }
 
     Column() {
         TabRow(
-            selectedTabIndex = selectedIndex,
+            selectedTabIndex = pagerState.currentPage,
             containerColor = Transparent,
             contentColor = Color(0xFFFEFEFA),
             indicator = {
                 Spacer(
                     Modifier
-                        .tabIndicatorOffset(it[selectedIndex])
+                        .tabIndicatorOffset(it[pagerState.currentPage])
                         .height(2.5.dp)
                         .background(redActionColor)
                 )
@@ -279,14 +275,13 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
         ) {
             categories.forEachIndexed { index, tab ->
                 Tab(
-                    selected = selectedIndex == index,
+                    selected = pagerState.currentPage == index,
                     onClick = {
-                        selectedIndex = index
-                        selectedCategory = tab
+                        coroutineScope.launch { pagerState.animateScrollToPage(index) }
                     },
                 ) {
                     Text(
-                        color = if (selectedIndex == index) redActionColor else categoryColor,
+                        color = if (pagerState.currentPage == index) redActionColor else categoryColor,
                         text = tab,
                         modifier = Modifier.padding(12.dp)
                     )
@@ -298,15 +293,15 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-        ) { index ->
+        ) {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 items(
-                    if(selectedCategory == "Все")
+                    if(categories[pagerState.currentPage] == "Все")
                         oraganization_const.products.flatMap { it.value }.sortedBy { it.name }
                     else
-                        oraganization_const.products[selectedCategory]!!
+                        oraganization_const.products[categories[pagerState.currentPage]]!!
                 ) {
                     ProductCard(it, navController)
                     Spacer(modifier = Modifier.height(10.dp))
