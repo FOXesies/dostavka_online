@@ -19,12 +19,12 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\User\.android\avd\Pixel_7_Pro_API_TiramisuPrivacySandbox.ini" />
+                  <value value="C:\Users\User\.android\avd\Pixel_7_Pro_API_TiramisuPrivacySandbox.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-22T15:19:40.714247400Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-05-06T15:55:28.758503700Z" />
         </State>
       </entry>
       <entry key="preciewList">
