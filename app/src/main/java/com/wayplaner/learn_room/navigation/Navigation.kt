@@ -21,6 +21,7 @@ import com.wayplaner.learn_room.DrawerContent
 import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.SettingsScreen
+import com.wayplaner.learn_room.admin.basic_info.presentation.BasicInfo
 import com.wayplaner.learn_room.basket.presentation.BasketScreen
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderScreen
 import com.wayplaner.learn_room.home.presentation.HomeScreen
@@ -58,9 +59,12 @@ fun Navigation(
             }
         }
     ) {
-        NavHost(navController = navController, startDestination = MainRoute.Home.name) {
+        NavHost(navController = navController, startDestination = MainRoute.Admin_BasicInfo.name) {
             composable(MainRoute.Home.name) {
                 HomeScreen(drawerState, navController)
+            }
+            composable(MainRoute.Admin_BasicInfo.name) {
+                BasicInfo(navController)
             }
             composable(MainRoute.Basket.name) {
                 BasketScreen(drawerState, navController)

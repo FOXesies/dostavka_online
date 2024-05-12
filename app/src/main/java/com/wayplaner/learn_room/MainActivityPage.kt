@@ -66,6 +66,9 @@ enum class MainRoute(value: String) {
     Orders("orders"),
 
     Settings("settings"),
+
+    //ADMIN
+    Admin_BasicInfo("admin_basic_info")
 }
 
 @Composable
