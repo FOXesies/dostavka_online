@@ -58,6 +58,18 @@ fun HomeScreen() {
                 colors = ButtonDefaults.buttonColors(redLogoColor),
                 shape = RoundedCornerShape(40)
             ) {
+                Text(text = "Заказы")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(250.dp),
+                colors = ButtonDefaults.buttonColors(redLogoColor),
+                shape = RoundedCornerShape(40)
+            ) {
                 Text(text = "Отзывы")
             }
 

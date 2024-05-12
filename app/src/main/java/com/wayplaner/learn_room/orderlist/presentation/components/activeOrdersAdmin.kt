@@ -19,38 +19,9 @@ import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
 fun ActiveOrders(vmListorder: ListOrderModelView) {
-
-/*    val options = listOf(
-        "Доставка",
-        "Самовывоз"
-    )
-    var selectedOption by remember {
-        mutableIntStateOf(0)
-    }
-    */
     Column(modifier = Modifier
         .padding(vertical = 5.dp, horizontal = 10.dp)
         .background(Color.Transparent)) {
-
-        /*Row(horizontalArrangement = Arrangement.Center, modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 15.dp, top = 10.dp)) {
-            options.forEachIndexed { index, s ->
-                Button(shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(if(selectedOption == index) redActionColor else testButton),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 10.dp)
-                        .height(42.dp),
-                    onClick = {
-                        selectedOption = index
-                    }) {
-                    Text(text = options[index], color = if(selectedOption == index) Color.White else testText)
-                }
-            }
-        }
-
-        if(selectedOption == 1) {*/
             vmListorder.onEvent(UiOrderEvent.OpenActiveOrder)
             val orders = vmListorder.combineOrder.observeAsState()
             if(!orders.value.isNullOrEmpty()) {
@@ -66,21 +37,6 @@ fun ActiveOrders(vmListorder: ListOrderModelView) {
                     }
                 }
             }
-        /*}
-        else{
-            vmListorder.onEvent(UiOrderEvent.OpenActiveOrder)
-            val orders = vmListorder.orders.observeAsState()
-            if(!orders.value.isNullOrEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(orders.value!!) {
-                        createCardOrderActive(it)
-                    }
-                }
-            }
-        }*/
     }
 }
 
