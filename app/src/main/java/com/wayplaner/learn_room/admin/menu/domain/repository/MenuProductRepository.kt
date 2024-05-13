@@ -1,6 +1,6 @@
-package com.wayplaner.learn_room.admin.basic_info.domain.repository
+package com.wayplaner.learn_room.admin.menu.domain.repository
 
-import com.wayplaner.learn_room.admin.basic_info.domain.model.OrganizationResponse
+import com.wayplaner.learn_room.admin.menu.domain.model.ProductResponse
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -15,11 +15,11 @@ import retrofit2.http.Streaming
 import javax.inject.Singleton
 
 @Singleton
-interface BasicInfoRepository {
-    @POST("organizations/update_info/")
-    suspend fun updateInfo(@Body response: OrganizationResponse)
-    @GET("organizations/get_info/{id}")
-    suspend fun getInfo(@Path("id") idOrg: Long): OrganizationResponse
+interface MenuProductRepository {
+    @POST("products/update_info/")
+    suspend fun updateInfo(@Body response: ProductResponse)
+    @GET("products/get_info/{id}")
+    suspend fun getInfo(@Path("id") idOrg: Long): ProductResponse
     @GET("upload/img/{id}")
     @Streaming
     suspend fun getImage(@Path("id") idOrg: Long): Response<ResponseBody>
@@ -27,7 +27,7 @@ interface BasicInfoRepository {
     @POST("upload/img/upload_org/")
     fun uploadImage(
         @Part image: MultipartBody.Part,
-        @Part("orgId") orgId: Long
+        @Part("productId") productId: Long
     ): Call<Void>
 
 }

@@ -21,13 +21,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.wayplaner.learn_room.admin.menu.presentation.components.AddProductView
 import com.wayplaner.learn_room.admin.menu.presentation.components.CategoryAdminView
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun MenuAddScreen() {
+fun MenuAddScreen(
+    navController: NavController
+) {
     Box(modifier = Modifier.fillMaxSize()){
         MenuExist()
 
@@ -92,8 +95,6 @@ private fun MenuExist(){
 
         AddProductView()
     }
-
-
 }
 
 @Composable

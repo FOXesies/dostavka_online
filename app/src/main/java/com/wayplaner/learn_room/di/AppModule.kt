@@ -2,6 +2,8 @@ package com.wayplaner.learn_room.di
 
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.domain.repository.BasicInfoRepository
+import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
+import com.wayplaner.learn_room.admin.menu.domain.repository.MenuProductRepository
 import com.wayplaner.learn_room.auth.data.repository.AuthCustomerRepositoryImpl
 import com.wayplaner.learn_room.auth.domain.repository.AuthCustomerRepository
 import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
@@ -117,6 +119,15 @@ class AppModule {
     @Provides
     fun admin_basicInfoService(retrofit: Retrofit): BasicInfoRepository = retrofit.create(
         BasicInfoRepository::class.java)
+
+    @Singleton
+    @Provides
+    fun admin_menuProductRepository(menuProductRepository: MenuProductRepository) = MenuProductImpl(menuProductRepository)
+
+    @Singleton
+    @Provides
+    fun admin_menuProductService(retrofit: Retrofit): MenuProductRepository = retrofit.create(
+        MenuProductRepository::class.java)
 
     @Provides
     @Singleton

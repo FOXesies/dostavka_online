@@ -68,7 +68,8 @@ enum class MainRoute(value: String) {
     Settings("settings"),
 
     //ADMIN
-    Admin_BasicInfo("admin_basic_info")
+    Admin_BasicInfo("admin_basic_info"),
+    Admin_MenuProduct("admin_menu_product")
 }
 
 @Composable
