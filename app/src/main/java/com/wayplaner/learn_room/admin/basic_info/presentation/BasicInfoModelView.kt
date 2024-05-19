@@ -10,6 +10,7 @@ import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
 import com.wayplaner.learn_room.createorder.domain.model.Address
+import com.wayplaner.learn_room.organization.model.CityOrganization
 import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.io.InputStream
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +38,9 @@ class BasicInfoModelView @Inject constructor(
     private var infoOrg_ = mutableStateOf<OrganizationIdDTO?>(null)
     private var imageByteArray = mutableStateOf(ByteArray(0))
 
+    private var cities_ = MutableLiveData<Map<String, MutableList<CityOrganization>>>()
+    val cities: LiveData<Map<String, MutableList<CityOrganization>>> = cities_
+
     init {
         getInfoBasic(1)
     }
@@ -43,19 +48,33 @@ class BasicInfoModelView @Inject constructor(
     fun onEvent(event: UiEventBasicInfoA){
         when(event){
             is UiEventBasicInfoA.SearchOrg -> getInfoBasic(event.idOrg)
+            is UiEventBasicInfoA.AddCities -> {
+                addCity(event.cities)
+            }
             is UiEventBasicInfoA.UpdateImage -> updateImage(event.idOrg, event.context, event.imageBt)
             is UiEventBasicInfoA.UpdateAddress -> address.value = event.address
             is UiEventBasicInfoA.UpdateOrg -> updateProduct(event.idOrg, event.name, event.phone, address.value)
         }
     }
 
+    private fun addCity(city_: String){
+        val city = city_.lowercase().capitalize(Locale.ROOT)
+        if(!infoOrg_.value!!.locationsAll.keys.contains(city)){
+            val info = infoOrg_.value!!.locationsAll.toMutableMap()
+            info[city] = mutableListOf()
+            cities_.postValue(info)
+        }
+    }
+
     private fun getInfoBasic(idOrg: Long){
         viewModelScope.launch {
             infoOrg_.value = repositoryBasicInfo.getInfo(idOrg)
-            imageByteArray.value = repositoryBasicInfo.getImage(infoOrg_.value!!.idImage!!)
+            imageByteArray.value = repositoryBasicInfo.getImage(infoOrg_.value!!.idImage)
         }.invokeOnCompletion {
-            if(it == null)
+            if(it == null) {
+                cities_.postValue(infoOrg_.value!!.locationsAll)
                 UiStatus_.postValue(StatusBasicInfo.FoundInfo(infoOrg_.value!!, imageByteArray.value))
+            }
             else {
                 UiStatus_.postValue(StatusBasicInfo.NoFoundInfo)
             }
@@ -89,7 +108,7 @@ class BasicInfoModelView @Inject constructor(
             return
         }
         viewModelScope.launch {
-            repositoryBasicInfo.updateInfo(idOrg, name, phone, address!!)
+            //repositoryBasicInfo.updateInfo(idOrg, name, phone, address!!)
         }
     }
 }

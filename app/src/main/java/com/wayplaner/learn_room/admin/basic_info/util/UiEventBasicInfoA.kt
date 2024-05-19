@@ -8,4 +8,5 @@ sealed class UiEventBasicInfoA {
     data class UpdateAddress(val address: Address): UiEventBasicInfoA()
     data class UpdateOrg(val idOrg: Long, val name: String, val phone: String): UiEventBasicInfoA()
     data class UpdateImage(val idOrg: Long, val context: Context, val imageBt: ByteArray): UiEventBasicInfoA()
+    data class AddCities(val cities: String): UiEventBasicInfoA()
 }

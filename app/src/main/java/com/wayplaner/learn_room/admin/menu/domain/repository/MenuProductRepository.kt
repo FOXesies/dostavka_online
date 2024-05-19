@@ -1,6 +1,6 @@
 package com.wayplaner.learn_room.admin.menu.domain.repository
 
-import com.wayplaner.learn_room.admin.menu.domain.model.ProductResponse
+import com.wayplaner.learn_room.product.domain.model.Product
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -17,9 +17,9 @@ import javax.inject.Singleton
 @Singleton
 interface MenuProductRepository {
     @POST("products/update_info/")
-    suspend fun updateInfo(@Body response: ProductResponse)
+    suspend fun updateInfo(@Body response: Product)
     @GET("products/get_info/{id}")
-    suspend fun getInfo(@Path("id") idOrg: Long): ProductResponse
+    suspend fun getInfo(@Path("id") idOrg: Long): Product
     @GET("upload/img/{id}")
     @Streaming
     suspend fun getImage(@Path("id") idOrg: Long): Response<ResponseBody>

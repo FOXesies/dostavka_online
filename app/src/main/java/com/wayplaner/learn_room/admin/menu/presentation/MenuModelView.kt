@@ -76,7 +76,7 @@ class MenuModelView @Inject constructor(
 
     private fun updateName(idOrg: Long, name: String) {
         viewModelScope.launch {
-            repositoryBasicInfo.updateInfo(idOrg, name)
+            //repositoryBasicInfo.updateInfo(idOrg, name)
         }
     }
 }
