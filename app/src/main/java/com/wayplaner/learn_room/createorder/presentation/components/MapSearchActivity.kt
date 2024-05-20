@@ -3,39 +3,21 @@ package com.wayplaner.learn_room
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.KeyEvent
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
-import android.widget.EditText
 import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import com.wayplaner.learn_room.createorder.presentation.components.AddressSuggestModelView
 import com.wayplaner.learn_room.createorder.util.UiEventSuggest
+import com.wayplaner.learn_room.utils.InitMaps
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.layers.GeoObjectTapEvent
-import com.yandex.mapkit.layers.GeoObjectTapListener
-import com.yandex.mapkit.map.CameraListener
-import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.CameraUpdateReason
-import com.yandex.mapkit.map.InputListener
-import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
-import com.yandex.mapkit.search.Response
-import com.yandex.mapkit.search.Session
-import com.yandex.mapkit.search.SuggestItem
-import com.yandex.mapkit.search.SuggestSession
-import com.yandex.runtime.Error
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -53,6 +35,10 @@ class MapSearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if(!InitMaps.isInit) {
+            MapKitFactory.setApiKey("1e8845c3-b492-4939-9356-2fe8447e8dcb")
+            InitMaps.isInit = true
+        }
 
         setContentView(R.layout.activity_map_search)
         mapView = findViewById(R.id.mapView_my)
@@ -98,7 +84,6 @@ class MapSearchActivity : AppCompatActivity() {
             searchEdit.setQuery(pickedAddress, true)
             modelViewSuggest.submitQuery(pickedAddress)
             //searchEdit.setSelection(pickedAddress.length)
-
         }
     }
 
@@ -142,9 +127,10 @@ class MapSearchActivity : AppCompatActivity() {
 
     fun save_exit(view: View) {
         if (modelViewSuggest.addressValid()) {
+            modelViewSuggest.saveAddress()
             finish()
         } else {
-            var dialog_confirm_address = AlertDialog.Builder(this)
+            val dialog_confirm_address = AlertDialog.Builder(this)
             dialog_confirm_address.create()
             dialog_confirm_address.setTitle("Адрес не сохранится")
             dialog_confirm_address.setMessage("Адрес не сохранится, так как введён неверно. \nЧтобы он сохранился найдите место на карте")

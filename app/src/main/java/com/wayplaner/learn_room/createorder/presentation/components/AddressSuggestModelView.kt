@@ -4,20 +4,14 @@ import android.content.Context
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.createorder.domain.model.Address
 import com.wayplaner.learn_room.createorder.util.MapKitConstant
 import com.wayplaner.learn_room.createorder.util.UiEventSuggest
-import com.yandex.mapkit.directions.DirectionsFactory
-import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.directions.driving.DrivingRouter
-import com.yandex.mapkit.directions.driving.DrivingSession
-import com.yandex.mapkit.directions.driving.Weight
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.layers.GeoObjectTapEvent
 import com.yandex.mapkit.layers.GeoObjectTapListener
@@ -68,11 +62,20 @@ class AddressSuggestModelView @Inject constructor(
 
     private val uiEventSuggest_ = MutableLiveData<UiEventSuggest>(UiEventSuggest.NoActive("Введите адрес"))
     val uiEventSuggest: LiveData<UiEventSuggest> = uiEventSuggest_
+
+    private val curAddressTo_ = MutableLiveData(Address(null, null, null))
     companion object {
 
         private val addressTo_ = MutableLiveData(Address(null, null, null))
         val addressTo: LiveData<Address>? = addressTo_
+        private var cityPick: String? = null
 
+        fun removeAddressTo(){
+            addressTo_.postValue(Address(null, null, null))
+        }
+        fun setPickCity(city: String){
+            cityPick = city
+        }
     }
 
     fun setMap(map_: MapView){
@@ -96,6 +99,9 @@ class AddressSuggestModelView @Inject constructor(
     fun addressValid(): Boolean{
         return addressValid
     }
+    fun saveAddress(){
+        addressTo_.postValue(curAddressTo_.value)
+    }
     fun isAddressTab(): Boolean{
         return addressTab
     }
@@ -108,8 +114,13 @@ class AddressSuggestModelView @Inject constructor(
             setValueUi(UiEventSuggest.NoActive("Адрес пустой"))
             return
         }
-        _searchQuery.value = address
-        suggestSession!!.suggest(address, MapKitConstant.BOUNDING_BOX, MapKitConstant.SEARCH_OPTIONS, this);
+
+        val endAddress = if (cityPick != null)
+                "$cityPick $address"
+            else
+                address
+        _searchQuery.value = endAddress
+        suggestSession!!.suggest(endAddress, MapKitConstant.BOUNDING_BOX, MapKitConstant.SEARCH_OPTIONS, this);
     }
     fun submitQuery(query: String?) {
 
@@ -140,7 +151,7 @@ class AddressSuggestModelView @Inject constructor(
         return pick?.displayText!!
     }
     fun setAddressTo(addressPosition: Int){
-        addressTo_!!.value = mutableSuggestState.value[addressPosition]
+        curAddressTo_.value = mutableSuggestState.value[addressPosition]
     }
 
     private fun setValueUi(event: UiEventSuggest){

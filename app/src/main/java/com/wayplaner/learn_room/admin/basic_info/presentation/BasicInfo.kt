@@ -1,7 +1,9 @@
 package com.wayplaner.learn_room.admin.basic_info.presentation
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,8 +16,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -23,11 +28,15 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -44,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,15 +61,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.wayplaner.learn_room.MapSearchActivity
+import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
 import com.wayplaner.learn_room.admin.util.toBitmapImage
+import com.wayplaner.learn_room.createorder.presentation.components.AddressSuggestModelView
+import com.wayplaner.learn_room.organization.model.CityOrganization
+import com.wayplaner.learn_room.ui.theme.adminAdressAddCity
+import com.wayplaner.learn_room.ui.theme.adminAdressCity
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.redBlackColor
 import com.wayplaner.learn_room.ui.theme.redLogoColor
 import com.wayplaner.learn_room.ui.theme.testText
 import com.wayplaner.learn_room.ui.theme.whiteColor
+import com.yandex.mapkit.geometry.Point
 
 @Composable
 fun BasicInfo(
@@ -89,7 +106,7 @@ fun BasicInfo(
         } else {
             val resultFound = (result.value as StatusBasicInfo.FoundInfo)
             var nameValue by remember { mutableStateOf(resultFound.organizationResponse.name) }
-            val phoneValue by remember { mutableStateOf(resultFound.organizationResponse.phoneForUser) }
+            var phoneValue by remember { mutableStateOf(resultFound.organizationResponse.phoneForUser) }
             var description by remember { mutableStateOf(resultFound.organizationResponse.descriptions) }
             var selectImages by remember { mutableStateOf(resultFound.image) }
 
@@ -104,7 +121,7 @@ fun BasicInfo(
                 }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                Column {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     Image(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -149,7 +166,7 @@ fun BasicInfo(
                         TextField(
                             value = phoneValue,
                             onValueChange = {
-                                nameValue = it
+                                phoneValue = it
                                 infoUpdate = true
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -183,7 +200,7 @@ fun BasicInfo(
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Text(
-                            text = "Адреса ресторана", fontSize = 16.sp,
+                            text = "Города ресторана", fontSize = 16.sp,
                             modifier = Modifier.padding(start = 5.dp)
                         )
 
@@ -256,16 +273,24 @@ fun BasicInfo(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressCity(vmBasic: BasicInfoModelView) {
+    val context = LocalContext.current
     val cities_ = vmBasic.cities.observeAsState()
-    if (cities_.value != null){
+    if (cities_.value != null) {
         val cities = cities_.value!!.keys.toList()
+        var expanded by remember { mutableStateOf(false) }
+        var selectedText by remember { mutableStateOf(cities[0]) }
 
-        Column {
-            val context = LocalContext.current
-            var expanded by remember { mutableStateOf(false) }
-            var selectedText by remember { mutableStateOf(cities[0]) }
+        val address = AddressSuggestModelView.addressTo?.observeAsState()
+        if (address!!.value != null && address.value!!.lat != null){
+            val value = address.value!!
+            vmBasic.onEvent(UiEventBasicInfoA.AddAddresss(selectedText, CityOrganization(address = value.displayText, points = Point(value.lat!!, value.lon!!))))
+            AddressSuggestModelView.removeAddressTo()
+        }
+
+        Column() {
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -314,7 +339,112 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Text(
+            text = "Адреса в городе", fontSize = 16.sp,
+            modifier = Modifier.padding(start = 5.dp)
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        for (value in cities_.value!![selectedText] ?: listOf()) {
+            var openStateDelete by remember {
+                mutableStateOf(false)
+            }
+
+            if (openStateDelete) {
+                AlertDeleteAddress(
+                    confirmLogic = {
+                        vmBasic.onEvent(UiEventBasicInfoA.RemoveAddresss(selectedText, value))
+                        openStateDelete = false
+                    },
+                    dismissLogic = { openStateDelete = false }
+                )
+            }
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(adminAdressCity)
+            ) {
+                Row {
+                    Text(
+                        text = value.address ?: "Адрес не найден ",
+                        fontSize = 16.sp,
+                        color = whiteColor,
+                        modifier = Modifier.weight(3f).padding(horizontal = 15.dp, vertical = 12.dp)
+                    )
+
+                    Image(modifier = Modifier
+                        .width(20.dp)
+                        .height(24.dp)
+                        .clickable {
+                            openStateDelete = true
+                        }
+                        .align(Alignment.CenterVertically),
+                        painter = painterResource(id = R.drawable.trash_can_115312),
+                        contentDescription = null)
+
+                    Spacer(modifier = Modifier.width(15.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        OutlinedCard(
+            border = BorderStroke(2.dp, redActionColor),
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(adminAdressAddCity),
+            onClick = {
+                AddressSuggestModelView.setPickCity(selectedText)
+                val intent = Intent(context, MapSearchActivity::class.java)
+                context.startActivity(intent)
+            }
+        ) {
+            Row {
+                Text(
+                    text = "Добавить адрес",
+                    fontSize = 16.sp,
+                    color = whiteColor,
+                    modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Icon(modifier = Modifier
+                    .width(26.dp)
+                    .height(26.dp)
+                    .align(Alignment.CenterVertically),
+                    imageVector = Icons.Filled.Add,
+                    tint = whiteColor,
+                    contentDescription = null)
+
+                Spacer(modifier = Modifier.width(15.dp))
+            }
+        }
     }
+}
+
+@Composable
+private fun AlertDeleteAddress(confirmLogic: () -> Unit, dismissLogic: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = {  },
+        title = { Text("Вы уверены, что хотите удалить ресторан?!", fontSize = 20.sp) },
+        text = { Text("По этому адресу пользователи не смогут найти ресторан на карте", fontSize = 12.sp) },
+        confirmButton = {
+            TextButton(colors = ButtonDefaults.buttonColors(redActionColor), onClick = {
+                confirmLogic()
+            }) {
+                Text("Удалить".uppercase(), color = whiteColor)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { dismissLogic() }) {
+                Text("Закрыть".uppercase())
+            }
+        },
+    )
 }
 
 @Composable
@@ -380,12 +510,6 @@ fun addCity(vmBasic: BasicInfoModelView) {
                 }
             },
         )
-        /*Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Yellow)
-            .clickable { addState = !addState }) {
-            addCityField()
-        }*/
     }
 }
 

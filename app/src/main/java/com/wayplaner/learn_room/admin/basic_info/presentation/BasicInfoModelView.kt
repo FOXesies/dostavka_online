@@ -48,12 +48,20 @@ class BasicInfoModelView @Inject constructor(
     fun onEvent(event: UiEventBasicInfoA){
         when(event){
             is UiEventBasicInfoA.SearchOrg -> getInfoBasic(event.idOrg)
-            is UiEventBasicInfoA.AddCities -> {
-                addCity(event.cities)
-            }
+            is UiEventBasicInfoA.AddCities -> addCity(event.cities)
+            is UiEventBasicInfoA.AddAddresss -> addAddress(event.city, event.address)
             is UiEventBasicInfoA.UpdateImage -> updateImage(event.idOrg, event.context, event.imageBt)
+            is UiEventBasicInfoA.RemoveAddresss -> removeCity(event.city, event.address)
             is UiEventBasicInfoA.UpdateAddress -> address.value = event.address
             is UiEventBasicInfoA.UpdateOrg -> updateProduct(event.idOrg, event.name, event.phone, address.value)
+        }
+    }
+
+    private fun removeCity(city: String, address: CityOrganization?) {
+        if(infoOrg_.value!!.locationsAll.keys.contains(city)){
+            val info = infoOrg_.value!!.locationsAll.toMutableMap()
+            info[city]!!.remove(address)
+            cities_.postValue(info)
         }
     }
 
@@ -64,6 +72,12 @@ class BasicInfoModelView @Inject constructor(
             info[city] = mutableListOf()
             cities_.postValue(info)
         }
+    }
+
+    private fun addAddress(city: String, address: CityOrganization?) {
+        val info = infoOrg_.value!!.locationsAll.toMutableMap()
+        info[city]!!.add(address!!)
+        cities_.postValue(info)
     }
 
     private fun getInfoBasic(idOrg: Long){

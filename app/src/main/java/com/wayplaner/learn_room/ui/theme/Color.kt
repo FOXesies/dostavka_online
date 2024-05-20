@@ -71,5 +71,12 @@ val selfdeliveryTypeBack = Color(0xC8D38FDB)
 val selfdeliveryType = Color(0xFF9312C2)
 
 //----------------------------------------
+
+
+
+val adminAdressCity = Color(0xFF161616)
+val adminAdressAddCity = Color(0xFF222222)
+
+
 val categoryColor = Color(0xC10A0A0A)
 val titleProductColor = Color(0xDD0A0A0A)
