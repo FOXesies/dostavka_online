@@ -235,11 +235,7 @@ fun BasicInfo(
                                     )
                                 if (!nameValue.isNullOrEmpty() && infoUpdate)
                                     vmBasic.onEvent(
-                                        UiEventBasicInfoA.UpdateOrg(
-                                            1,
-                                            nameValue,
-                                            phoneValue
-                                        )
+                                        UiEventBasicInfoA.UpdateOrg
                                     )
                             },
                             Modifier

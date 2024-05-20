@@ -7,9 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
+import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
-import com.wayplaner.learn_room.createorder.domain.model.Address
 import com.wayplaner.learn_room.organization.model.CityOrganization
 import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.io.InputStream
 import java.util.Locale
 import javax.inject.Inject
 
@@ -30,11 +29,11 @@ class BasicInfoModelView @Inject constructor(
     private val repositoryBasicInfo: BasicInfoImpl
 ): ViewModel() {
 
+    private var isChanged = false
+
     private var UiStatus_ = MutableLiveData<StatusBasicInfo>()
     val UiStatus: LiveData<StatusBasicInfo> = UiStatus_
 
-    private val imageStart = mutableStateOf<InputStream?>(null)
-    private var address = mutableStateOf<Address?>(null)
     private var infoOrg_ = mutableStateOf<OrganizationIdDTO?>(null)
     private var imageByteArray = mutableStateOf(ByteArray(0))
 
@@ -52,8 +51,7 @@ class BasicInfoModelView @Inject constructor(
             is UiEventBasicInfoA.AddAddresss -> addAddress(event.city, event.address)
             is UiEventBasicInfoA.UpdateImage -> updateImage(event.idOrg, event.context, event.imageBt)
             is UiEventBasicInfoA.RemoveAddresss -> removeCity(event.city, event.address)
-            is UiEventBasicInfoA.UpdateAddress -> address.value = event.address
-            is UiEventBasicInfoA.UpdateOrg -> updateProduct(event.idOrg, event.name, event.phone, address.value)
+            is UiEventBasicInfoA.UpdateOrg -> updateProduct()
         }
     }
 
@@ -62,6 +60,7 @@ class BasicInfoModelView @Inject constructor(
             val info = infoOrg_.value!!.locationsAll.toMutableMap()
             info[city]!!.remove(address)
             cities_.postValue(info)
+            isChanged = true
         }
     }
 
@@ -78,6 +77,7 @@ class BasicInfoModelView @Inject constructor(
         val info = infoOrg_.value!!.locationsAll.toMutableMap()
         info[city]!!.add(address!!)
         cities_.postValue(info)
+        isChanged = true
     }
 
     private fun getInfoBasic(idOrg: Long){
@@ -116,13 +116,22 @@ class BasicInfoModelView @Inject constructor(
         }
     }
 
-    private fun updateProduct(idOrg: Long, name: String, phone: String, address: Address?) {
-        if(address == null){
+    private fun updateProduct() {
+        if(!isChanged){
             //TODO
             return
         }
+
+        val value = infoOrg_.value!!
         viewModelScope.launch {
-            //repositoryBasicInfo.updateInfo(idOrg, name, phone, address!!)
+            repositoryBasicInfo.updateInfo(
+                BasicInfoResponse(
+                    idOrg = value.idOrganization!!,
+                    name = value.name,
+                    description = value.descriptions!!,
+                    phone = value.phoneForUser,
+                    locationAll = value.locationsAll,
+                ))
         }
     }
 }

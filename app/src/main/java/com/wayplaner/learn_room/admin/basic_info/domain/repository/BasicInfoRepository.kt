@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.admin.basic_info.domain.repository
 
+import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
 import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
@@ -17,7 +18,7 @@ import javax.inject.Singleton
 @Singleton
 interface BasicInfoRepository {
     @POST("organizations/update_info/")
-    suspend fun updateInfo(@Body response: OrganizationIdDTO)
+    suspend fun updateInfo(@Body organization: BasicInfoResponse)
     @GET("organizations/get_info/{id}")
     suspend fun getInfo(@Path("id") idOrg: Long): OrganizationIdDTO
     @GET("upload/img/{id}")
