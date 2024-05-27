@@ -5,47 +5,109 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wayplaner.learn_room.admin.basic_info.util.UiEventMenuAdd
+import com.wayplaner.learn_room.admin.menu.presentation.MenuModelView
 import com.wayplaner.learn_room.ui.theme.grayColor
+import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun CategoryAdminView(){
-    val listCategory = mutableListOf("Супы", "Шашлык", "Алкоголь", "Закуски")
+fun CategoryAdminView(modelView: MenuModelView){
+    val colorET = TextFieldDefaults.colors(
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledContainerColor = lightGrayColor,
+        focusedContainerColor = lightGrayColor,
+        unfocusedContainerColor = lightGrayColor,
+    )
 
-    LazyRow(Modifier.fillMaxWidth()){
-        items(listCategory){
-            Button(modifier = Modifier
-                .padding(horizontal = 5.dp),
-                colors = ButtonDefaults.buttonColors(grayColor),
-                onClick = { /*TODO*/ }) {
-                Text(
-                    text = it,
-                    color = whiteColor,
-                    fontSize = 14.sp)
+    val categories = modelView.categories.observeAsState().value
+
+    var addState by remember { mutableStateOf(false) }
+    if(!addState) {
+        if(categories != null) {
+            LazyRow(Modifier.fillMaxWidth()) {
+                items(categories) {
+                    Button(modifier = Modifier
+                        .padding(horizontal = 5.dp),
+                        colors = ButtonDefaults.buttonColors(grayColor),
+                        onClick = { }) {
+                        Text(
+                            text = it,
+                            color = whiteColor,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+                item {
+                    Button(modifier = Modifier
+                        .padding(horizontal = 5.dp),
+                        colors = ButtonDefaults.buttonColors(grayColor),
+                        contentPadding = PaddingValues(start = 10.dp, end = 18.dp),
+                        onClick = { /*modelView.onEventAdd()*/ }) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = null,
+                            Modifier.padding(start = 0.dp)
+                        )
+                        Text(
+                            text = "Добавить",
+                            color = whiteColor,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
         }
-        item{
-            Button(modifier = Modifier
-                .padding(horizontal = 5.dp),
-                colors = ButtonDefaults.buttonColors(grayColor),
-                contentPadding = PaddingValues(start = 10.dp, end = 18.dp),
-                onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = null, Modifier.padding(start = 0.dp))
-                Text(
-                    text = "Добавить",
-                    color = whiteColor,
-                    fontSize = 14.sp)
-            }
-        }
+    }
+    else{
+        var category by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { addState = false },
+            title = { Text("Добавьте город в список", fontSize = 22.sp) },
+            text = {
+                TextField(
+                    value = category,
+                    onValueChange = {
+                        category = it
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20)),
+                    colors = colorET
+                ) },
+            confirmButton = {
+                TextButton(onClick = { modelView.onEvent(UiEventMenuAdd.AddCategoryInList(category)) }) {
+                    Text("Добавить".uppercase())
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { addState = false }) {
+                    Text("Закрыть".uppercase())
+                }
+            },
+        )
     }
 }

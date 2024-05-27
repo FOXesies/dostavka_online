@@ -28,14 +28,30 @@ class MenuModelView @Inject constructor(
     private var UiStatus_ = MutableLiveData<StatusMenuChange>()
     val UiStatus: LiveData<StatusMenuChange> = UiStatus_
 
+    private var categories_ = MutableLiveData<MutableList<String>>()
+    val categories: LiveData<MutableList<String>> = categories_
+
     private var imageByteArray = mutableStateOf(ByteArray(0))
 
-    fun onEventAdd(event: UiEventMenuAdd){
-        /*when(event){
+    fun onEvent(event: UiEventMenuAdd){
+        when (event) {
             is UiEventMenuAdd.AddProductInfo -> {
-                addProducInfo()
             }
-        }*/
+            is UiEventMenuAdd.AddCategoryInList -> {
+                addCategory(event.category)
+            }
+            is UiEventMenuAdd.AddImageProduct -> {
+            }
+            else -> {}
+        }
+    }
+
+    private fun addCategory(category: String){
+        if(!categories.value!!.contains(category)) {
+            val items = categories_.value?: mutableListOf()
+            items.add(category)
+            categories_.postValue(items)
+        }
     }
 
     private fun addProducInfo(){

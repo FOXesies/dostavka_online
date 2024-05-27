@@ -246,6 +246,7 @@ fun BasicInfo(
                         ) {
                             Text(text = "Сохранить изменения")
                         }
+                        Spacer(modifier = Modifier.height(30.dp))
                     }
                 }
 
@@ -368,7 +369,9 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
                         text = value.address ?: "Адрес не найден ",
                         fontSize = 16.sp,
                         color = whiteColor,
-                        modifier = Modifier.weight(3f).padding(horizontal = 15.dp, vertical = 12.dp)
+                        modifier = Modifier
+                            .weight(3f)
+                            .padding(horizontal = 15.dp, vertical = 12.dp)
                     )
 
                     Image(modifier = Modifier
