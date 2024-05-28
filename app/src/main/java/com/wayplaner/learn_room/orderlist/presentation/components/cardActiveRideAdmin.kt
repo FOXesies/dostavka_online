@@ -32,36 +32,32 @@ import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
-import com.wayplaner.learn_room.ui.theme.cookingStatus
-import com.wayplaner.learn_room.ui.theme.cookingStatusBack
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getBackColor
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getText
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getTextColor
 import com.wayplaner.learn_room.ui.theme.deliveryType
 import com.wayplaner.learn_room.ui.theme.deliveryTypeBack
-import com.wayplaner.learn_room.ui.theme.endCookingStatus
-import com.wayplaner.learn_room.ui.theme.endCookingStatusBack
-import com.wayplaner.learn_room.ui.theme.endStatus
-import com.wayplaner.learn_room.ui.theme.endStatusBack
-import com.wayplaner.learn_room.ui.theme.finishStatus
-import com.wayplaner.learn_room.ui.theme.finishStatusBack
-import com.wayplaner.learn_room.ui.theme.inLineStatus
-import com.wayplaner.learn_room.ui.theme.inLineStatusBack
-import com.wayplaner.learn_room.ui.theme.onTheWayStatus
-import com.wayplaner.learn_room.ui.theme.onTheWayStatusBack
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.selfdeliveryType
 import com.wayplaner.learn_room.ui.theme.selfdeliveryTypeBack
 import com.wayplaner.learn_room.ui.theme.testButton
 import com.wayplaner.learn_room.ui.theme.testText
-import com.wayplaner.learn_room.ui.theme.waitStatus
-import com.wayplaner.learn_room.ui.theme.waitStatusBack
 
 @Composable
-private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, isDelivery: Boolean, loginCancel: () -> Unit) {
+private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, statusOrder: StatusOrder, isDelivery: Boolean, loginCancel: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(Color.White)) {
         Column(modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
             cardForStatusDelivery(isDelivery)
-            cardForStatus(StatusOrder.WAIT_ACCEPT)
+            Card(
+                colors = CardDefaults.cardColors(statusOrder.getBackColor())
+            ) {
+                Text(text = statusOrder.getText(),
+                    color = statusOrder.getTextColor(),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+            }
 
             Row(
                 modifier = Modifier
@@ -106,12 +102,12 @@ private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, is
 
 @Composable
 fun createCardOrderActive(order: Order, loginCancel: () -> Unit){
-    CardActiveOrder(order.uuid!!.id.toString(), "10 марта", order.summ.toString(), true, loginCancel)
+    CardActiveOrder(order.uuid!!.id.toString(), "10 марта", order.summ.toString(), order.status!!, true, loginCancel)
 }
 
 @Composable
 fun createCardOrderActive(orderSelf: OrderSelfDelivery, loginCancel: () -> Unit){
-    CardActiveOrder(orderSelf.uuid!!.id.toString(), "10 марта", orderSelf.summ.toString(), false, loginCancel)
+    CardActiveOrder(orderSelf.uuid!!.id.toString(), "10 марта", orderSelf.summ.toString(), orderSelf.status!!,false, loginCancel)
 }
 
 @Composable
@@ -186,82 +182,6 @@ fun cardForStatusDelivery(isDelivery: Boolean) {
                 fontSize = 13.sp,
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
             )
-        }
-    }
-}
-
-@Composable
-private fun cardForStatus(pick: StatusOrder){
-    when(pick){
-        StatusOrder.WAIT_ACCEPT -> {
-            Card(
-                colors = CardDefaults.cardColors(waitStatusBack)
-            ) {
-                Text(text = "Ожидает подтверждения...",
-                    color = waitStatus,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
-            }
-        }
-        StatusOrder.IN_LINE_COOKING -> {
-            Card(
-                colors = CardDefaults.cardColors(inLineStatusBack)
-            ) {
-                Text(text = "В очереди на готовку",
-                    color = inLineStatus,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
-            }
-        }
-        StatusOrder.PROCESS_COOKING -> {
-            Card(
-                colors = CardDefaults.cardColors(cookingStatusBack)
-            ) {
-                Text(text = "Готовится",
-                    color = cookingStatus,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
-            }
-        }
-        StatusOrder.COOKING_END -> {
-            Card(
-                colors = CardDefaults.cardColors(endCookingStatusBack)
-            ) {
-                Text(text = "Заказ готов",
-                    color = endCookingStatus,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
-            }
-        }
-        StatusOrder.ON_TWE_WAY -> {
-            Card(
-                colors = CardDefaults.cardColors(onTheWayStatusBack)
-            ) {
-                Text(text = "Заказ в пути",
-                    color = onTheWayStatus,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
-            }
-        }
-        StatusOrder.COMPLETE_WAY -> {
-            Card(
-                colors = CardDefaults.cardColors(finishStatusBack)
-            ) {
-                Text(text = "Заказ ждёт вас",
-                    color = finishStatus,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
-            }
-        }
-        StatusOrder.COMPLETE_ORDER -> {
-            Card(
-                colors = CardDefaults.cardColors(endStatusBack)
-            ) {
-                Text(text = "Доставлено",
-                    color = endStatus,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
-            }
         }
     }
 }

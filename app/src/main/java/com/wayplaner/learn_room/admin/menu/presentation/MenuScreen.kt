@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -91,13 +92,32 @@ fun MenuUpdateScreen(modelView: MenuModelView){
 }
 @Composable
 private fun MenuExist(modelView: MenuModelView){
-    Column(modifier = Modifier.padding(top = 60.dp).verticalScroll(rememberScrollState())){
+    Column(modifier = Modifier
+        .padding(top = 60.dp)
+        .verticalScroll(rememberScrollState())){
         Text(text = "Категория блюда", fontSize = 16.sp, modifier = Modifier.padding(start = 20.dp, bottom = 2.dp))
-        CategoryAdminView(modelView)
+
+        val result = modelView.responseProduct.observeAsState()
+        CategoryAdminView(modelView, result.value?.category?: "")
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        AddProductView(modelView)
+        if(result.value != null){
+            AddProductView(modelView,
+                result.value!!.product!!.name,
+                result.value!!.product!!.description?: "",
+                result.value!!.product!!.weight,
+                result.value!!.product!!.price!!,
+                result.value!!.image)
+        }
+        else{
+            AddProductView(modelView,
+               "",
+                "",
+                null,
+                0.0,
+                null)
+        }
     }
 }
 

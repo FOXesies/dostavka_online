@@ -35,7 +35,7 @@ import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun CategoryAdminView(modelView: MenuModelView){
+fun CategoryAdminView(modelView: MenuModelView, category: String){
     val colorET = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
@@ -47,7 +47,7 @@ fun CategoryAdminView(modelView: MenuModelView){
 
     val categories = modelView.categories.observeAsState().value
     var addState by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf(category) }
 
         if(categories != null) {
             LazyRow(Modifier.fillMaxWidth()) {

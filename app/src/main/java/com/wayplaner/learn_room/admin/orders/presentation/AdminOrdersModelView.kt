@@ -10,12 +10,15 @@ import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getNext
 import com.wayplaner.learn_room.orderlist.domain.model.ResponseCancel
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 import com.wayplaner.learn_room.orderlist.util.UiOrderListEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class AdminOrdersModelView @Inject constructor(
     private val listOrderImpl: AdminOrderImpl
 ): ViewModel()  {
@@ -71,12 +74,12 @@ class AdminOrdersModelView @Inject constructor(
 
     private fun switchStatus(idOrder: Long, status: StatusOrder){
         viewModelScope.launch {
-            listOrderImpl.switchStatus(AdminStatusResponse(idOrder, status))
+            listOrderImpl.switchStatus(AdminStatusResponse(idOrder, status.getNext()?: StatusOrder.COMPLETE_ORDER))
         }
     }
     private fun switchStatusSelf(idOrder: Long, status: StatusOrder){
         viewModelScope.launch {
-            listOrderImpl.switchStatusSelf(AdminStatusResponse(idOrder, status))
+            listOrderImpl.switchStatusSelf(AdminStatusResponse(idOrder, status.getNext()?: StatusOrder.COMPLETE_ORDER))
         }
     }
 
@@ -87,7 +90,6 @@ class AdminOrdersModelView @Inject constructor(
             val response = listOrderImpl.getActiveOrder(uid)
             if(response.isSuccessful) {
                 mutList.addAll(response.body()!!.toMutableList())
-                //combineOrder_.value!!.addAll(response.body()?: listOf())
             }
 
             val responseSelf = listOrderImpl.getActiveOrderSelf(uid)

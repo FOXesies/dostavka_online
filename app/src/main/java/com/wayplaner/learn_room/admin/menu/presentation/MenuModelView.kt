@@ -11,6 +11,7 @@ import com.wayplaner.learn_room.admin.basic_info.util.StatusMenuChange
 import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
 import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
+import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.product.domain.model.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -28,15 +29,21 @@ class MenuModelView @Inject constructor(
     private var UiStatus_ = MutableLiveData<StatusMenuChange>()
     val UiStatus: LiveData<StatusMenuChange> = UiStatus_
 
+    private var listProducts_ = MutableLiveData<Map<String, List<Product>>>()
+    val listProducts: LiveData<Map<String, List<Product>>> = listProducts_
+
     private var categories_ = MutableLiveData<MutableList<String>>()
     val categories: LiveData<MutableList<String>> = categories_
 
-    private var responseProduct_ = mutableStateOf<ResponseProduct>(ResponseProduct())
-    private var imageProduct_ = mutableStateOf<ByteArray>(ByteArray(0))
+    private var responseProduct_ = MutableLiveData(ResponseProduct())
+    var responseProduct: LiveData<ResponseProduct> = responseProduct_
+
+    private var imageProduct_ = mutableStateOf(ByteArray(0))
 
     init {
         viewModelScope.launch {
             categories_.postValue(repository.getCategories().toMutableList())
+            listProducts_.postValue(repository.getAllInfo(AdminAccount.idOrg))
         }
     }
 
@@ -46,13 +53,13 @@ class MenuModelView @Inject constructor(
                 addCategory(event.category)
             }
             is UiEventMenuAdd.ChangeCategoryProduct -> {
-                responseProduct_.value.category = event.category
+                responseProduct_.value!!.category = event.category
             }
             is UiEventMenuAdd.ChangeImageProduct -> {
-                responseProduct_.value.image = event.imageBt
+                responseProduct_.value!!.image = event.imageBt
             }
             is UiEventMenuAdd.Sumbit -> {
-                responseProduct_.value.product = Product(name = event.name, description = event.description, price = event.price, weight = event.weight)
+                responseProduct_.value!!.product = Product(name = event.name, description = event.description, price = event.price, weight = event.weight)
                 submit(event.context)
             }
             else -> {}

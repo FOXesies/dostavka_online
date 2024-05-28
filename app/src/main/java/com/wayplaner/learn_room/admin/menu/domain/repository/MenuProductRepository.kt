@@ -24,7 +24,9 @@ interface MenuProductRepository {
         @Part("product") product: RequestBody
     ): Response<Void>
     @GET("products/get_info/{id}")
-    suspend fun getInfo(@Path("id") idOrg: Long): Product
+    suspend fun getInfo(@Path("id") idProduct: Long): Product
+    @GET("organizations/all_products/{id}")
+    suspend fun getAllInfo(@Path("id") idOrg: Long): Map<String, List<Product>>
     @GET("upload/img/{id}")
     @Streaming
     suspend fun getImage(@Path("id") idOrg: Long): Response<ResponseBody>

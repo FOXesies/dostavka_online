@@ -37,8 +37,8 @@ enum class StatusOrder {
                 COMPLETE_ORDER -> return null
             }
         }
-        fun getBackColor(pick: StatusOrder): Color {
-            when(pick){
+        fun StatusOrder.getBackColor(): Color {
+            when(this){
                 WAIT_ACCEPT -> {
                     return waitStatusBack
                 }
@@ -68,8 +68,8 @@ enum class StatusOrder {
                 }
             }
         }
-        fun getTextColor(pick: StatusOrder): Color {
-            when(pick){
+        fun StatusOrder.getTextColor(): Color {
+            when(this){
                 WAIT_ACCEPT -> {
                     return waitStatus
                 }
@@ -99,8 +99,8 @@ enum class StatusOrder {
                 }
             }
         }
-        fun getText(pick: StatusOrder): String{
-            when(pick) {
+        fun StatusOrder.getText(): String{
+            when(this) {
                 WAIT_ACCEPT -> {
                     return "Ожидает подтверждения..."
                 }

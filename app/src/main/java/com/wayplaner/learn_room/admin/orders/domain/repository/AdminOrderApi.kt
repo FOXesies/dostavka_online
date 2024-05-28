@@ -11,10 +11,10 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AdminOrderApi {
+    @GET("admin/order/all_deliveri/{id}")
+    suspend fun getActiveOrder(@Path("id") idOrg: Long): Response<List<Order>>
     @GET("admin/order/all_self_deliveri/{id}")
-    suspend fun getActiveOrder(@Path("idOrg") idOrg: Long): Response<List<Order>>
-    @GET("admin/order/all_self_deliveri/{id}")
-    suspend fun getActiveOrderSelf(@Path("idOrg") idOrg: Long): Response<List<OrderSelfDelivery>>
+    suspend fun getActiveOrderSelf(@Path("id") idOrg: Long): Response<List<OrderSelfDelivery>>
     @POST("admin/order/switch_status")
     suspend fun switchStatus(@Body statusinfo: AdminStatusResponse)
     @POST("admin/order/switch_statusSelf")
@@ -26,7 +26,7 @@ interface AdminOrderApi {
 
 
     @GET("admin/order/all_self_deliveri/{id}")
-    suspend fun getCancelOrder(@Path("idOrg") idOrg: Long): Response<List<Order>>
+    suspend fun getCancelOrder(@Path("id") idOrg: Long): Response<List<Order>>
     @GET("admin/order/all_self_deliveri/{id}")
-    suspend fun getCancelOrderSelf(@Path("idOrg") idOrg: Long): Response<List<OrderSelfDelivery>>
+    suspend fun getCancelOrderSelf(@Path("id") idOrg: Long): Response<List<OrderSelfDelivery>>
 }

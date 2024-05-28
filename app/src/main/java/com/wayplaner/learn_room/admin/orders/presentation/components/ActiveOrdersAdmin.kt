@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wayplaner.learn_room.admin.orders.presentation.AdminOrdersModelView
 import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
-import com.wayplaner.learn_room.orderlist.presentation.ListOrderModelView
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
-fun ActiveOrdersAdmin(vmListorder: ListOrderModelView) {
+fun ActiveOrdersAdmin(vmListorder: AdminOrdersModelView) {
     Column(modifier = Modifier
         .padding(vertical = 5.dp, horizontal = 10.dp)
         .background(Color.Transparent)) {

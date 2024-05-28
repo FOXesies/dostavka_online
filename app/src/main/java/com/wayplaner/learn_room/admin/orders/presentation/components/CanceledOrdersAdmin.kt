@@ -8,13 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.wayplaner.learn_room.admin.orders.presentation.AdminOrdersModelView
 import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrder
 import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrderSelf
-import com.wayplaner.learn_room.orderlist.presentation.ListOrderModelView
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
-fun CanceledOrdersAdmin(vmListorder: ListOrderModelView) {
+fun CanceledOrdersAdmin(vmListorder: AdminOrdersModelView) {
     vmListorder.onEvent(UiOrderEvent.OpenCanceledOrder)
     val value = vmListorder.cancelCombineOrder.observeAsState()
 

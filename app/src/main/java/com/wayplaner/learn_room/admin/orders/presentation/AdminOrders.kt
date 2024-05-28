@@ -38,7 +38,6 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.admin.orders.presentation.components.ActiveOrdersAdmin
 import com.wayplaner.learn_room.admin.orders.presentation.components.CanceledOrdersAdmin
 import com.wayplaner.learn_room.admin.orders.presentation.components.CompleteOrdersAdmin
-import com.wayplaner.learn_room.orderlist.presentation.ListOrderModelView
 import com.wayplaner.learn_room.ui.theme.categoryColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
@@ -47,7 +46,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AdminOrders(navController: NavController, vmListorder: ListOrderModelView = hiltViewModel()) {
+fun AdminOrders(navController: NavController, vmListorder: AdminOrdersModelView = hiltViewModel()) {
     Scaffold(
     ) { paddingValues ->
         Column(

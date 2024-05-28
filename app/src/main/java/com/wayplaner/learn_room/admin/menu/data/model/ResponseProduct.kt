@@ -7,5 +7,5 @@ data class ResponseProduct (
     var product: Product? = null,
     var image: ByteArray? = null,
     var idOrg: Long = AdminAccount.idOrg,
-    var category: String? = null
+    var category: String = ""
 )

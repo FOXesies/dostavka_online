@@ -36,7 +36,10 @@ import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getBackColor
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getNext
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getText
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getTextColor
 import com.wayplaner.learn_room.ui.theme.deliveryType
 import com.wayplaner.learn_room.ui.theme.deliveryTypeBack
 import com.wayplaner.learn_room.ui.theme.redActionColor
@@ -46,8 +49,8 @@ import com.wayplaner.learn_room.ui.theme.testButton
 import com.wayplaner.learn_room.ui.theme.testText
 
 @Composable
-private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: String, isDelivery: Boolean, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit) {
-    var status by remember { mutableStateOf(StatusOrder.WAIT_ACCEPT) }
+private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: String, status: StatusOrder, isDelivery: Boolean, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit) {
+    var status by remember { mutableStateOf(status) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -55,10 +58,10 @@ private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: Strin
         Column(modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
             cardForStatusDeliveryAdmin(isDelivery)
             Card(
-                colors = CardDefaults.cardColors(StatusOrder.getBackColor(status))
+                colors = CardDefaults.cardColors(status.getBackColor())
             ) {
-                Text(text = StatusOrder.getText(status),
-                    color = StatusOrder.getTextColor(status),
+                Text(text = status.getText(),
+                    color = status.getTextColor(),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
             }
@@ -106,14 +109,15 @@ private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: Strin
 
                 Spacer(modifier = Modifier.height(6.dp))
 
+                val nextValue = (status.getNext()?: StatusOrder.COMPLETE_ORDER)
                 Button(shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(StatusOrder.getBackColor(status.getNext()?: StatusOrder.COMPLETE_ORDER)),
+                    colors = ButtonDefaults.buttonColors(nextValue.getBackColor()),
                     onClick = {
-                        status = status.getNext()?: StatusOrder.COMPLETE_ORDER
+                        status = nextValue
                         logicSwitchStatus()
                     }) {
-                    Text(text = StatusOrder.getText(status.getNext()?: StatusOrder.COMPLETE_ORDER),
-                        color = StatusOrder.getTextColor(status.getNext()?: StatusOrder.COMPLETE_ORDER),
+                    Text(text = nextValue.getText(),
+                        color = nextValue.getTextColor(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
@@ -126,12 +130,12 @@ private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: Strin
 
 @Composable
 fun createCardOrderActiveAdmin(order: Order, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit){
-    CardActiveOrderAdmin(order.uuid!!.id.toString(), "10 марта", order.summ.toString(), true, loginCancel, logicSwitchStatus)
+    CardActiveOrderAdmin(order.uuid!!.id.toString(), "10 марта", order.summ.toString(), order.status?: StatusOrder.COMPLETE_ORDER, true, loginCancel, logicSwitchStatus)
 }
 
 @Composable
 fun createCardOrderActiveAdmin(orderSelf: OrderSelfDelivery, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit){
-    CardActiveOrderAdmin(orderSelf.uuid!!.id.toString(), "10 марта", orderSelf.summ.toString(), false, loginCancel, logicSwitchStatus)
+    CardActiveOrderAdmin(orderSelf.uuid!!.id.toString(), "10 марта", orderSelf.summ.toString(), orderSelf.status?: StatusOrder.COMPLETE_ORDER, false, loginCancel, logicSwitchStatus)
 }
 
 @Composable
