@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -50,7 +53,7 @@ fun MenuAddScreen(
             containerColor = whiteColor,
             onClick = { navController.navigateUp() }) {
             Icon(
-                Icons.Filled.KeyboardArrowLeft,
+                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                 tint = redActionColor,
                 modifier = Modifier.size(32.dp),
                 contentDescription = null
@@ -88,14 +91,13 @@ fun MenuUpdateScreen(modelView: MenuModelView){
 }
 @Composable
 private fun MenuExist(modelView: MenuModelView){
-    Column(
-        modifier = Modifier.padding(top = 70.dp)){
+    Column(modifier = Modifier.padding(top = 60.dp).verticalScroll(rememberScrollState())){
         Text(text = "Категория блюда", fontSize = 16.sp, modifier = Modifier.padding(start = 20.dp, bottom = 2.dp))
         CategoryAdminView(modelView)
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        AddProductView()
+        AddProductView(modelView)
     }
 }
 

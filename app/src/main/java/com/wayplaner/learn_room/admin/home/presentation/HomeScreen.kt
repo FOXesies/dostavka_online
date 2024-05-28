@@ -14,12 +14,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.ui.theme.redLogoColor
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navController: NavController
+) {
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,){
         Column(
@@ -27,14 +31,38 @@ fun HomeScreen() {
                 .wrapContentWidth()
                 .align(Alignment.CenterHorizontally)
         ) {
-            Button(onClick = { /*TODO*/ },
+            Button(onClick = { navController.navigate("${MainRoute.Admin_BasicInfo.name}") },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .width(250.dp),
+                    .width(280.dp),
                 colors = ButtonDefaults.buttonColors(redLogoColor),
                 shape = RoundedCornerShape(40)
             ) {
-                Text(text = "Основная информация")
+                Text(text = "Основная информация", fontSize = 16.sp)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(onClick = { navController.navigate("${MainRoute.Admin_MenuProduct.name}") },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(280.dp),
+                colors = ButtonDefaults.buttonColors(redLogoColor),
+                shape = RoundedCornerShape(40)
+            ) {
+                Text(text = "Меню", fontSize = 16.sp)
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(onClick = { navController.navigate("${MainRoute.Admin_Orders.name}") },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(280.dp),
+                colors = ButtonDefaults.buttonColors(redLogoColor),
+                shape = RoundedCornerShape(40)
+            ) {
+                Text(text = "Заказы", fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -42,11 +70,11 @@ fun HomeScreen() {
             Button(onClick = { /*TODO*/ },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .width(250.dp),
+                    .width(280.dp),
                 colors = ButtonDefaults.buttonColors(redLogoColor),
                 shape = RoundedCornerShape(40)
             ) {
-                Text(text = "Меню")
+                Text(text = "Отзывы", fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -54,42 +82,12 @@ fun HomeScreen() {
             Button(onClick = { /*TODO*/ },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .width(250.dp),
+                    .width(280.dp),
                 colors = ButtonDefaults.buttonColors(redLogoColor),
                 shape = RoundedCornerShape(40)
             ) {
-                Text(text = "Заказы")
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(250.dp),
-                colors = ButtonDefaults.buttonColors(redLogoColor),
-                shape = RoundedCornerShape(40)
-            ) {
-                Text(text = "Отзывы")
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Button(onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(250.dp),
-                colors = ButtonDefaults.buttonColors(redLogoColor),
-                shape = RoundedCornerShape(40)
-            ) {
-                Text(text = "Настройки")
+                Text(text = "Настройки", fontSize = 16.sp)
             }
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true, showSystemUi = true)
-fun fsdf(){
-    HomeScreen()
 }

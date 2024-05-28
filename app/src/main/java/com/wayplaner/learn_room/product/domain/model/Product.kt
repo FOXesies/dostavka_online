@@ -6,5 +6,5 @@ data class Product(
     var price: Double?,
     var weight: Float?,
     var description: String?,
-    var imageProduct: Long?
+    var imageProduct: Long? = null
 )

@@ -48,9 +48,7 @@ import com.wayplaner.learn_room.ui.theme.lightGrayColor
 
 
 @Composable
-fun HomeScreen(drawerState: DrawerState?,/*
-    navigateToOrganization: (Long) -> Unit,
-    navigateToBasket: (Long) -> Unit,*/
+fun HomeScreen(drawerState: DrawerState?,
     navController: NavController,
     homeViewModel: MainModelView = hiltViewModel()){
 

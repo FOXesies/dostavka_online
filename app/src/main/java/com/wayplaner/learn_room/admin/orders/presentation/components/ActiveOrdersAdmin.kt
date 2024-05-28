@@ -31,8 +31,12 @@ fun ActiveOrdersAdmin(vmListorder: ListOrderModelView) {
                 ) {
                     items(orders.value!!) {
                         when (it) {
-                            is Order -> createCardOrderActiveAdmin(it) { vmListorder.onEvent(UiOrderEvent.CancelOrder(true, it.orderId!!)) }
-                            is OrderSelfDelivery -> createCardOrderActiveAdmin(it) { vmListorder.onEvent(UiOrderEvent.CancelOrder(false, it.idOrderSelf!!)) }
+                            is Order -> createCardOrderActiveAdmin(it,
+                                loginCancel = { vmListorder.onEvent(UiOrderEvent.CancelOrder(true, it.orderId!!)) },
+                                logicSwitchStatus = { vmListorder.onEvent(UiOrderEvent.SwitchOrder(it.orderId!!, it.status!!)) })
+                            is OrderSelfDelivery -> createCardOrderActiveAdmin(it,
+                                loginCancel = { vmListorder.onEvent(UiOrderEvent.CancelOrder(false, it.idOrderSelf!!)) },
+                                logicSwitchStatus = { vmListorder.onEvent(UiOrderEvent.SwitchOrderSelf(it.idOrderSelf!!, it.status!!)) })
                         }
                     }
                 }

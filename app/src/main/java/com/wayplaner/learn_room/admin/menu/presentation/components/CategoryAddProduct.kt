@@ -27,10 +27,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wayplaner.learn_room.admin.basic_info.util.UiEventMenuAdd
 import com.wayplaner.learn_room.admin.menu.presentation.MenuModelView
+import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
 import com.wayplaner.learn_room.ui.theme.grayColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
+import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
@@ -43,17 +44,21 @@ fun CategoryAdminView(modelView: MenuModelView){
         unfocusedContainerColor = lightGrayColor,
     )
 
-    val categories = modelView.categories.observeAsState().value
 
+    val categories = modelView.categories.observeAsState().value
     var addState by remember { mutableStateOf(false) }
-    if(!addState) {
+    var selectedCategory by remember { mutableStateOf("") }
+
         if(categories != null) {
             LazyRow(Modifier.fillMaxWidth()) {
                 items(categories) {
                     Button(modifier = Modifier
                         .padding(horizontal = 5.dp),
-                        colors = ButtonDefaults.buttonColors(grayColor),
-                        onClick = { }) {
+                        colors = if(selectedCategory == it) ButtonDefaults.buttonColors(redActionColor) else ButtonDefaults.buttonColors(grayColor),
+                        onClick = {
+                            selectedCategory = it
+                            modelView.onEvent(UiEventMenuAdd.ChangeCategoryProduct(it))
+                        }) {
                         Text(
                             text = it,
                             color = whiteColor,
@@ -66,7 +71,7 @@ fun CategoryAdminView(modelView: MenuModelView){
                         .padding(horizontal = 5.dp),
                         colors = ButtonDefaults.buttonColors(grayColor),
                         contentPadding = PaddingValues(start = 10.dp, end = 18.dp),
-                        onClick = { /*modelView.onEventAdd()*/ }) {
+                        onClick = { addState = true }) {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = null,
@@ -80,13 +85,13 @@ fun CategoryAdminView(modelView: MenuModelView){
                     }
                 }
             }
-        }
     }
-    else{
+
+    if(addState) {
         var category by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { addState = false },
-            title = { Text("Добавьте город в список", fontSize = 22.sp) },
+            title = { Text("Добавьте категорию товара", fontSize = 22.sp) },
             text = {
                 TextField(
                     value = category,
@@ -99,7 +104,10 @@ fun CategoryAdminView(modelView: MenuModelView){
                     colors = colorET
                 ) },
             confirmButton = {
-                TextButton(onClick = { modelView.onEvent(UiEventMenuAdd.AddCategoryInList(category)) }) {
+                TextButton(onClick = {
+                    modelView.onEvent(UiEventMenuAdd.AddCategoryInList(category))
+                    addState = false
+                }) {
                     Text("Добавить".uppercase())
                 }
             },

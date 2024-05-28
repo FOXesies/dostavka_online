@@ -31,13 +31,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.R
+import com.wayplaner.learn_room.admin.menu.presentation.MenuModelView
+import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
 import com.wayplaner.learn_room.admin.util.toBitmapImage
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redBlackColor
 import com.wayplaner.learn_room.ui.theme.redLogoColor
 
 @Composable
-fun AddProductView() {
+fun AddProductView(modelView: MenuModelView) {
     val colorET = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
@@ -59,6 +61,7 @@ fun AddProductView() {
             val byteArray = inputStream?.readBytes()
             if (byteArray != null) {
                 selectImages = byteArray
+                modelView.onEvent(UiEventMenuAdd.ChangeImageProduct(byteArray))
             }
         }
 
@@ -188,7 +191,15 @@ fun AddProductView() {
             Spacer(modifier = Modifier.height(30.dp))
 
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    modelView.onEvent(UiEventMenuAdd.Sumbit(
+                        context,
+                        nameValue,
+                        descriptionValue,
+                        price.toDouble(),
+                        weigth.toFloat()
+                    ))
+                },
                 Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -205,5 +216,4 @@ fun AddProductView() {
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun Menu1f(){
-    AddProductView()
 }
