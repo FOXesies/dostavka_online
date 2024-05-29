@@ -43,7 +43,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = { navController.navigate("${MainRoute.Admin_MenuProduct.name}") },
+            Button(onClick = { navController.navigate("${MainRoute.Admin_MenuList.name}") },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .width(280.dp),

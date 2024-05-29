@@ -71,6 +71,7 @@ enum class MainRoute(value: String) {
     Admin_BasicInfo("admin_basic_info"),
     Admin_Home("admin_home"),
     Admin_Orders("admin_order"),
+    Admin_MenuList("admin_menu_list"),
     Admin_MenuProduct("admin_menu_product")
 }
 

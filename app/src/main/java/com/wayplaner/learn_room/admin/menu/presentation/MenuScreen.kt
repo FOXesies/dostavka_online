@@ -12,7 +12,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.admin.menu.presentation.components.AddProductView
 import com.wayplaner.learn_room.admin.menu.presentation.components.CategoryAdminView
+import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
@@ -38,9 +39,12 @@ fun MenuAddScreen(
     modelView: MenuModelView = hiltViewModel()
 ) {
     Box(modifier = Modifier.fillMaxSize()){
-        MenuExist(modelView)
 
-        Text(text = "Добавление блюда", fontSize = 18.sp,
+        modelView.onEvent(UiEventMenuAdd.PickProduct)
+
+        val result = modelView.responseProduct.observeAsState()
+
+        Text(text = if(result.value == null) "Добавление блюда" else "Изменение блюда", fontSize = 18.sp,
             modifier = Modifier
                 .padding(top = 18.dp, start = 80.dp, end = 20.dp)
                 .fillMaxWidth())
@@ -60,55 +64,28 @@ fun MenuAddScreen(
                 contentDescription = null
             )
         }
+
+        MenuExist(modelView, result.value)
     }
 }
 
 @Composable
-fun MenuUpdateScreen(modelView: MenuModelView){
-    Box(modifier = Modifier.fillMaxSize()){
-        MenuExist(modelView)
-
-        Text(text = "Изменение блюда", fontSize = 18.sp,
-            modifier = Modifier
-                .padding(top = 18.dp, start = 80.dp, end = 20.dp)
-                .fillMaxWidth())
-
-        FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .clip(MaterialTheme.shapes.small)
-                .padding(top = 8.dp, start = 10.dp, end = 2.dp, bottom = 2.dp)
-                .size(45.dp),
-            containerColor = whiteColor,
-            onClick = { /*navController.navigateUp()*/ }) {
-            Icon(
-                Icons.Filled.KeyboardArrowLeft,
-                tint = redActionColor,
-                modifier = Modifier.size(32.dp),
-                contentDescription = null
-            )
-        }
-    }
-}
-@Composable
-private fun MenuExist(modelView: MenuModelView){
+private fun MenuExist(modelView: MenuModelView, result: ResponseProduct?){
     Column(modifier = Modifier
         .padding(top = 60.dp)
         .verticalScroll(rememberScrollState())){
         Text(text = "Категория блюда", fontSize = 16.sp, modifier = Modifier.padding(start = 20.dp, bottom = 2.dp))
-
-        val result = modelView.responseProduct.observeAsState()
-        CategoryAdminView(modelView, result.value?.category?: "")
+        CategoryAdminView(modelView, result?.category?: "")
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        if(result.value != null){
+        if(result != null){
             AddProductView(modelView,
-                result.value!!.product!!.name,
-                result.value!!.product!!.description?: "",
-                result.value!!.product!!.weight,
-                result.value!!.product!!.price!!,
-                result.value!!.image)
+                result.product!!.name,
+                result.product!!.description?: "",
+                result.product!!.weight,
+                result.product!!.price!!,
+                result.image)
         }
         else{
             AddProductView(modelView,

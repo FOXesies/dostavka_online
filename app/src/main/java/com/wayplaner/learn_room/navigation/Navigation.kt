@@ -23,6 +23,7 @@ import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.SettingsScreen
 import com.wayplaner.learn_room.admin.basic_info.presentation.BasicInfo
 import com.wayplaner.learn_room.admin.menu.presentation.MenuAddScreen
+import com.wayplaner.learn_room.admin.menu.presentation.MenuList
 import com.wayplaner.learn_room.admin.orders.presentation.AdminOrders
 import com.wayplaner.learn_room.basket.presentation.BasketScreen
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderScreen
@@ -44,7 +45,7 @@ fun Navigation(
         DrawerMenu(Icons.Filled.Face, "Главная", MainRoute.Home.name),
         DrawerMenu(Icons.Filled.ShoppingBasket, "Корзина", MainRoute.Basket.name),
         DrawerMenu(ImageVector.vectorResource(R.drawable.checklist_list_orderlist_order_icon_219982), "Заказы", MainRoute.Orders.name),
-        DrawerMenu(Icons.Filled.Settings, "Settings", MainRoute.Admin_Orders.name)
+        DrawerMenu(Icons.Filled.Settings, "Settings", MainRoute.Admin_Home.name)
     )
 
     ModalNavigationDrawer(
@@ -99,6 +100,9 @@ fun Navigation(
             }
             composable(MainRoute.Admin_Home.name) {
                 com.wayplaner.learn_room.admin.home.presentation.HomeScreen(navController)
+            }
+            composable(MainRoute.Admin_MenuList.name) {
+                MenuList(navController)
             }
             composable(MainRoute.Admin_MenuProduct.name) {
                 MenuAddScreen(navController)

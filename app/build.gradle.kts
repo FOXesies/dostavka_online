@@ -1,6 +1,3 @@
-import org.gradle.internal.impldep.com.fasterxml.jackson.core.JsonPointer.compile
-import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
-
 plugins {
     id("com.android.application")
     id("com.google.dagger.hilt.android")

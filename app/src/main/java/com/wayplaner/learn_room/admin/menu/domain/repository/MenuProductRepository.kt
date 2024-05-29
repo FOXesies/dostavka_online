@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.admin.menu.domain.repository
 
+import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.product.domain.model.Product
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -24,7 +25,7 @@ interface MenuProductRepository {
         @Part("product") product: RequestBody
     ): Response<Void>
     @GET("products/get_info/{id}")
-    suspend fun getInfo(@Path("id") idProduct: Long): Product
+    suspend fun getInfo(@Path("id") idProduct: Long): ResponseProduct
     @GET("organizations/all_products/{id}")
     suspend fun getAllInfo(@Path("id") idOrg: Long): Map<String, List<Product>>
     @GET("upload/img/{id}")

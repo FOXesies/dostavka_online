@@ -45,16 +45,19 @@ fun CategoryAdminView(modelView: MenuModelView, category: String){
     )
 
 
+    var selectedCategory by remember { mutableStateOf("") }
+    selectedCategory = category
     val categories = modelView.categories.observeAsState().value
+    val res = categories?.contains(selectedCategory)
+    res
     var addState by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf(category) }
 
         if(categories != null) {
             LazyRow(Modifier.fillMaxWidth()) {
                 items(categories) {
                     Button(modifier = Modifier
                         .padding(horizontal = 5.dp),
-                        colors = if(selectedCategory == it) ButtonDefaults.buttonColors(redActionColor) else ButtonDefaults.buttonColors(grayColor),
+                        colors = if(it == selectedCategory) ButtonDefaults.buttonColors(redActionColor) else ButtonDefaults.buttonColors(grayColor),
                         onClick = {
                             selectedCategory = it
                             modelView.onEvent(UiEventMenuAdd.ChangeCategoryProduct(it))

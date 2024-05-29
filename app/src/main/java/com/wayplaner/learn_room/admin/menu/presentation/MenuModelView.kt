@@ -35,8 +35,8 @@ class MenuModelView @Inject constructor(
     private var categories_ = MutableLiveData<MutableList<String>>()
     val categories: LiveData<MutableList<String>> = categories_
 
-    private var responseProduct_ = MutableLiveData(ResponseProduct())
-    var responseProduct: LiveData<ResponseProduct> = responseProduct_
+    private var responseProduct_ = MutableLiveData<ResponseProduct?>(null)
+    var responseProduct: LiveData<ResponseProduct?> = responseProduct_
 
     private var imageProduct_ = mutableStateOf(ByteArray(0))
 
@@ -47,10 +47,20 @@ class MenuModelView @Inject constructor(
         }
     }
 
+    companion object {
+        private var product = ResponseProduct()
+        fun setPickProduct(product: ResponseProduct){
+            this.product = product
+        }
+    }
+
     fun onEvent(event: UiEventMenuAdd){
         when (event) {
             is UiEventMenuAdd.AddCategoryInList -> {
                 addCategory(event.category)
+            }
+            is UiEventMenuAdd.PickProduct -> {
+                responseProduct_.postValue(product)
             }
             is UiEventMenuAdd.ChangeCategoryProduct -> {
                 responseProduct_.value!!.category = event.category
