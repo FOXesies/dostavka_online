@@ -47,9 +47,8 @@ fun CategoryAdminView(modelView: MenuModelView, category: String){
 
     var selectedCategory by remember { mutableStateOf("") }
     selectedCategory = category
+
     val categories = modelView.categories.observeAsState().value
-    val res = categories?.contains(selectedCategory)
-    res
     var addState by remember { mutableStateOf(false) }
 
         if(categories != null) {

@@ -39,7 +39,7 @@ import com.wayplaner.learn_room.ui.theme.redBlackColor
 import com.wayplaner.learn_room.ui.theme.redLogoColor
 
 @Composable
-fun AddProductView(modelView: MenuModelView, name: String, description: String, weihth: Float?, price: Double, selectImages: ByteArray?) {
+fun AddProductView(modelView: MenuModelView, name: String, description: String, weihth: Float?, price: Double) {
     val colorET = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
@@ -51,7 +51,10 @@ fun AddProductView(modelView: MenuModelView, name: String, description: String, 
     var descriptionValue by remember { mutableStateOf(description) }
     var weigth by remember { mutableStateOf(weihth.toString()) }
     var price by remember { mutableStateOf(price.toString()) }
-    var selectImages by remember { mutableStateOf(selectImages) }
+
+    val image = modelView.imageProduct.value
+    var selectImages by remember { mutableStateOf(image) }
+
 
     val context = LocalContext.current
 

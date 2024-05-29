@@ -84,16 +84,14 @@ private fun MenuExist(modelView: MenuModelView, result: ResponseProduct?){
                 result.product!!.name,
                 result.product!!.description?: "",
                 result.product!!.weight,
-                result.product!!.price!!,
-                result.image)
+                result.product!!.price!!)
         }
         else{
             AddProductView(modelView,
                "",
                 "",
                 null,
-                0.0,
-                null)
+                0.0)
         }
     }
 }

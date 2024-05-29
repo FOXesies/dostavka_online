@@ -1,7 +1,6 @@
 package com.wayplaner.learn_room.admin.menu.presentation
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -38,12 +37,12 @@ class MenuModelView @Inject constructor(
     private var responseProduct_ = MutableLiveData<ResponseProduct?>(null)
     var responseProduct: LiveData<ResponseProduct?> = responseProduct_
 
-    private var imageProduct_ = mutableStateOf(ByteArray(0))
+    private var imageProduct_ = MutableLiveData<ByteArray?>(null)
+    var imageProduct: LiveData<ByteArray?> = imageProduct_
 
     init {
         viewModelScope.launch {
             categories_.postValue(repository.getCategories().toMutableList())
-            listProducts_.postValue(repository.getAllInfo(AdminAccount.idOrg))
         }
     }
 
@@ -59,8 +58,11 @@ class MenuModelView @Inject constructor(
             is UiEventMenuAdd.AddCategoryInList -> {
                 addCategory(event.category)
             }
+            is UiEventMenuAdd.ListProducts -> {
+                getAllProducts()
+            }
             is UiEventMenuAdd.PickProduct -> {
-                responseProduct_.postValue(product)
+                getProduct()
             }
             is UiEventMenuAdd.ChangeCategoryProduct -> {
                 responseProduct_.value!!.category = event.category
@@ -72,7 +74,22 @@ class MenuModelView @Inject constructor(
                 responseProduct_.value!!.product = Product(name = event.name, description = event.description, price = event.price, weight = event.weight)
                 submit(event.context)
             }
-            else -> {}
+        }
+    }
+
+    private fun getProduct(){
+        viewModelScope.launch {
+            responseProduct_.postValue(product)
+            categories_.postValue(repository.getCategories().toMutableList())
+            imageProduct_.postValue(product.product?.imageProduct?.let {
+                repository.getImage(it)
+            })
+        }
+    }
+
+    private fun getAllProducts(){
+        viewModelScope.launch {
+            listProducts_.postValue(repository.getAllInfo(AdminAccount.idOrg))
         }
     }
 
@@ -87,7 +104,7 @@ class MenuModelView @Inject constructor(
     private fun submit(applicationContext: Context) {
         viewModelScope.launch {
             val file = File.createTempFile("tempImage", null, applicationContext.cacheDir)
-            file.writeBytes(imageProduct_.value)
+            file.writeBytes(imageProduct_.value?: ByteArray(0))
 
             val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
             val body = MultipartBody.Part.createFormData("image", file.name, requestFile)

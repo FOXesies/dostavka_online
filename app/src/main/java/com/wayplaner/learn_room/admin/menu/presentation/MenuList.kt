@@ -27,13 +27,13 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.admin.menu.presentation.components.AdminProductItem
+import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
 fun MenuList(navController: NavController, modelView: MenuModelView = hiltViewModel()) {
     Column {
-
         Box(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Список блюд", fontSize = 18.sp,
@@ -59,7 +59,9 @@ fun MenuList(navController: NavController, modelView: MenuModelView = hiltViewMo
             }
         }
 
+        modelView.onEvent(UiEventMenuAdd.ListProducts)
         val listProducts = modelView.listProducts.observeAsState()
+
         if (listProducts.value != null) {
             LazyColumn(modifier = Modifier.padding(horizontal = 10.dp)) {
                 listProducts.value!!.forEach { (category, products) ->

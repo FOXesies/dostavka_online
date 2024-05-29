@@ -3,7 +3,7 @@ package com.wayplaner.learn_room.admin.menu.util
 import android.content.Context
 
 sealed class UiEventMenuAdd {
-    data object Allproducts: UiEventMenuAdd()
+    data object ListProducts: UiEventMenuAdd()
     data object PickProduct: UiEventMenuAdd()
     data class AddCategoryInList(val category: String): UiEventMenuAdd()
     data class ChangeCategoryProduct(val category: String): UiEventMenuAdd()
