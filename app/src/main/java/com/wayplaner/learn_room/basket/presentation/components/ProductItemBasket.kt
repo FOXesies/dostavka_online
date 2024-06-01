@@ -1,17 +1,14 @@
 package com.wayplaner.learn_room.basket.presentation.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,10 +33,8 @@ import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
 import com.wayplaner.learn_room.order.data.model.ProductInBasket
-import com.wayplaner.learn_room.ui.theme.grayColor
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
-import com.wayplaner.learn_room.ui.theme.textFieldFocus
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
@@ -78,10 +73,10 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
                         .size(26.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(lightGrayColor),
                         onClick = {
-                            if(productInBasket.count - 1 == 0)
-                                vmBasket.deleteProduct(productInBasket.product!!.idProduct!!)
+                            if(productInBasket.count == 1)
+                                vmBasket.deleteProduct(productInBasket.product!!)
                             else
-                                vmBasket.minusProduct(productInBasket.product!!.idProduct!!)
+                                vmBasket.minusProduct(productInBasket.product!!)
                         }) {
                         Icon(
                             modifier = Modifier
@@ -98,7 +93,7 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
                         colors = IconButtonDefaults.filledIconButtonColors(lightGrayColor),
                         onClick = {
                             if(productInBasket.count < 99)
-                                vmBasket.plusProduct(productInBasket.product!!.idProduct!!)
+                                vmBasket.plusProduct(productInBasket.product!!)
                         }) {
                         Icon(
                             modifier = Modifier

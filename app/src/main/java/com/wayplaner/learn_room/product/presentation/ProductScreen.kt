@@ -223,7 +223,7 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
                         .padding(vertical = 8.dp)
                         .clickable {
                             if(productBasketCount.value != 1) {
-                                vmBasket.minusProduct(productValue.idProduct!!)
+                                vmBasket.minusProduct(productValue)
                                 vmBasket.setCountInProducts(productBasketCount.value!! - 1)
                             }
                         }
@@ -243,7 +243,7 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
                         .padding(vertical = 8.dp)
                         .clickable {
                             if(productBasketCount.value != 99) {
-                                vmBasket.plusProduct(productValue.idProduct!!)
+                                vmBasket.plusProduct(productValue)
                                 vmBasket.setCountInProducts(productBasketCount.value!! + 1)
                             }
                         }
@@ -261,7 +261,7 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
                     .height(40.dp),
                 colors = ButtonDefaults.buttonColors(whiteColor),
                 onClick = {
-                    vmBasket.deleteProduct(productValue.idProduct!!)
+                    vmBasket.deleteProduct(productValue)
                     vmBasket.setCountInProducts(0)
                 }) {
                 Text(
@@ -280,7 +280,7 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
                 .background(redActionColor)
                 .clip(RoundedCornerShape(0.dp))
                 .clickable {
-                    vmBasket.addProduct(productValue.idProduct!!)
+                    vmBasket.addProduct(productValue)
                     vmBasket.setCountInProducts(1)
                 }
                 .height(55.dp),

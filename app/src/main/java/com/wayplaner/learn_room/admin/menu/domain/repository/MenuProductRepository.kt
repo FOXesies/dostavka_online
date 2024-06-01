@@ -3,7 +3,6 @@ package com.wayplaner.learn_room.admin.menu.domain.repository
 import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.product.domain.model.Product
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
@@ -19,10 +18,10 @@ interface MenuProductRepository {
     @GET("organizations/categories")
     suspend fun getCategories(): List<String>
     @Multipart
-    @POST("products/add_product/")
+    @POST("admin/products/add_product/")
     suspend fun updateProducts(
         @Part image: MultipartBody.Part,
-        @Part("product") product: RequestBody
+        @Part("product") product: ResponseProduct
     ): Response<Void>
     @GET("products/get_info/{id}")
     suspend fun getInfo(@Path("id") idProduct: Long): ResponseProduct

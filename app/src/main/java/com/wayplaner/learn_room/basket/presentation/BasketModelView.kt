@@ -7,8 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
 import com.wayplaner.learn_room.basket.domain.model.SendBasketProduct
 import com.wayplaner.learn_room.basket.util.Basketproduct
-import com.wayplaner.learn_room.basket.util.UiBasketEvent
 import com.wayplaner.learn_room.order.data.model.BasketItem
+import com.wayplaner.learn_room.order.data.model.ProductInBasket
+import com.wayplaner.learn_room.product.domain.model.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -21,9 +22,6 @@ class BasketModelView @Inject constructor(
 
     private val basket_ = MutableLiveData(BasketItem())
     val basketItem: LiveData<BasketItem?> = basket_
-
-    private val uiBasketEvent_ = MutableLiveData<UiBasketEvent>(UiBasketEvent.EmptyBasket)
-    val uiBasketEvent: LiveData<UiBasketEvent> = uiBasketEvent_
 
     private val productBasketCount = MutableLiveData<Int>()
 
@@ -58,39 +56,52 @@ class BasketModelView @Inject constructor(
     private fun loadBasket(){
         viewModelScope.launch {
             basket_.value = basketApiImpl.getBasket(1).body()
-            uiBasketEvent_.value = when(basket_.value?.productsPick?.size == 0){
-                false -> UiBasketEvent.NormalBasket
-                true -> UiBasketEvent.EmptyBasket
-            }
         }
     }
 
-    fun addProduct(productId: Long) {
+    fun addProduct(product: Product) {
         viewModelScope.launch {
-            basketApiImpl.addProduct(SendBasketProduct(productId, 1))
-            loadBasket()
+            basketApiImpl.addProduct(SendBasketProduct(product.idProduct, 1))
+
+            val item = basket_.value!!.copy()
+            item.summ += product.price!!
+            item.productsPick.add(ProductInBasket(product, 1))
+            basket_.value = item
         }
     }
 
-    fun deleteProduct(productId: Long) {
+    fun deleteProduct(product: Product) {
         viewModelScope.launch {
-            basketApiImpl.deleteProduct(SendBasketProduct(productId, 1))
+            basketApiImpl.deleteProduct(SendBasketProduct(product.idProduct, 1))
             productBasketCount.postValue(0)
-            loadBasket()
+
+            val item = basket_.value!!.copy()
+            val removedItem = item.productsPick.find { it.product!!.idProduct == product.idProduct }
+            item.summ -= (product.price!! * removedItem!!.count)
+            item.productsPick.remove(removedItem)
+            basket_.value = item
         }
     }
 
-    fun plusProduct(productId: Long) {
+    fun plusProduct(product: Product) {
         viewModelScope.launch {
-            basketApiImpl.plusProduct(SendBasketProduct(productId, 1))
-            loadBasket()
+            basketApiImpl.plusProduct(SendBasketProduct(product.idProduct, 1))
+
+            val item = basket_.value!!.copy()
+            item.summ += product.price!!
+            item.productsPick.find { it.product!!.idProduct == product.idProduct }!!.count++
+            basket_.value = item
         }
     }
 
-    fun minusProduct(productId: Long) {
+    fun minusProduct(product: Product) {
         viewModelScope.launch {
-            basketApiImpl.minusProduct(SendBasketProduct(productId, 1))
-            loadBasket()
+            basketApiImpl.minusProduct(SendBasketProduct(product.idProduct, 1))
+
+            val item = basket_.value!!.copy()
+            item.summ -= product.price!!
+            item.productsPick.find { it.product!!.idProduct == product.idProduct }!!.count--
+            basket_.value = item
         }
     }
 

@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import com.wayplaner.learn_room.admin.basic_info.util.StatusMenuChange
 import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
@@ -40,12 +39,6 @@ class MenuModelView @Inject constructor(
     private var imageProduct_ = MutableLiveData<ByteArray?>(null)
     var imageProduct: LiveData<ByteArray?> = imageProduct_
 
-    init {
-        viewModelScope.launch {
-            categories_.postValue(repository.getCategories().toMutableList())
-        }
-    }
-
     companion object {
         private var product = ResponseProduct()
         fun setPickProduct(product: ResponseProduct){
@@ -71,7 +64,11 @@ class MenuModelView @Inject constructor(
                 responseProduct_.value!!.image = event.imageBt
             }
             is UiEventMenuAdd.Sumbit -> {
-                responseProduct_.value!!.product = Product(name = event.name, description = event.description, price = event.price, weight = event.weight)
+                responseProduct_.value!!.product!!.name = event.name
+                responseProduct_.value!!.product!!.description = event.description
+                responseProduct_.value!!.product!!.price = event.price
+                responseProduct_.value!!.product!!.weight = event.weight
+
                 submit(event.context)
             }
         }
@@ -109,13 +106,8 @@ class MenuModelView @Inject constructor(
             val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
             val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
 
-            // Сериализация объекта в JSON
-            val gson = Gson()
-            val json = gson.toJson(responseProduct_.value)
-            val jsonRequestBody = RequestBody.create("application/json".toMediaTypeOrNull(), json)
-
             try {
-                val response = repository.updateProducts(body, jsonRequestBody)
+                val response = repository.updateProducts(body, responseProduct_.value!!)
                 if (response.isSuccessful) {
                     // Обработка успешного запроса
                 } else {
@@ -126,25 +118,4 @@ class MenuModelView @Inject constructor(
             }
         }
     }
-
-    /*private fun sumbit(applicationContext: Context) {
-        viewModelScope.launch {
-            val file = File.createTempFile("tempImage", null, applicationContext.cacheDir)
-            file.writeBytes(imageProduct_.value)
-
-            val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
-            val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-
-            val call = repository.updateProducts(responseProduct_.value, body)
-            call.enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    // Обработка успешного запроса
-                }
-
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    // Обработка ошибки
-                }
-            })
-        }
-    }*/
 }

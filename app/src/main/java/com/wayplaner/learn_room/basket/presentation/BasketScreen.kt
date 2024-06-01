@@ -1,6 +1,5 @@
 package com.wayplaner.learn_room.basket.presentation
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +29,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,7 +36,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.basket.presentation.components.ProductItemBasket
-import com.wayplaner.learn_room.basket.util.UiBasketEvent
 import com.wayplaner.learn_room.order.data.model.BasketItem
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.gray_light
@@ -68,14 +65,9 @@ fun BasketScreen(drawerState: DrawerState?,
         }
 
         val basket = vmBasket.basketItem.observeAsState()
-        val uiEvent = vmBasket.uiBasketEvent.observeAsState()
-        when(uiEvent.value!!){
-            is UiBasketEvent.EmptyBasket -> ViewEmptyBasket()
-            is UiBasketEvent.NormalBasket -> ViewNormalBasket(navController, basket.value!!, vmBasket)
-            is UiBasketEvent.ErrorAction -> {
-                ViewNormalBasket(navController, basket.value!!, vmBasket)
-                Toast.makeText(LocalContext.current, (uiEvent.value as UiBasketEvent.ErrorAction).error, Toast.LENGTH_LONG).show()
-            }
+        when(basket.value?.productsPick?.size == 0){
+            true -> ViewEmptyBasket()
+            false -> ViewNormalBasket(navController, basket.value!!, vmBasket)
         }
     }
 }

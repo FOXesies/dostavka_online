@@ -3,7 +3,6 @@ package com.wayplaner.learn_room.organization.presentation
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,14 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.StarBorder
@@ -29,8 +25,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -49,22 +43,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
-import com.wayplaner.learn_room.product.domain.model.Product
+import com.wayplaner.learn_room.organization.presentation.components.ProductCard
 import com.wayplaner.learn_room.ui.theme.categoryColor
 import com.wayplaner.learn_room.ui.theme.grayColor
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.redBlackColor
-import com.wayplaner.learn_room.ui.theme.titleProductColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 import kotlinx.coroutines.launch
 
@@ -311,71 +302,7 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
     }
 }
 
-@Composable
-fun ProductCard(product: Product, navController: NavController ) {
-    Card(modifier = Modifier
-        .wrapContentHeight(Alignment.CenterVertically)
-        .clickable { navController.navigate("${MainRoute.Product.name}/${product.idProduct}") },
-        elevation = CardDefaults.elevatedCardElevation(4.dp),
-        colors = CardDefaults.cardColors(whiteColor)) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 10.dp)) {
-            Image(
-                modifier = Modifier
-                    .size(92.dp)
-                    .align(Alignment.CenterVertically)
-                    .clip(MaterialTheme.shapes.small)
-                ,
-                contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.burger),
-                contentDescription = "card_product_for_category_organization"
-            )
-            Column(modifier = Modifier.padding(start = 14.dp, end = 5.dp)) {
 
-                Text(
-                    text = product.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontSize = 16.sp,
-                    color = titleProductColor
-                )
-
-                product.description?.let {
-                    Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        text = it,//"это горячее блюдо, обычно состоящее из котлеты из измельчённого мяса, как правило, говядины, помещённой внутрь нарезанной булочки. Гамбургеры часто подают с сыром, салатом, помидорами, луком, маринованными огурцами, беконом или чили; соусами, такими как кетчуп, горчица, майонез, релиш; и часто их кладут на булочки с кунжутом.",
-                        maxLines = 2,
-                        fontSize = 12.sp,
-                        color = categoryColor,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                Row(modifier = Modifier.padding(top = 10.dp)){
-                    Text(modifier = Modifier
-                        .weight(2f),
-                        text = "${product.price} руб.",
-                        color = redBlackColor,
-                        fontSize = 16.sp
-                    )
-
-                    IconButton(
-                        modifier = Modifier
-                            .size(28.dp)
-                            .clip(CircleShape),
-                        colors = IconButtonDefaults.filledIconButtonColors(redBlackColor),
-                        onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = "add_in_organization",
-                            tint = whiteColor // Устанавливаем размер иконки
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 
 @Preview(showSystemUi = true)
