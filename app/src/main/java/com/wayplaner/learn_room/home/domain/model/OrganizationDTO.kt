@@ -5,10 +5,11 @@ data class OrganizationDTO(
     var name: String,
     var phoneForUser: String,
     var cities: Map<String?, List<String?>>,
-    var idImage: Long,
     var descriptions: String?,
     var category: List<CategoryDTO>,
     var rating: Double?,
     var ratingCount: Int?,
-    var images: List<ByteArray?>?
+    var idImages: List<Image?>?
 )
+
+data class Image(val id: Long, val value: ByteArray)

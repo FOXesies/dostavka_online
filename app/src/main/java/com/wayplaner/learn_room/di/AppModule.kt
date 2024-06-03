@@ -1,5 +1,12 @@
 package com.wayplaner.learn_room.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.domain.repository.BasicInfoRepository
 import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
@@ -12,13 +19,18 @@ import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
 import com.wayplaner.learn_room.basket.domain.repository.BasketApi
 import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
 import com.wayplaner.learn_room.createorder.domain.repository.OrderApi
+import com.wayplaner.learn_room.di.deserializer.OrganizationIdDTODeserializer
+import com.wayplaner.learn_room.di.deserializer.ProductDeserializer
 import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
+import com.wayplaner.learn_room.home.domain.model.Image
 import com.wayplaner.learn_room.home.domain.repository.HomeApi
 import com.wayplaner.learn_room.orderlist.data.repository.ListOrderImpl
 import com.wayplaner.learn_room.orderlist.domain.repository.ListOrderApi
 import com.wayplaner.learn_room.organization.data.repository.OrganizationApiImpl
 import com.wayplaner.learn_room.organization.domain.repository.OrganizationApi
+import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import com.wayplaner.learn_room.product.data.repository.ProductRepositoryImpl
+import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.product.domain.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
@@ -28,6 +40,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.reflect.Type
+import java.util.Base64
 import javax.inject.Singleton
 
 @Module
@@ -35,6 +49,16 @@ import javax.inject.Singleton
 class AppModule {
 
     private val BASE_URL = "http://192.168.0.103:8080/api/v1/"
+
+    private val gsonOrd: Gson = GsonBuilder()
+        .registerTypeAdapter(Image::class.java, ImageDeserializer())
+        .create()
+
+    private val gsonOrdId: Gson = GsonBuilder()
+        .registerTypeAdapter(Image::class.java, ImageDeserializer())
+        .registerTypeAdapter(OrganizationIdDTO::class.java, OrganizationIdDTODeserializer())
+        .registerTypeAdapter(Product::class.java, ProductDeserializer())
+        .create()
 
     @Singleton
     @Provides
@@ -67,11 +91,11 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun homeRepository(mainService: HomeApi) = HomeApiRepositoryImpl(mainService)
+    fun homeRepository(mainService: HomeApi) = HomeApiRepositoryImpl(mainService, gsonOrd)
 
     @Singleton
     @Provides
-    fun organizationRepository(organizationService: OrganizationApi) = OrganizationApiImpl(organizationService)
+    fun organizationRepository(organizationService: OrganizationApi) = OrganizationApiImpl(organizationService, gsonOrdId)
 
     @Singleton
     @Provides
@@ -97,7 +121,7 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun productRepository(productRepository: ProductRepository) = ProductRepositoryImpl(productRepository)
+    fun productRepository(productRepository: ProductRepository) = ProductRepositoryImpl(productRepository, gsonOrd)
 
     @Singleton
     @Provides
@@ -144,4 +168,15 @@ class AppModule {
     @Singleton
     fun authRepository(): AuthCustomerRepository = AuthCustomerRepositoryImpl()
 
+}
+
+class ImageDeserializer : JsonDeserializer<Image> {
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Image {
+        val jsonObject = json.asJsonObject
+        val id = jsonObject.get("id").asLong
+        val value = jsonObject.get("value").asString
+        val byteArray = Base64.getDecoder().decode(value)
+        return Image(id, byteArray)
+    }
 }

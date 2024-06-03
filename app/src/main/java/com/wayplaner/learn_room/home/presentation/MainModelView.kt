@@ -1,6 +1,5 @@
 package com.wayplaner.learn_room.home.presentation
 
-import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -63,26 +62,13 @@ class MainModelView @Inject constructor(
 
     private fun loadOrganizations(city: String){
         viewModelScope.launch {
-
             val response = repository.getOrganizations(city)
-
             if (response.isSuccessful) {
-                var organizationsList = listOf<OrganizationDTO>()
-
-                val organizations = response.body()
-                Timber.i(organizations.toString())
-
-                organizations?.forEach {
-                    //it.images.add(imageRepository.getImage(it.idImage!!).body())
-                    organizationsList = organizationsList + it
-                }
-                categories_.value = (organizations?.flatMap { it.category }
-                    ?.distinct())
-
+                val organizationsList = response.body() ?: emptyList()
+                categories_.value = organizationsList.flatMap { it.category }.distinct()
                 all_organizations.postValue(organizationsList)
                 organizationsLiveData.postValue(organizationsList)
             } else {
-                // Обработка ошибки
                 val errorBody = response.errorBody()
                 if (errorBody != null) {
                     Timber.e(errorBody.string())

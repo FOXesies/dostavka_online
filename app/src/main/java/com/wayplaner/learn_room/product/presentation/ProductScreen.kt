@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.product.presentation
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,11 +37,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -69,7 +73,7 @@ fun ProductScreen(
     productModelView: ProductModelView = hiltViewModel(),
     vmBasket: BasketModelView = hiltViewModel()
 ) {
-    val images = listOf(painterResource(id = R.drawable.burger), (painterResource(id = R.drawable.burger_2)))
+
     productModelView.loadProductById(id)
     vmBasket.getInBasket(1, id)
 
@@ -92,10 +96,23 @@ fun ProductScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Box(contentAlignment = Alignment.BottomCenter) {
-                            Image(
-                                painter = images[page], contentDescription = "", Modifier
-                                    .fillMaxSize(), contentScale = ContentScale.Crop
-                            )
+
+                            val images = remember { mutableListOf<ImageBitmap>() }
+                                product.value!!.images?.forEach {
+                                    images.add(BitmapFactory.decodeByteArray(it!!.value, 0, it.value.size).asImageBitmap())
+                                }
+                            if(images.size > 0) {
+                                Image(
+                                    bitmap = images[page], contentDescription = "", Modifier
+                                        .fillMaxSize(), contentScale = ContentScale.Crop
+                                )
+                            }
+                            else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.no_fof), contentDescription = "", Modifier
+                                        .fillMaxSize(), contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
                 }
@@ -214,7 +231,8 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
         ) {
             Row(
                 modifier = Modifier
-                    .weight(1f).fillMaxHeight(),
+                    .weight(1f)
+                    .fillMaxHeight(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -222,7 +240,7 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
                     modifier = Modifier
                         .padding(vertical = 8.dp)
                         .clickable {
-                            if(productBasketCount.value != 1) {
+                            if (productBasketCount.value != 1) {
                                 vmBasket.minusProduct(productValue)
                                 vmBasket.setCountInProducts(productBasketCount.value!! - 1)
                             }
@@ -242,7 +260,7 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
                     modifier = Modifier
                         .padding(vertical = 8.dp)
                         .clickable {
-                            if(productBasketCount.value != 99) {
+                            if (productBasketCount.value != 99) {
                                 vmBasket.plusProduct(productValue)
                                 vmBasket.setCountInProducts(productBasketCount.value!! + 1)
                             }

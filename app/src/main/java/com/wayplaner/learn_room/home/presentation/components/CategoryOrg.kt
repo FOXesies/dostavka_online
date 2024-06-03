@@ -1,14 +1,9 @@
 package com.wayplaner.learn_room.home.presentation.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,96 +17,49 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.home.domain.model.CategoryDTO
 import com.wayplaner.learn_room.home.presentation.MainModelView
-import com.wayplaner.learn_room.ui.theme.categoryColor
-import com.wayplaner.learn_room.ui.theme.whiteColor
+import com.wayplaner.learn_room.ui.theme.grayColor
+import com.wayplaner.learn_room.ui.theme.textFieldBack
 
 @Composable
 fun CategoryOrg(
     category: CategoryDTO,
     homeViewModel: MainModelView,
     checkable_pick: MutableState<Boolean>
-){
-    var pickedCategory = remember { mutableStateOf(checkable_pick.value) }
+) {
+    val pickedCategory = remember { mutableStateOf(checkable_pick.value) }
 
     ElevatedCard(
-        elevation = CardDefaults.cardElevation(10.dp),
+        elevation = CardDefaults.cardElevation(14.dp),
+        colors = CardDefaults.cardColors(grayColor),
         modifier = Modifier
             .toggleable(value = pickedCategory.value, onValueChange = {
                 pickedCategory.value = it
             })
             .clickable {
-                if(pickedCategory.value)
+                if (pickedCategory.value)
                     homeViewModel.removeCategoryPick(category)
                 else
                     homeViewModel.addCategoryPick(category)
             }
-            .height(90.dp)
-            .width(130.dp)
             .padding(2.dp),
         shape = MaterialTheme.shapes.small,
     ) {
-        Box {
-            val painter = // Placeholder drawable
-                rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current).data(data = category.image)
-                        .apply(block = fun ImageRequest.Builder.() {
-                            error(R.drawable.kofe) // Placeholder drawable
-                        })
-                        .build()
-                )
-            if(pickedCategory.value) {
-                Image(
-                    painter = painter,
-                    alpha = 0.2F,
-                    colorFilter = ColorFilter.tint(Color.Gray),
-                    contentDescription = "category",
-                    contentScale = ContentScale.FillBounds
-                )
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 10.dp,
-                            vertical = 6.dp
-                        ),
-                    text = category.name,
-                    fontSize = 13.sp,
-                    color = whiteColor,
-                    style = MaterialTheme.typography.displayLarge
-                )
-            }
-            else {
-                Image(
-                    painter = painter,
-                    contentDescription = "category",
-                    contentScale = ContentScale.FillBounds
-                )
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 10.dp,
-                            vertical = 6.dp
-                        ),
-                    text = category.name,
-                    fontSize = 13.sp,
-                    color = categoryColor,
-                    style = MaterialTheme.typography.displayLarge
-                )
-            }
-        }
+            Text(
+                modifier = Modifier
+                    .padding(
+                        horizontal = 12.dp,
+                        vertical = 10.dp
+                    ),
+                text = category.name,
+                fontSize = 14.sp,
+                color = textFieldBack,
+                style = MaterialTheme.typography.displayLarge
+            )
     }
 }
 

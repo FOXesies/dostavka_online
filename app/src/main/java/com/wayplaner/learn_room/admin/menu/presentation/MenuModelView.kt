@@ -78,9 +78,9 @@ class MenuModelView @Inject constructor(
         viewModelScope.launch {
             responseProduct_.postValue(product)
             categories_.postValue(repository.getCategories().toMutableList())
-            imageProduct_.postValue(product.product?.imageProduct?.let {
+            /*imageProduct_.postValue(product.product?.imageProduct?.let {
                 repository.getImage(it)
-            })
+            })*/
         }
     }
 

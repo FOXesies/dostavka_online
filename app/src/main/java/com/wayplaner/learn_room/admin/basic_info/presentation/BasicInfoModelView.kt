@@ -83,7 +83,7 @@ class BasicInfoModelView @Inject constructor(
     private fun getInfoBasic(idOrg: Long){
         viewModelScope.launch {
             infoOrg_.value = repositoryBasicInfo.getInfo(idOrg)
-            imageByteArray.value = repositoryBasicInfo.getImage(infoOrg_.value!!.idImage)
+            //imageByteArray.value = repositoryBasicInfo.getImage(infoOrg_.value!!.idImage)
         }.invokeOnCompletion {
             if(it == null) {
                 cities_.postValue(infoOrg_.value!!.locationsAll)
