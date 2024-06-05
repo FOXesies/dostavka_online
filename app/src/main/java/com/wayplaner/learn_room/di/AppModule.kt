@@ -164,10 +164,14 @@ class AppModule {
     fun admin_OrderService(retrofit: Retrofit): AdminOrderApi = retrofit.create(
         AdminOrderApi::class.java)
 
-    @Provides
     @Singleton
-    fun authRepository(): AuthCustomerRepository = AuthCustomerRepositoryImpl()
+    @Provides
+    fun authRepository(authCustomerRepository: AuthCustomerRepository) = AuthCustomerRepositoryImpl(authCustomerRepository)
 
+    @Singleton
+    @Provides
+    fun authService(retrofit: Retrofit): AuthCustomerRepository = retrofit.create(
+        AuthCustomerRepository::class.java)
 }
 
 class ImageDeserializer : JsonDeserializer<Image> {

@@ -2,81 +2,118 @@ package com.wayplaner.learn_room.home.presentation.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wayplaner.learn_room.home.domain.model.CategoryDTO
 import com.wayplaner.learn_room.home.presentation.MainModelView
-import com.wayplaner.learn_room.ui.theme.grayColor
-import com.wayplaner.learn_room.ui.theme.textFieldBack
+import com.wayplaner.learn_room.organization.domain.model.FiltercategoryOrg
+import com.wayplaner.learn_room.ui.theme.grayColor_Text
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.remove_category_filter
+import com.wayplaner.learn_room.ui.theme.textFieldFocus
+import com.wayplaner.learn_room.ui.theme.whiteColor
+
 
 @Composable
-fun CategoryOrg(
-    category: CategoryDTO,
+fun CategoryList(
+    categories: List<String>?,
+    flags: MutableList<Boolean>,
     homeViewModel: MainModelView,
-    checkable_pick: MutableState<Boolean>
+    filtercategoryOrg: FiltercategoryOrg
 ) {
-    val pickedCategory = remember { mutableStateOf(checkable_pick.value) }
+    val checkable_pick = remember { mutableStateListOf<String>() }
+    val hasFilter = remember { mutableStateOf(filtercategoryOrg.categories.isNotEmpty()) }
 
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(14.dp),
-        colors = CardDefaults.cardColors(grayColor),
-        modifier = Modifier
-            .toggleable(value = pickedCategory.value, onValueChange = {
-                pickedCategory.value = it
-            })
-            .clickable {
-                if (pickedCategory.value)
-                    homeViewModel.removeCategoryPick(category)
-                else
-                    homeViewModel.addCategoryPick(category)
+    LaunchedEffect(Unit){
+        checkable_pick.clear()
+        homeViewModel.clearFilterIds()
+    }
+
+    LaunchedEffect(checkable_pick.toList()) {
+        hasFilter.value = checkable_pick.isNotEmpty()
+    }
+
+    Column {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            itemsIndexed(categories!!) { index, item ->
+                ChipItem(flags[index], item) {
+                    flags[index] = !flags[index]
+                    if (flags[index])
+                        checkable_pick.add(item)
+                    else
+                        checkable_pick.remove(item)
+                    invokeSearch(homeViewModel, filtercategoryOrg.copy(categories = checkable_pick))
+                }
             }
-            .padding(2.dp),
-        shape = MaterialTheme.shapes.small,
-    ) {
+        }
+
+        if (hasFilter.value) {
             Text(
+                text = "Очистить фильтр",
+                textAlign = TextAlign.End,
+                fontSize = 12.sp,
+                color = remove_category_filter,
                 modifier = Modifier
-                    .padding(
-                        horizontal = 12.dp,
-                        vertical = 10.dp
-                    ),
-                text = category.name,
-                fontSize = 14.sp,
-                color = textFieldBack,
-                style = MaterialTheme.typography.displayLarge
+                    .fillMaxWidth()
+                    .padding(top = 4.dp, end = 6.dp)
+                    .clickable {
+                        categories!!.forEachIndexed { index, _ ->
+                            flags[index] = false
+                        }
+                        checkable_pick.clear()
+                        homeViewModel.clearFilterIds()
+                    }
             )
+        }
     }
 }
 
-
+fun invokeSearch(homeViewModel: MainModelView, filtercategoryOrg: FiltercategoryOrg) {
+        homeViewModel.getOrganizationsByCategory(filtercategoryOrg)
+}
 @Composable
-fun CategoryList(categories: List<CategoryDTO>?, homeViewModel: MainModelView){
-    val lazyListState = rememberLazyListState()
-    var checkable_pick = remember { mutableStateOf(homeViewModel.checkPickCategory()) }
-
-    LazyRow(
-        state = lazyListState,
-        contentPadding = PaddingValues(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp) ){
-        items(categories!!){category ->
-            CategoryOrg(category, homeViewModel, checkable_pick)
-        }
-    }
+fun ChipItem(active: Boolean, text: String, onClick: () -> Unit) {
+    AssistChip(
+        onClick = {
+            onClick()
+             },
+        modifier = Modifier.padding(horizontal = 4.dp),
+        border = null,
+        colors = if(active) AssistChipDefaults.assistChipColors(textFieldFocus)
+                 else AssistChipDefaults.assistChipColors(grayList),
+        shape = RoundedCornerShape(10.dp),
+        label = {
+            Text(text = text,
+                modifier = Modifier
+                    .padding(
+                        horizontal = 6.dp,
+                        vertical = 10.dp),
+                fontSize = 14.sp,
+                color = if(active) whiteColor
+            else grayColor_Text)
+        },
+    )
 }
 
 

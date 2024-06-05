@@ -29,6 +29,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ import com.wayplaner.learn_room.home.domain.model.OrganizationDTO
 import com.wayplaner.learn_room.home.presentation.components.CategoryList
 import com.wayplaner.learn_room.home.presentation.components.Organization
 import com.wayplaner.learn_room.home.presentation.components.TopBarHome
+import com.wayplaner.learn_room.organization.domain.model.FiltercategoryOrg
 import com.wayplaner.learn_room.ui.theme.blackGrayColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 
@@ -52,14 +54,19 @@ fun HomeScreen(drawerState: DrawerState?,
     navController: NavController,
     homeViewModel: MainModelView = hiltViewModel()){
 
+
     val organizations = homeViewModel.getCountry().observeAsState()
     if (organizations.value != null && organizations.value!!.isNotEmpty()) {
-
+        var city by rememberSaveable { mutableStateOf("") }
         Scaffold(
-            topBar = { TopBarHome(drawerState, homeViewModel) })
+            topBar = { TopBarHome(drawerState, homeViewModel){
+                city = it
+            } })
         { innerPadding ->
 
             val lazyListState = rememberLazyListState()
+            val filer_id = homeViewModel.filter_id.observeAsState()
+
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier
@@ -72,12 +79,17 @@ fun HomeScreen(drawerState: DrawerState?,
 
                     Spacer(Modifier.height(10.dp))
 
-                    CategoryList(homeViewModel.categories.observeAsState().value, homeViewModel)
+                    val category_list = homeViewModel.categories.observeAsState().value
+
+                    if (category_list != null)
+                        CategoryList(category_list, category_list.map { false }.toMutableList(), homeViewModel, FiltercategoryOrg(city = city))
 
                     Spacer(Modifier.height(8.dp))
                 }
+
                 items(organizations.value!!) { organization ->
-                    Organization(navController, organization, "${MainRoute.Organization.name}/${organization.idOrganization}")
+                    if(filer_id.value!!.isEmpty() || filer_id.value!!.contains(organization.idOrganization!!))
+                        Organization(navController, organization, "${MainRoute.Organization.name}/${organization.idOrganization}")
                 }
 
             }

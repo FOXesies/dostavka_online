@@ -80,6 +80,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
 
+    //Status Bar
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+
     //Retrofit 2
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")

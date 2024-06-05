@@ -36,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -74,15 +75,17 @@ fun ProductScreen(
     vmBasket: BasketModelView = hiltViewModel()
 ) {
 
-    productModelView.loadProductById(id)
-    vmBasket.getInBasket(1, id)
+    LaunchedEffect(Unit) {
+        productModelView.loadProductById(id)
+        vmBasket.getInBasket(1, id)
+    }
 
     val product = productModelView.getProduct().observeAsState()
 
     if (product.value != null) {
         val productValue = product.value!!
         Column {
-            val state = rememberPagerState(pageCount = { 2 })
+            val state = rememberPagerState(pageCount = { productValue.images?.size?: 1 })
             Box {
                 HorizontalPager(
                     state = state, modifier = Modifier

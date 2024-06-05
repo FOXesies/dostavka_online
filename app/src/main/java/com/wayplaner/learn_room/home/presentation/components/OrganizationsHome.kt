@@ -20,7 +20,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -61,9 +60,9 @@ fun Organization(
         Column(
         ) {
                 //if (!organization.images.isNullOrEmpty())
-            val pickImage = organization.idImages!![0]!!.value
-            val bitmap = remember { BitmapFactory.decodeByteArray(pickImage, 0, pickImage!!.size) }
-            val imageBitmap = remember { bitmap.asImageBitmap() }
+            val pickImage = organization.idImages[0].value
+            val bitmap = BitmapFactory.decodeByteArray(pickImage, 0, pickImage.size)
+            val imageBitmap = bitmap.asImageBitmap()
             Image(bitmap = imageBitmap, contentDescription = null, contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()

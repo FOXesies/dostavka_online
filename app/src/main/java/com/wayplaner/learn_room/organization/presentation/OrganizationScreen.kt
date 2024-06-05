@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.organization.presentation
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,13 +32,16 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -66,21 +70,45 @@ fun OrganizationCardOrg(
     navController: NavController,
     organizationViewModel: OrganizationModelView = hiltViewModel()){
 
-    organizationViewModel.loadOrganization(id)
+    LaunchedEffect(Unit) {
+        organizationViewModel.loadOrganization(id)
+    }
+
     val organization = organizationViewModel.getOrganization().observeAsState()
 
     if (organization.value != null) {
         val organization_const = organization.value!!
         Column {
             Box() {
-                Image(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp),
-                    contentScale = ContentScale.Crop,
-                    painter = painterResource(id = R.drawable.burger_king),
-                    contentDescription = ""
-                )
+                val pickImage = organization_const.idImages?.get(0)?.value
+                val bitmap = remember { pickImage?.size?.let {
+                    BitmapFactory.decodeByteArray(
+                        pickImage,
+                        0,
+                        it
+                    )
+                } }
+                val imageBitmap = remember { bitmap?.asImageBitmap() }
+                if(imageBitmap == null){
+                    Image(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(220.dp),
+                            contentScale = ContentScale.Crop,
+                            painter = painterResource(id = R.drawable.burger_king),
+                            contentDescription = ""
+                        )
+                }
+                else {
+                    Image(
+                        bitmap = imageBitmap,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = ""
+                    )
+                }
 
                 Card(
                     modifier = Modifier
@@ -125,7 +153,7 @@ fun OrganizationCardOrg(
                                     )
 
                                     Text(
-                                        text = "${organization_const.rating}",
+                                        text = if (organization_const.rating!! < 0) "0.0" else "${organization_const.rating}",
                                         modifier = Modifier.padding(top = 1.dp, start = 2.dp),
                                         fontFamily = FontFamily(
                                             Font(
@@ -142,7 +170,7 @@ fun OrganizationCardOrg(
                                     horizontalArrangement = Arrangement.End
                                 ) {
                                     Text(
-                                        text = "${organization_const.ratingCount} ${
+                                        text =     if (organization_const.ratingCount!! < 1) "нет отзывов" else "${organization_const.ratingCount} ${
                                             parseCountToString(
                                                 organization_const.ratingCount!!
                                             )

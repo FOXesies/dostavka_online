@@ -25,12 +25,16 @@ val blackTransperent = Color(0xC1272727)
 val grayColor = Color(0xFF757575)
 val grayColor_Text = Color(0xFF363636)
 val gray_light = Color(0xFFF3F3F3)
+val remove_category_filter = Color(0xFFB15A5A)
 
 val textFieldBack = Color(0xFFE6E5E5)
 val textFieldFocus = Color(0xFFCE2B2B)
 val textFieldUnFocus = Color(0xFF1B1B1B)
 val textFieldError = Color(0xFF771010)
+val conteinertextFieldError = Color(0xFFECBDBD)
 val textFieldHint = Color(0xFF4D4C4C)
+
+val backGrayColor = Color(0xD33C3B3B)
 
 
 val testText = Color(0xC64E4E4E)

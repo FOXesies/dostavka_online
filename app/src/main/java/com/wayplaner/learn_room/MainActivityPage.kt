@@ -24,15 +24,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wayplaner.learn_room.navigation.CustomAppBar
 import com.wayplaner.learn_room.navigation.DrawerMenu
 import com.wayplaner.learn_room.navigation.Navigation
 import com.wayplaner.learn_room.ui.theme.Learn_roomTheme
+import com.wayplaner.learn_room.ui.theme.grayColor
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -43,6 +46,10 @@ class MainActivityPage: ComponentActivity() {
 
         setContent {
             Learn_roomTheme {
+                val systemUiController = rememberSystemUiController()
+                SideEffect {
+                    systemUiController.setSystemBarsColor(grayColor)
+                }
                 Surface(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -57,6 +64,11 @@ class MainActivityPage: ComponentActivity() {
 }
 
 enum class MainRoute(value: String) {
+
+    //Auth
+    LoginCustomer("login_customer"),
+    RegisterCustomer("register_customer"),
+
     Home("home"),
     Organization("organization"),
     Product("product"),

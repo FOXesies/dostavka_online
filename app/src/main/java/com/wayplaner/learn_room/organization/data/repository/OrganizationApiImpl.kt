@@ -11,7 +11,6 @@ class OrganizationApiImpl(
 
     // получение ресторана
     suspend fun getOrganizationById(id: Long): Response<OrganizationIdDTO> {
-
         val response = organizationApi.getOrganizationsById(id)
         val responseBody = response.body()?.string()
         val organizations = gson.fromJson(responseBody, OrganizationIdDTO::class.java)
