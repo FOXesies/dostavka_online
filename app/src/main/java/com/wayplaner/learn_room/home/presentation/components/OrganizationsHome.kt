@@ -3,6 +3,7 @@ package com.wayplaner.learn_room.home.presentation.components
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,18 +16,18 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -34,7 +35,8 @@ import coil.ImageLoader
 import com.gowtham.ratingbar.RatingBar
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.home.domain.model.OrganizationDTO
-import com.wayplaner.learn_room.ui.theme.whiteColor
+import com.wayplaner.learn_room.ui.theme.backOrgHome
+import com.wayplaner.learn_room.ui.theme.lightGrayColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,14 +45,15 @@ fun Organization(
     organization: OrganizationDTO,
     route: String
 ) {
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(2.dp),
+    OutlinedCard(
+        border = BorderStroke((0.8).dp, Color.White),
+        elevation = CardDefaults.cardElevation(4.dp),
         modifier = Modifier
             .wrapContentHeight(Alignment.CenterVertically)
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 10.dp),
         shape = MaterialTheme.shapes.small,
-        colors = CardDefaults.cardColors(whiteColor),
+        colors = CardDefaults.cardColors(backOrgHome),
         onClick = {
             navController.navigate(route)
         }
@@ -81,8 +84,8 @@ fun Organization(
             Card(
                 modifier = Modifier
                     .fillMaxWidth(),
+                colors = CardDefaults.cardColors(Color.Transparent),
                 shape = MaterialTheme.shapes.small,
-                colors = CardDefaults.cardColors(whiteColor)
             ) {
                 Row(
                     modifier = Modifier.padding(top = 6.dp, start = 14.dp)
@@ -92,6 +95,7 @@ fun Organization(
                         Text(
                             text = organization.name,
                             fontSize = 18.sp,
+                            color = lightGrayColor,
                             style = MaterialTheme.typography.titleMedium
                         )
 
@@ -128,12 +132,12 @@ fun Organization(
 
                         Spacer(Modifier.height(8.dp))
 
-                        Text(
+                        /*Text(
                             modifier = Modifier.align(Alignment.End),
                             text = "10:00-22:00",
                             fontSize = 14.sp,
                             style = MaterialTheme.typography.labelMedium
-                        )
+                        )*/
                     }
                 }
             }
@@ -154,26 +158,4 @@ fun parseCountToString(count: Int): String{
 
 private fun byteArrayToBitmap(data: ByteArray): Bitmap {
     return BitmapFactory.decodeByteArray(data, 0, data.size)
-}
-
-@Preview(name = "Preview1", device = "id:pixel_xl", showSystemUi = true)
-@Composable
-fun PreviewOrg(){
-    /*Organization(
-        organization = OrganizationDTO(
-            1,
-            "Ресторан",
-            "аввыа",
-            "89352536665",
-            "London",
-            "О чём-то",
-            listOf(
-                "Блины",
-                "Пиво"
-            ),
-            5.0,
-            5,
-            null
-        ),
-    )*/
 }

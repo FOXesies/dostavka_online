@@ -1,4 +1,5 @@
 package com.wayplaner.learn_room.home.presentation.components
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -6,10 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -29,15 +28,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.home.presentation.MainModelView
-import com.wayplaner.learn_room.ui.theme.redActionColor
+import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.backHome
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.whiteColor
 import kotlinx.coroutines.launch
 
@@ -53,27 +52,24 @@ fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView) {
             DropDownCity(cities!!, homeViewModel)
                 },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = whiteColor,
-            titleContentColor = redActionColor,
+            containerColor = backHeader,
+            titleContentColor = whiteColor,
         ),
         navigationIcon = {
             if (drawerState != null) {
-                IconButton(onClick = {
+                IconButton(modifier = Modifier.padding(start = 5.dp, top = 8.dp).size(40.dp), onClick = {
                     coroutineScope.launch {
                         drawerState.open()
                     }
                 }) {
-                    Icon(painterResource(id = R.drawable.hamburger_button_menu_icon_155296), contentDescription = "")
+                    Icon(painterResource(id = R.drawable.hamburger_button_menu_icon_155296), tint = whiteColor, contentDescription = "")
                 }
             }
         },
         actions = {
-            IconButton(modifier = Modifier.padding(top = 4.dp), onClick = { /*navigateToBasket(1)*/ }) {
-                Icon(
-                    Icons.Filled.ShoppingBasket,
-                    contentDescription = "Basket",
-                    tint = redActionColor,
-                    modifier = Modifier.size(27.dp))
+            IconButton(modifier = Modifier.padding(end = 6.dp, top = 10.dp).size(33.dp), onClick = { /*navigateToBasket(1)*/ }) {
+                Icon(painterResource(id = R.drawable.bag_buy_cart_market_shop_shopping_tote_icon_123191), tint = whiteColor, contentDescription = "")
+
             }
         }
     )
@@ -81,22 +77,21 @@ fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView) {
 
 @Composable
 fun DropDownCity(state: List<String>, homeViewModel: MainModelView){
-    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     val selectCity = homeViewModel.selectedText.observeAsState()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         // Back arrow here
         Row(
-            Modifier
-                .clip(RoundedCornerShape(10.dp))
+            Modifier.padding(top = 5.dp)
                 .clickable { // Anchor view
                     expanded = !expanded
                 }) { // A
             // nchor view
             Text(text = selectCity.value!!, fontSize = 14.sp) // City name label
             Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = null)
-            DropdownMenu(expanded = expanded,
+            DropdownMenu(modifier = Modifier.background(backHome),
+                expanded = expanded,
                 onDismissRequest = {
                     expanded = false
                 }) {
@@ -106,12 +101,12 @@ fun DropDownCity(state: List<String>, homeViewModel: MainModelView){
                     val style = if (isSelected) {
                         MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = whiteColor
                         )
                     } else {
                         MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = grayList
                         )
                     }
 
@@ -128,50 +123,4 @@ fun DropDownCity(state: List<String>, homeViewModel: MainModelView){
             }
         }
     }
-
-    /*Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.Transparent),
-    ) {
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = !expanded
-            }
-        ) {
-            selectedText?.let {
-                TextField(
-                    value = it,
-                    onValueChange = {},
-                    readOnly = true,
-                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent),
-                    textStyle = LocalTextStyle.current.merge(TextStyle(fontSize = 12.sp)),
-                    leadingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
-                )
-            }
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                state.forEach { item ->
-                    DropdownMenuItem(
-                        text = {
-                            if (item != null) {
-                                Text(text = item)
-                            }
-                        },
-                        onClick = {
-                            selectedText = item
-                            expanded = false
-                            //homeViewModel.setCityFilter(selectedText!!)
-                            Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                }
-            }
-        }
-    }*/
 }

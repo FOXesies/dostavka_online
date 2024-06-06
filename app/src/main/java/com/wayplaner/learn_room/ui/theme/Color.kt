@@ -21,6 +21,11 @@ val redBlackColor = Color(0xFFC20909)
 val no_pickRedColor = Color(0xFFEC7979)
 val grayList = Color(0xFFD3D2D2)
 
+val backHomeCategory = Color(0xFF4D4D4D)
+val backHeader = Color(0xFF303030)
+val backHome = Color(0xFF3D3D3D)
+val backOrgHome = Color(0xFF303030)
+
 val blackTransperent = Color(0xC1272727)
 val grayColor = Color(0xFF757575)
 val grayColor_Text = Color(0xFF363636)

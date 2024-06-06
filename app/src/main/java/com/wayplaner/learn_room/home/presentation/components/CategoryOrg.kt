@@ -23,8 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.home.presentation.MainModelView
 import com.wayplaner.learn_room.organization.domain.model.FiltercategoryOrg
-import com.wayplaner.learn_room.ui.theme.grayColor_Text
-import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.backHomeCategory
 import com.wayplaner.learn_room.ui.theme.remove_category_filter
 import com.wayplaner.learn_room.ui.theme.textFieldFocus
 import com.wayplaner.learn_room.ui.theme.whiteColor
@@ -101,7 +100,7 @@ fun ChipItem(active: Boolean, text: String, onClick: () -> Unit) {
         modifier = Modifier.padding(horizontal = 4.dp),
         border = null,
         colors = if(active) AssistChipDefaults.assistChipColors(textFieldFocus)
-                 else AssistChipDefaults.assistChipColors(grayList),
+                 else AssistChipDefaults.assistChipColors(backHomeCategory),
         shape = RoundedCornerShape(10.dp),
         label = {
             Text(text = text,
@@ -110,8 +109,7 @@ fun ChipItem(active: Boolean, text: String, onClick: () -> Unit) {
                         horizontal = 6.dp,
                         vertical = 10.dp),
                 fontSize = 14.sp,
-                color = if(active) whiteColor
-            else grayColor_Text)
+                color = whiteColor)
         },
     )
 }

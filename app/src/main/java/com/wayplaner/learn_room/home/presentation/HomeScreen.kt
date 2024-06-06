@@ -3,6 +3,7 @@ package com.wayplaner.learn_room.home.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.DrawerState
@@ -44,6 +47,8 @@ import com.wayplaner.learn_room.home.presentation.components.CategoryList
 import com.wayplaner.learn_room.home.presentation.components.Organization
 import com.wayplaner.learn_room.home.presentation.components.TopBarHome
 import com.wayplaner.learn_room.organization.domain.model.FiltercategoryOrg
+import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.backHome
 import com.wayplaner.learn_room.ui.theme.blackGrayColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 
@@ -58,42 +63,65 @@ fun HomeScreen(drawerState: DrawerState?,
     if (organizations.value != null && organizations.value!!.isNotEmpty()) {
         val city = homeViewModel.selectedText.observeAsState()
         Scaffold(
+            containerColor = backHeader,
             topBar = { TopBarHome(drawerState, homeViewModel) })
         { innerPadding ->
 
             val lazyListState = rememberLazyListState()
             val filer_id = homeViewModel.filter_id.observeAsState()
+            Box(Modifier.background(backHome).fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                ) {
+                    Card(
+                        colors = CardDefaults.cardColors(backHeader),
+                        shape = RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 0.dp,
+                            bottomStart = 25.dp,
+                            bottomEnd = 25.dp
+                        )
+                    ) {
 
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier
-                    .padding(innerPadding)
-            ) {
-                item {
-                    Spacer(Modifier.height(10.dp))
+                        val category_list = homeViewModel.categories.observeAsState().value
 
-                    SearchView()
+                        if (category_list != null)
+                            CategoryList(
+                                category_list,
+                                category_list.map { false }.toMutableList(),
+                                homeViewModel,
+                                FiltercategoryOrg(city = city.value!!)
+                            )
+                        Spacer(Modifier.height(8.dp))
+                    }
 
-                    Spacer(Modifier.height(10.dp))
+                    LazyColumn(
+                        state = lazyListState,
+                    ) {
+                        item {
+                            //Spacer(Modifier.height(10.dp))
 
-                    val category_list = homeViewModel.categories.observeAsState().value
+                            //SearchView()
 
-                    if (category_list != null)
-                        CategoryList(category_list, category_list.map { false }.toMutableList(), homeViewModel, FiltercategoryOrg(city = city.value!!))
+                            Spacer(Modifier.height(6.dp))
+                        }
 
-                    Spacer(Modifier.height(8.dp))
+                        items(organizations.value!!) { organization ->
+                            if (filer_id.value!!.isEmpty() || filer_id.value!!.contains(organization.idOrganization!!))
+                                Organization(
+                                    navController,
+                                    organization,
+                                    "${MainRoute.Organization.name}/${organization.idOrganization}"
+                                )
+                        }
+
+                    }
                 }
-
-                items(organizations.value!!) { organization ->
-                    if(filer_id.value!!.isEmpty() || filer_id.value!!.contains(organization.idOrganization!!))
-                        Organization(navController, organization, "${MainRoute.Organization.name}/${organization.idOrganization}")
-                }
-
             }
-
         }
-    } else {
-        CircularProgressIndicator()
+        } else {
+            CircularProgressIndicator()
     }
 }
 
