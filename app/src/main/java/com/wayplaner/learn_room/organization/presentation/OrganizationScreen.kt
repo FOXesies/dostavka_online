@@ -95,7 +95,7 @@ fun OrganizationCardOrg(
                                 .fillMaxWidth()
                                 .height(220.dp),
                             contentScale = ContentScale.Crop,
-                            painter = painterResource(id = R.drawable.burger_king),
+                            painter = painterResource(id = R.drawable.no_fof),
                             contentDescription = ""
                         )
                 }
@@ -322,7 +322,7 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
                     else
                         oraganization_const.products[categories[pagerState.currentPage]]!!
                 ) {
-                    ProductCard(it, navController)
+                    ProductCard(it, oraganization_const.idOrganization!!, navController)
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }

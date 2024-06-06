@@ -32,13 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
-import com.wayplaner.learn_room.order.data.model.ProductInBasket
+import com.wayplaner.learn_room.order.data.model.IdsProductInBasket
+import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelView) {
+fun ProductItemBasket(productInBasket: IdsProductInBasket, vmBasket: BasketModelView, product: Product) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,7 +52,7 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)) {
-            Image(painter = painterResource(id = R.drawable.burger),
+            Image(painter = painterResource(id = R.drawable.no_fof),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(80.dp)
@@ -61,9 +62,9 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(modifier = Modifier.weight(3f).padding(top = 8.dp)) {
-                Text(text = productInBasket.product!!.name, fontSize = 16.sp)
+                Text(text = product!!.name, fontSize = 16.sp)
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(text = productInBasket.product!!.price.toString(), color = grayColor_Text)
+                Text(text =product.price.toString(), color = grayColor_Text)
             }
 
             Column(modifier = Modifier.weight(2f), horizontalAlignment = Alignment.End) {
@@ -74,9 +75,9 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
                         colors = IconButtonDefaults.filledIconButtonColors(lightGrayColor),
                         onClick = {
                             if(productInBasket.count == 1)
-                                vmBasket.deleteProduct(productInBasket.product!!)
+                                vmBasket.deleteProduct(product!!)
                             else
-                                vmBasket.minusProduct(productInBasket.product!!)
+                                vmBasket.minusProduct(product!!)
                         }) {
                         Icon(
                             modifier = Modifier
@@ -93,7 +94,7 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
                         colors = IconButtonDefaults.filledIconButtonColors(lightGrayColor),
                         onClick = {
                             if(productInBasket.count < 99)
-                                vmBasket.plusProduct(productInBasket.product!!)
+                                vmBasket.plusProduct(product!!)
                         }) {
                         Icon(
                             modifier = Modifier
@@ -106,15 +107,15 @@ fun ProductItemBasket(productInBasket: ProductInBasket, vmBasket: BasketModelVie
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = mathSumm(productInBasket), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text(text = mathSumm(product!!, productInBasket.count), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
             Spacer(modifier = Modifier.width(5.dp))
         }
     }
 }
 
-private fun mathSumm(product: ProductInBasket?): String{
-    return (product!!.product!!.price!! * product.count!!).toString()
+private fun mathSumm(product: Product, count: Int): String{
+    return (product.price!! * count).toString()
 }
 @Preview
 @Composable

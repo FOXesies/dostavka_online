@@ -1,5 +1,10 @@
 package com.wayplaner.learn_room.navigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
@@ -33,10 +38,12 @@ import com.wayplaner.learn_room.home.presentation.HomeScreen
 import com.wayplaner.learn_room.orderlist.presentation.ListOrderScreen
 import com.wayplaner.learn_room.organization.presentation.OrganizationCardOrg
 import com.wayplaner.learn_room.product.presentation.ProductScreen
+import com.wayplaner.learn_room.utils.CustomerAccount
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Navigation(
     navController: NavHostController = rememberNavController(),
@@ -64,15 +71,22 @@ fun Navigation(
             }
         }
     ) {
-        NavHost(navController = navController, startDestination = MainRoute.RegisterCustomer.name) {
-            composable(MainRoute.Home.name) {
+        NavHost(navController = navController, startDestination = if (CustomerAccount.info == null) MainRoute.LoginCustomer.name else MainRoute.Home.name) {
+            composable(route = MainRoute.Home.name,
+                enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }) + fadeIn() },
+                exitTransition = {slideOutHorizontally(targetOffsetX = { -1000 }) + fadeOut() }
+                ) {
                 HomeScreen(drawerState, navController)
             }
-            composable(MainRoute.LoginCustomer.name) {
-                LoginComponents()
+            composable(MainRoute.LoginCustomer.name,
+                enterTransition = { fadeIn() },
+                exitTransition = {fadeOut()}) {
+                LoginComponents(navController)
             }
-            composable(MainRoute.RegisterCustomer.name) {
-                RegisterScreen()
+            composable(MainRoute.RegisterCustomer.name,
+                enterTransition = { fadeIn() },
+                exitTransition = { fadeOut() }) {
+                RegisterScreen(navController)
             }
             composable(MainRoute.Basket.name) {
                 BasketScreen(drawerState, navController)
@@ -86,11 +100,12 @@ fun Navigation(
                 val counter = navBackStack.arguments?.getString("id")
                 OrganizationCardOrg(counter!!.toLong(), navController)
             }
-            composable(MainRoute.Product.name + "/{id}") { navBackStack ->
+            composable(MainRoute.Product.name + "/{idOrd}/{idProduct}") { navBackStack ->
 
                 // Extracting the argument
-                val counter = navBackStack.arguments?.getString("id")
-                ProductScreen(counter!!.toLong(), navController)
+                val idOrg = navBackStack.arguments?.getString("idOrd")
+                val idProduct = navBackStack.arguments?.getString("idProduct")
+                ProductScreen(idOrg!!.toLong(), idProduct!!.toLong(), navController)
             }
             composable(MainRoute.CreateOrder.name) {
                 CreateOrderScreen(navController)

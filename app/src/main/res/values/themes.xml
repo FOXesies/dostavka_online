@@ -10,4 +10,13 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+
+    <style name="Theme.SplashScreenApp" parent="android:Theme.Material.Light.NoActionBar">
+
+    </style>
+
+    <style name="SplashScreenTheme" parent="Theme.SplashScreenApp">
+        <item name="android:windowBackground">@drawable/back_screen</item>
+    </style>
 </resources>

@@ -1,32 +1,35 @@
 package com.wayplaner.learn_room.createorder.presentation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.basket.util.Basketproduct
 import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
+import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.createorder.domain.model.OrderStateFrom
-import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
 import com.wayplaner.learn_room.createorder.domain.usecase.ValidatePhone
 import com.wayplaner.learn_room.createorder.util.OrderFormState
 import com.wayplaner.learn_room.createorder.util.OrderRegisterEvent
-import com.wayplaner.learn_room.order.data.model.BasketItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import com.wayplaner.learn_room.createorder.domain.model.Order
-import org.example.order.model.ProductInOrder
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
+@RequiresApi(Build.VERSION_CODES.O)
 class CreateOrderModelView
 @Inject constructor(
     private val orderApiImpl: OrderApiImpl,
     private val validatephone: ValidatePhone = ValidatePhone()
 ):ViewModel() {
 
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
     private val order_ = mutableStateOf(Order())
     private val order = mutableStateOf(OrderStateFrom(order = order_.value))
     private val orderSelf_ = mutableStateOf(OrderSelfDelivery())
@@ -37,15 +40,6 @@ class CreateOrderModelView
 
     private val _uiEvent = Channel<OrderRegisterEvent>()
     val event = _uiEvent.receiveAsFlow()
-
-    fun saveProducts(productInBasket: BasketItem){
-        viewModelScope.launch {
-            order_.value.summ = productInBasket.summ
-            order_.value.productOrder = productInBasket.productsPick.map { ProductInOrder(count = it.count, idProduct = it.product!!.idProduct) }
-            orderSelf_.value.summ = productInBasket.summ
-            orderSelf_.value.productOrder = productInBasket.productsPick.map { ProductInOrder(count = it.count, idProduct = it.product!!.idProduct) }
-        }
-    }
 
     private fun sendUiEvent(uiEvent: OrderRegisterEvent){
         viewModelScope.launch {
@@ -97,13 +91,16 @@ class CreateOrderModelView
                 else
                     sendOrder()
             }
+            is OrderFormState.ToTimeChaged -> {
+                order_.value.toTimeDelivery = eventOrder.time.format(formatter)
+            }
         }
     }
 
     private fun sendOrder(){
         order_.value.summ = Basketproduct.summ
         order_.value.comment = comment.value
-        order_.value.status = StatusOrder.WAIT_ACCEPT
+        order_.value.fromTimeDelivery = LocalDateTime.now().format(formatter)
         viewModelScope.launch {
             orderApiImpl.sendOrder(order_.value)
             sendUiEvent(OrderRegisterEvent.Success)
@@ -112,7 +109,7 @@ class CreateOrderModelView
     private fun sendOrderSelf(){
         orderSelf_.value.summ = Basketproduct.summ
         orderSelf_.value.comment = comment.value
-        orderSelf_.value.status = StatusOrder.WAIT_ACCEPT
+        order_.value.fromTimeDelivery = LocalDateTime.now().format(formatter)
         viewModelScope.launch {
             orderApiImpl.sendOrderSelf(orderSelf_.value)
             sendUiEvent(OrderRegisterEvent.Success)

@@ -1,6 +1,8 @@
 package com.wayplaner.learn_room.createorder.presentation.components
 
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,16 +40,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wayplaner.learn_room.MapSearchActivity
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderModelView
 import com.wayplaner.learn_room.createorder.util.OrderFormState
-import com.wayplaner.learn_room.createorder.util.OrderRegisterEvent
 import com.wayplaner.learn_room.ui.theme.grayColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redLogoColor
 import com.wayplaner.learn_room.ui.theme.textFieldHint
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeliveryPick(
@@ -70,6 +71,10 @@ fun DeliveryPick(
         .verticalScroll(rememberScrollState())) {
 
         PhoneViewCard(vmCreateOrder)
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        TimeViewCard(vmCreateOrder)
 
         Spacer(modifier = Modifier.height(10.dp))
 

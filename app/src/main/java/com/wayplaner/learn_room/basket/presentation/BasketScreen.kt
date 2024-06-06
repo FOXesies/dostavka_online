@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.basket.presentation.components.ProductItemBasket
 import com.wayplaner.learn_room.order.data.model.BasketItem
+import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
 import com.wayplaner.learn_room.ui.theme.gray_light
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
@@ -46,28 +48,48 @@ import com.wayplaner.learn_room.ui.theme.redBlackColor
 fun BasketScreen(drawerState: DrawerState?,
     navController: NavController,
     vmBasket: BasketModelView = hiltViewModel(),
-){
-    Box(
-        contentAlignment = Alignment.BottomCenter,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.Red)) {
+) {
+    LaunchedEffect(Unit) {
+        vmBasket.loadBasket()
+    }
 
-        Row(modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 15.dp, top = 20.dp)){
-            IconButton(onClick = { navController.navigateUp() }, modifier = Modifier.size(30.dp)){
-                Icon(imageVector = Icons.Filled.ArrowBackIosNew,
-                    tint = Color.White,
-                    contentDescription = null,
-                )
-            }
+    val basket = vmBasket.basketItem.observeAsState()
+    if (basket.value != null) {
+        LaunchedEffect(Unit) {
+            vmBasket.parseInfo()
         }
 
-        val basket = vmBasket.basketItem.observeAsState()
-        when(basket.value?.productsPick?.size == 0){
-            true -> ViewEmptyBasket()
-            false -> ViewNormalBasket(navController, basket.value!!, vmBasket)
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.Red)
+        ) {
+
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 15.dp, top = 20.dp)
+            ) {
+                IconButton(
+                    onClick = { navController.navigateUp() },
+                    modifier = Modifier.size(30.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBackIosNew,
+                        tint = Color.White,
+                        contentDescription = null,
+                    )
+                }
+            }
+
+            val listProduct = vmBasket.products.observeAsState().value
+            if(listProduct != null) {
+                when (basket.value?.productsPick?.size == 0) {
+                    true -> ViewEmptyBasket()
+                    false -> ViewNormalBasket(navController, basket.value!!, vmBasket, listProduct)
+                }
+            }
         }
     }
 }
@@ -100,7 +122,7 @@ fun ViewEmptyBasket(){
 }
 
 @Composable
-fun ViewNormalBasket(navController: NavController, value: BasketItem, vmBasket: BasketModelView) {
+fun ViewNormalBasket(navController: NavController, value: BasketItem, vmBasket: BasketModelView, listProduct: MutableList<Product>) {
     Card(modifier = Modifier
         .fillMaxSize()
         .padding(top = 80.dp),
@@ -114,7 +136,7 @@ fun ViewNormalBasket(navController: NavController, value: BasketItem, vmBasket: 
         colors = CardDefaults.cardColors(gray_light)
     ) {
         Column {
-            ProductList(value, vmBasket)
+            ProductList(value, vmBasket, listProduct)
         }
     }
 
@@ -155,7 +177,7 @@ fun ViewNormalBasket(navController: NavController, value: BasketItem, vmBasket: 
 }
 
 @Composable
-fun ProductList(value: BasketItem, vmBasket: BasketModelView) {
+fun ProductList(value: BasketItem, vmBasket: BasketModelView, listProduct: MutableList<Product>) {
     LazyColumn(modifier = Modifier
         .padding(
             start = 20.dp,
@@ -163,9 +185,9 @@ fun ProductList(value: BasketItem, vmBasket: BasketModelView) {
             bottom = 130.dp,
             top = 20.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)){
-        items(value.productsPick.sortedBy { it.product!!.name }){
+        items(value.productsPick.sortedBy { it.product }){ ids ->
             Spacer(modifier = Modifier.height(2.dp))
-            ProductItemBasket(it, vmBasket)
+            ProductItemBasket(ids, vmBasket, listProduct.find { it.idProduct == ids.product }!!)
             Spacer(modifier = Modifier.height(2.dp))
         }
 

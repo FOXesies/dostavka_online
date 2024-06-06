@@ -1,10 +1,14 @@
 package com.wayplaner.learn_room.createorder.domain.model
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.wayplaner.learn_room.utils.CustomerAccount
 import org.example.order.model.ProductInOrder
 
-data class Order(
+@RequiresApi(Build.VERSION_CODES.O)
+data class Order (
     var orderId: Long? = null,
-    var idUser: Long = 1,
+    var idUser: Long = CustomerAccount.info!!.profileUUID,
     var idOrganization: String = "",
 
     var uuid: UUIDCustom? = null,
@@ -12,7 +16,8 @@ data class Order(
     var addressUser: Address? = null,
     var idLocation: Long? = null,
     var phoneUser: String? = null,
-    var toTimeDelivery: String? = "now",
+    var fromTimeDelivery: String? = null,
+    var toTimeDelivery: String? = null,
     var productOrder: List<ProductInOrder> = mutableListOf(),
     var status: StatusOrder? = null,
 

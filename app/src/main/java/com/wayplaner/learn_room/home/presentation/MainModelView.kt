@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
 import com.wayplaner.learn_room.home.domain.model.OrganizationDTO
 import com.wayplaner.learn_room.organization.domain.model.FiltercategoryOrg
+import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -16,6 +17,8 @@ import javax.inject.Inject
 class MainModelView @Inject constructor(
     private val repository: HomeApiRepositoryImpl
 ): ViewModel() {
+
+    var selectedText = MutableLiveData(CustomerAccount.info!!.city)
 
     private val organizationsLiveData = MutableLiveData<List<OrganizationDTO>?>()
     private val all_organizations = MutableLiveData<List<OrganizationDTO>?>()
@@ -101,7 +104,7 @@ class MainModelView @Inject constructor(
                 Timber.i(cities_.toString())
 
                 cities.postValue(cities_!!)
-                loadOrganizations(cities_[0])
+                loadOrganizations(CustomerAccount.info!!.city)
             } else {
                 // Обработка ошибки
                 val errorBody = response.errorBody()

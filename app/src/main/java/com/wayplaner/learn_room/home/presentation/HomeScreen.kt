@@ -29,7 +29,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,11 +56,9 @@ fun HomeScreen(drawerState: DrawerState?,
 
     val organizations = homeViewModel.getCountry().observeAsState()
     if (organizations.value != null && organizations.value!!.isNotEmpty()) {
-        var city by rememberSaveable { mutableStateOf("") }
+        val city = homeViewModel.selectedText.observeAsState()
         Scaffold(
-            topBar = { TopBarHome(drawerState, homeViewModel){
-                city = it
-            } })
+            topBar = { TopBarHome(drawerState, homeViewModel) })
         { innerPadding ->
 
             val lazyListState = rememberLazyListState()
@@ -82,7 +79,7 @@ fun HomeScreen(drawerState: DrawerState?,
                     val category_list = homeViewModel.categories.observeAsState().value
 
                     if (category_list != null)
-                        CategoryList(category_list, category_list.map { false }.toMutableList(), homeViewModel, FiltercategoryOrg(city = city))
+                        CategoryList(category_list, category_list.map { false }.toMutableList(), homeViewModel, FiltercategoryOrg(city = city.value!!))
 
                     Spacer(Modifier.height(8.dp))
                 }

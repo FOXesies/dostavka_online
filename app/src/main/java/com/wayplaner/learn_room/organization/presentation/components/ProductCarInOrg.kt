@@ -34,10 +34,10 @@ import com.wayplaner.learn_room.ui.theme.titleProductColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun ProductCard(product: ResponseProductOrg, navController: NavController) {
+fun ProductCard(product: ResponseProductOrg, orgId: Long, navController: NavController) {
     Card(modifier = Modifier
         .wrapContentHeight(Alignment.CenterVertically)
-        .clickable { navController.navigate("${MainRoute.Product.name}/${product.id}") },
+        .clickable { navController.navigate("${MainRoute.Product.name}/${orgId}/${product.id}") },
         elevation = CardDefaults.elevatedCardElevation(4.dp),
         colors = CardDefaults.cardColors(whiteColor)) {
 

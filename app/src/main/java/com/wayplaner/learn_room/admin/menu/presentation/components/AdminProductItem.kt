@@ -46,7 +46,7 @@ fun AdminProductItem(product: Product, onClick: () -> Unit) {
                     .align(Alignment.CenterVertically)
                     .clip(MaterialTheme.shapes.small),
                 contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.burger),
+                painter = painterResource(id = R.drawable.no_fof),
                 contentDescription = "card_product_for_category_organization"
             )
             Column(modifier = Modifier.padding(start = 14.dp, end = 5.dp)) {

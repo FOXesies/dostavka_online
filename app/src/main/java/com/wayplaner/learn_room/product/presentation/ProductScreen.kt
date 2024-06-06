@@ -16,16 +16,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,9 +33,11 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,13 +55,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
 import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.ui.theme.grayColor_Text
-import com.wayplaner.learn_room.ui.theme.no_pickRedColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.redBlackColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
@@ -69,15 +69,17 @@ import com.wayplaner.learn_room.ui.theme.whiteColor
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductScreen(
-    id: Long,
+    idOrg: Long,
+    idProduct: Long,
     navController: NavController,
     productModelView: ProductModelView = hiltViewModel(),
     vmBasket: BasketModelView = hiltViewModel()
 ) {
 
     LaunchedEffect(Unit) {
-        productModelView.loadProductById(id)
-        vmBasket.getInBasket(1, id)
+        productModelView.loadProductById(idProduct)
+        vmBasket.loadBasket()
+        vmBasket.getInBasket(idProduct)
     }
 
     val product = productModelView.getProduct().observeAsState()
@@ -213,7 +215,7 @@ fun ProductScreen(
                         .shadow(20.dp)
                         .height(60.dp)
                 ) {
-                    CreateBottomView(productValue, vmBasket)
+                    CreateBottomView(productValue, vmBasket, idOrg)
                 }
             }
         }
@@ -221,7 +223,7 @@ fun ProductScreen(
 }
 
 @Composable
-fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
+fun CreateBottomView(productValue: Product, vmBasket: BasketModelView, idOrg: Long) {
 
     val productBasketCount = vmBasket.isInBasket().observeAsState()
 
@@ -295,14 +297,24 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
             }
         }
     } else {
+        val openAlert = remember { mutableStateOf(false) }
+        if(openAlert.value){
+            ConfirmClearCartDialog(
+                onDismiss = { openAlert.value = false },
+                onConfirm = { vmBasket.replaceAll(idOrg, productValue) })
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(redActionColor)
                 .clip(RoundedCornerShape(0.dp))
                 .clickable {
-                    vmBasket.addProduct(productValue)
-                    vmBasket.setCountInProducts(1)
+                    if (vmBasket.basketItem.value!!.idRestoraunt == null || vmBasket.basketItem.value!!.idRestoraunt == idOrg) {
+                        vmBasket.addProduct(idOrg, productValue)
+                        vmBasket.setCountInProducts(1)
+                    } else {
+                        openAlert.value = true
+                    }
                 }
                 .height(55.dp),
             horizontalArrangement = Arrangement.Center,
@@ -321,39 +333,30 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView) {
 }
 
 @Composable
-fun DotsIndicator(
-    totalDots: Int,
-    selectedIndex: Int
-) {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(bottom = 15.dp), horizontalArrangement = Arrangement.Center
-    ) {
-
-        items(totalDots) { index ->
-            if (index == selectedIndex) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(color = redBlackColor)
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(color = no_pickRedColor)
-                )
+fun ConfirmClearCartDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm()
+                onDismiss()
+            }) {
+                Text("Очистить корзину")
             }
-
-            if (index != totalDots - 1) {
-                Spacer(modifier = Modifier.padding(horizontal = 2.dp))
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Оставить как есть")
             }
-        }
-    }
+        },
+        title = {
+            Text(text = "Очистить корзину?", fontSize = 20.sp)
+        },
+        text = {
+            Text("В один заказ можно добалять блюда одного ресторана. Можете очистить корзину или заказать это блюдо следующим заказом")
+        },
+        properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)
+    )
 }
 
 @Composable

@@ -9,7 +9,7 @@ class ValidateName @Inject constructor(){
     fun execute(name: String): ValidationResult {
         val errorMessage = when {
             name.length < 2 -> "Имя короткое"
-            name.length < 25 -> "Имя слишком длиное"
+            name.length > 25 -> "Имя слишком длиное"
             else -> null
         }
         return ValidationResult(errorMessage == null, errorMessage ?: "")

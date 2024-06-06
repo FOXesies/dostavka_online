@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,14 +43,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView, onTextChange: (String) -> Unit) {
+fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView) {
     val coroutineScope = rememberCoroutineScope()
 
     TopAppBar(
         modifier = Modifier.height(55.dp),
         title = {
             val cities = homeViewModel.getCity().value
-            DropDownCity(cities!!, homeViewModel, onTextChange)
+            DropDownCity(cities!!, homeViewModel)
                 },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = whiteColor,
@@ -78,23 +79,22 @@ fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView, onTextCh
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropDownCity(state: List<String>, homeViewModel: MainModelView, onTextChange: (String) -> Unit){
+fun DropDownCity(state: List<String>, homeViewModel: MainModelView){
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(state[0]) }
-    onTextChange(selectedText)
+    val selectCity = homeViewModel.selectedText.observeAsState()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         // Back arrow here
-        Row(Modifier
-            .clip(RoundedCornerShape(10.dp))
-            .clickable { // Anchor view
-            expanded = !expanded
-        }) { // A
+        Row(
+            Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .clickable { // Anchor view
+                    expanded = !expanded
+                }) { // A
             // nchor view
-            Text(text = selectedText, fontSize = 14.sp) // City name label
+            Text(text = selectCity.value!!, fontSize = 14.sp) // City name label
             Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = null)
             DropdownMenu(expanded = expanded,
                 onDismissRequest = {
@@ -102,7 +102,7 @@ fun DropDownCity(state: List<String>, homeViewModel: MainModelView, onTextChange
                 }) {
                 state.forEach { city ->
 
-                    val isSelected = city == selectedText
+                    val isSelected = city == selectCity.value!!
                     val style = if (isSelected) {
                         MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.Bold,
@@ -119,9 +119,8 @@ fun DropDownCity(state: List<String>, homeViewModel: MainModelView, onTextChange
                         text =  { Text(city, style = style) },
                         onClick = {
                             expanded = false
-                            selectedText = city
-                            onTextChange(city)
-                            homeViewModel.getOrganizationsByCity(selectedText)
+                            homeViewModel.selectedText.postValue(city)
+                            homeViewModel.getOrganizationsByCity(city)
                         }
                     )
                 }

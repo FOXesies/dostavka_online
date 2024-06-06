@@ -55,7 +55,6 @@ class MainActivityPage: ComponentActivity() {
                         .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //MainNavigation()
                     Navigation()
                 }
             }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Phone
@@ -26,6 +28,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -52,9 +56,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.ui.theme.backGrayColor
 import com.wayplaner.learn_room.ui.theme.conteinertextFieldError
+import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.textFieldBack
 import com.wayplaner.learn_room.ui.theme.textFieldFocus
 import com.wayplaner.learn_room.ui.theme.textFieldHint
@@ -63,7 +70,7 @@ import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(authModelView: AuthModelView = hiltViewModel()) {
+fun RegisterScreen(navController: NavController, authModelView: AuthModelView = hiltViewModel()) {
     val mContext = LocalContext.current
 
     val colorContext = TextFieldDefaults.textFieldColors(
@@ -86,6 +93,10 @@ fun RegisterScreen(authModelView: AuthModelView = hiltViewModel()) {
 
     val userInfo_ = authModelView.userFormState.observeAsState()
     val success = authModelView.success.observeAsState()
+
+    if(success.value!!)
+        navController.navigate(MainRoute.Home.name)
+
     val cities_ = authModelView.getCity().observeAsState()
 
     if (cities_.value != null) {
@@ -96,10 +107,13 @@ fun RegisterScreen(authModelView: AuthModelView = hiltViewModel()) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
+
             val userInfo = userInfo_.value!!
 
-            if(userInfo.baseError != null)
-            Toast.makeText(mContext, userInfo.baseError!!, Toast.LENGTH_LONG).show()
+            if(userInfo.baseError != null) {
+                Toast.makeText(mContext, userInfo.baseError!!, Toast.LENGTH_LONG).show()
+                userInfo.baseError = null
+            }
 
             Image(
                 painter = painterResource(id = R.drawable.back),
@@ -115,6 +129,7 @@ fun RegisterScreen(authModelView: AuthModelView = hiltViewModel()) {
                     .verticalScroll(
                         rememberScrollState()
                     )
+                    .padding(top = 40.dp)
             ) {
 
                 Text(
@@ -147,8 +162,10 @@ fun RegisterScreen(authModelView: AuthModelView = hiltViewModel()) {
                         TextField(modifier = Modifier.fillMaxWidth(),
                             value = phoneText.value,
                             onValueChange = {
-                                phoneText.value = it
-                                authModelView.onEvent(EventFormUserState.ChangedPhone(phoneText.value))
+                                if (it.length < 13) {
+                                    phoneText.value = it
+                                    authModelView.onEvent(EventFormUserState.ChangedPhone(it))
+                                }
                                             },
                             shape = RoundedCornerShape(16.dp),
                             textStyle = TextStyle(fontSize = 16.sp),
@@ -346,6 +363,23 @@ fun RegisterScreen(authModelView: AuthModelView = hiltViewModel()) {
                 }
 
                 Spacer(modifier = Modifier.height(60.dp))
+
+            }
+
+            FloatingActionButton(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .clip(MaterialTheme.shapes.small)
+                    .padding(top = 8.dp, start = 10.dp)
+                    .size(45.dp),
+                containerColor = whiteColor,
+                onClick = { navController.navigateUp() }) {
+                Icon(
+                    Icons.Filled.KeyboardArrowLeft,
+                    tint = redActionColor,
+                    modifier = Modifier.size(32.dp),
+                    contentDescription = "Добавить"
+                )
             }
         }
     }
@@ -355,5 +389,4 @@ fun RegisterScreen(authModelView: AuthModelView = hiltViewModel()) {
 @Composable
 @Preview(showSystemUi = true)
 fun preview2(){
-    RegisterScreen()
 }

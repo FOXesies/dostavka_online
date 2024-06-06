@@ -11,7 +11,8 @@ import com.wayplaner.learn_room.auth.usecase.ValidateCity
 import com.wayplaner.learn_room.auth.usecase.ValidateName
 import com.wayplaner.learn_room.auth.usecase.ValidatePhone
 import com.wayplaner.learn_room.auth.util.UserFormState
-import com.wayplaner.learn_room.utils.CustometAccount
+import com.wayplaner.learn_room.auth.util.save
+import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.comet.android.auth.domain.usecase.ValidatePassword
@@ -63,10 +64,12 @@ class AuthModelView @Inject constructor(
 
     private fun sing_in(){
         viewModelScope.launch {
-            val response = authCustomerRepository.sing_in(SingInRequest(userFormState_.value!!.phone, userFormState_.value!!.password))
+            val valueSend = SingInRequest(userFormState_.value!!.phone, userFormState_.value!!.password)
+            val response = authCustomerRepository.sing_in(valueSend)
             val responseBody = response.body()!!
             if(responseBody.userResponse != null) {
-                CustometAccount.info = responseBody.userResponse
+                CustomerAccount.info = responseBody.userResponse
+                valueSend.save()
                 success_.postValue(true)
                 return@launch
             }
@@ -76,14 +79,17 @@ class AuthModelView @Inject constructor(
     }
     private fun sing_up(){
         viewModelScope.launch {
-            val response = authCustomerRepository.sing_up(SingUpRequest(
+            val valueSend = SingUpRequest(
                 userFormState_.value!!.phone,
                 userFormState_.value!!.name,
                 userFormState_.value!!.city,
-                userFormState_.value!!.password))
+                userFormState_.value!!.password)
+
+            val response = authCustomerRepository.sing_up(valueSend)
             val responseBody = response.body()!!
             if(responseBody.userResponse != null) {
-                CustometAccount.info = responseBody.userResponse
+                CustomerAccount.info = responseBody.userResponse
+                valueSend.save()
                 success_.postValue(true)
                 return@launch
             }
@@ -100,11 +106,11 @@ class AuthModelView @Inject constructor(
             is EventFormUserState.ChangedPasswordRepeat -> userFormState_.postValue(userFormState_.value!!.copy(passwordRepeat = event.passwordRepeat))
             is EventFormUserState.ChangedPhone -> userFormState_.postValue(userFormState_.value!!.copy(phone = event.phone))
             is EventFormUserState.SumbitSingIn -> { sumbitSingIn() }
-            is EventFormUserState.SumbitSingUp -> {}
+            is EventFormUserState.SumbitSingUp -> { sumbitSingUp() }
         }
     }
 
-    private fun sumbitSingIn(){
+    private fun sumbitSingUp(){
         clearErrorValue()
 
         val name = validateName.execute(userFormState_.value!!.name)
@@ -130,6 +136,21 @@ class AuthModelView @Inject constructor(
                 passwordRepeatError = passwordRepeat.errormessage,
             )
 
+            return
+        }
+
+        sing_up()
+    }
+
+
+    private fun sumbitSingIn(){
+        clearErrorValue()
+
+        val phone = validatePhone.execute(userFormState_.value!!.phone)
+        if(!phone.successful){
+            userFormState_.value = userFormState_.value?.copy(
+                errorPhone = phone.errormessage,
+            )
             return
         }
 

@@ -104,7 +104,7 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun basketRepository(basketApi: BasketApi) = BasketApiImpl(basketApi)
+    fun basketRepository(basketApi: BasketApi) = BasketApiImpl(basketApi, gsonOrdId)
 
     @Provides
     @Singleton
