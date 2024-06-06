@@ -10,7 +10,7 @@ data class OrderSelfDelivery (
 
     var uuid: UUIDCustom? = null,
 
-    var idLocation: Long? = null,
+    var idLocation: Long? = 1,
     var phoneUser: String? = null,
     var fromTimeCooking: String? = null,
     var toTimeCooking: String? = "now",

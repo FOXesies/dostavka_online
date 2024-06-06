@@ -11,5 +11,6 @@ sealed class OrderFormState {
     data class AppartementChanged(val appartament: String): OrderFormState()
     data class PodiezdChanged(val podiezd: String): OrderFormState()
     data class ToTimeChaged(val time: LocalDateTime): OrderFormState()
+    data class IdAddressChanged(val idAddress: Long): OrderFormState()
     data class Sumbit(val isSelf: Boolean): OrderFormState()
 }

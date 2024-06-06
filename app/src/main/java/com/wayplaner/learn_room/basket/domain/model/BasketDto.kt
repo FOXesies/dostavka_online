@@ -5,5 +5,6 @@ import com.wayplaner.learn_room.order.data.model.IdsProductInBasket
 data class BasketDto (
     val idRestoraunt: Long? = null,
     var productsPick: MutableList<IdsProductInBasket> = mutableListOf(),
-    var summ: Double = 0.0
+    var summ: Double = 0.0,
+    var city: String? = null
 )

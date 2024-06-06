@@ -6,7 +6,8 @@ data class BasketItem(
     var idUser: Long? = null,
     var idRestoraunt: Long? = null,
     var productsPick: MutableList<IdsProductInBasket> = mutableListOf(),
-    var summ: Double = 0.0
+    var summ: Double = 0.0,
+    var city: String? = null,
 )
 data class IdsProductInBasket(
     var product: Long? = null,

@@ -64,6 +64,8 @@ class BasketModelView @Inject constructor(
 
     fun saveInfoInOrder(){
         Basketproduct.summ = basketItem.value?.summ
+        Basketproduct.city = basketItem.value?.city
+        Basketproduct.idOrg = basketItem.value?.idRestoraunt
     }
 
     fun loadBasket(){
@@ -74,7 +76,7 @@ class BasketModelView @Inject constructor(
 
     fun replaceAll(orgId: Long, product: Product){
         viewModelScope.launch {
-            basketApiImpl.replaceAll(SendBasketProduct(organziationId = orgId, productId = product.idProduct))
+            basketApiImpl.replaceAll(SendBasketProduct(city = CustomerAccount.info!!.city, organziationId = orgId, productId = product.idProduct))
 
             val item = basket_.value!!.copy()
             item.summ += product.price!!
@@ -85,7 +87,7 @@ class BasketModelView @Inject constructor(
 
     fun addProduct(orgId: Long, product: Product) {
         viewModelScope.launch {
-            basketApiImpl.addProduct(SendBasketProduct(organziationId = orgId, productId = product.idProduct))
+            basketApiImpl.addProduct(SendBasketProduct(city = CustomerAccount.info!!.city, organziationId = orgId, productId = product.idProduct))
 
             val item = basket_.value!!.copy()
             item.summ += product.price!!

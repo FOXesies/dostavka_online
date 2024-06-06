@@ -1,6 +1,8 @@
 package com.wayplaner.learn_room.createorder.presentation
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,11 +30,15 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +60,7 @@ import com.wayplaner.learn_room.utils.InitMaps
 import com.yandex.mapkit.MapKitFactory
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CreateOrderScreen(
@@ -156,21 +163,29 @@ fun CreateOrderScreen(
                     }
 
                 }
+                val disabledScrollConnection = remember {
+                    object : NestedScrollConnection {}
+                }
 
                 HorizontalPager(
                     state = pagerState,
-                    beyondBoundsPageCount = 2,
-                ) { page ->
+                    modifier = Modifier
+                        .nestedScroll(disabledScrollConnection)
+                        .pointerInput(Unit) {}, // Disable touch gestures
+                    userScrollEnabled = false
+                ){
+                        page ->
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 96.dp)
                             .clip(RoundedCornerShape(10.dp))
                     ) {
-                        if(page == 0)
+                        if (page == 0) {
                             DeliveryPick(vmCreateOrder)
-                        else
+                        } else {
                             SelfDeliveryPick(vmCreateOrder)
+                        }
                     }
                 }
 
@@ -180,7 +195,7 @@ fun CreateOrderScreen(
         }
     }
 }
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun BottomPayCard(vmCreateOrder: CreateOrderModelView, isSelf: Boolean) {
 

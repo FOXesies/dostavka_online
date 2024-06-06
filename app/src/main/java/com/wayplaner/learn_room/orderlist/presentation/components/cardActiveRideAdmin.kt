@@ -1,5 +1,7 @@
 package com.wayplaner.learn_room.orderlist.presentation.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,7 +32,6 @@ import com.skydoves.balloon.compose.Balloon
 import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.createorder.domain.model.Order
-import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getBackColor
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getText
@@ -42,9 +43,13 @@ import com.wayplaner.learn_room.ui.theme.selfdeliveryType
 import com.wayplaner.learn_room.ui.theme.selfdeliveryTypeBack
 import com.wayplaner.learn_room.ui.theme.testButton
 import com.wayplaner.learn_room.ui.theme.testText
+import org.example.order.DTO.sen_response.SendACtiveOrderSelf
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
-private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, statusOrder: StatusOrder, isDelivery: Boolean, loginCancel: () -> Unit) {
+private fun CardActiveOrder(idOrder: String, nameOrg: String, dateOrder: String, summ: String, statusOrder: StatusOrder, isDelivery: Boolean, loginCancel: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(Color.White)) {
@@ -58,6 +63,9 @@ private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, st
                     fontSize = 14.sp,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
             }
+            Text(text = "Ресторан: $nameOrg", modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp))
 
             Row(
                 modifier = Modifier
@@ -102,12 +110,26 @@ private fun CardActiveOrder(idOrder: String, dateOrder: String, summ: String, st
 
 @Composable
 fun createCardOrderActive(order: Order, loginCancel: () -> Unit){
-    CardActiveOrder(order.uuid!!.id.toString(), "10 марта", order.summ.toString(), order.status!!, true, loginCancel)
+    CardActiveOrder(order.uuid!!.id.toString(), "","10 марта", order.summ.toString(), order.status!!, true, loginCancel)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun createCardOrderActive(orderSelf: OrderSelfDelivery, loginCancel: () -> Unit){
-    CardActiveOrder(orderSelf.uuid!!.id.toString(), "10 марта", orderSelf.summ.toString(), orderSelf.status!!,false, loginCancel)
+fun createCardOrderActive(orderSelf: SendACtiveOrderSelf, loginCancel: () -> Unit){
+    CardActiveOrder(orderSelf.uuid!!.id.toString(), orderSelf.organizationName!!, getLocalDateTime(orderSelf.fromTimeCooking!!), orderSelf.summ.toString(), orderSelf.status!!,false, loginCancel)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatLocalDateTime(localDateTime: LocalDateTime): String {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM HH:mm", Locale("ru")) // Форматирование на русском языке
+    return localDateTime.format(formatter)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun getLocalDateTime(date: String): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    val result = LocalDateTime.parse(date, formatter)
+    return formatLocalDateTime(result)
 }
 
 @Composable

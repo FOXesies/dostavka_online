@@ -1,11 +1,8 @@
 package com.wayplaner.learn_room.createorder.domain.model
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.wayplaner.learn_room.utils.CustomerAccount
 import org.example.order.model.ProductInOrder
 
-@RequiresApi(Build.VERSION_CODES.O)
 data class Order (
     var orderId: Long? = null,
     var idUser: Long = CustomerAccount.info!!.profileUUID,

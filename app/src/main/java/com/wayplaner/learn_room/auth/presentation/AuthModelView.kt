@@ -30,8 +30,6 @@ class AuthModelView @Inject constructor(
     private val authCustomerRepository: AuthCustomerRepository
 ): ViewModel() {
 
-
-
     private var cities = MutableLiveData<List<String>>()
 
     init {

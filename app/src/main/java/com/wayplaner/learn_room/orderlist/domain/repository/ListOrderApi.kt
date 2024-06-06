@@ -1,10 +1,10 @@
 package com.wayplaner.learn_room.orderlist.domain.repository
 
-import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
+import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrder
 import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrderSelf
 import com.wayplaner.learn_room.orderlist.domain.model.ResponseCancel
-import com.wayplaner.learn_room.createorder.domain.model.Order
+import org.example.order.DTO.sen_response.SendACtiveOrderSelf
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 interface ListOrderApi {
 
     @GET("order/all_self_deliveri/{id}")
-    suspend fun getAllSelfOrder(@Path("id") idUser: Long): Response<List<OrderSelfDelivery>>
+    suspend fun getAllSelfOrder(@Path("id") idUser: Long): Response<List<SendACtiveOrderSelf>>
     @GET("order/all_deliveri/{id}")
     suspend fun getAllOrder(@Path("id") idUser: Long): Response<List<Order>>
 
