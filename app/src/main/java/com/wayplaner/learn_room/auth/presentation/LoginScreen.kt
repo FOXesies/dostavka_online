@@ -48,6 +48,7 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.ui.theme.backGrayColor
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.textFieldBack
 import com.wayplaner.learn_room.ui.theme.textFieldError
 import com.wayplaner.learn_room.ui.theme.textFieldFocus
@@ -156,7 +157,7 @@ fun LoginComponents(navController: NavController, authModelView: AuthModelView =
                     if(userInfo.errorPhone != null){
                         Text(
                             text = userInfo.errorPhone!!,
-                            color = MaterialTheme.colorScheme.error,
+                            color = grayList,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                         )
@@ -187,7 +188,7 @@ fun LoginComponents(navController: NavController, authModelView: AuthModelView =
                     if(userInfo.passwordError != null){
                         Text(
                             text = userInfo.passwordError!!,
-                            color = MaterialTheme.colorScheme.error,
+                            color = grayList,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                         )

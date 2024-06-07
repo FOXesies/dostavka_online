@@ -12,8 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -21,10 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,10 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderModelView
 import com.wayplaner.learn_room.createorder.util.OrderFormState
-import com.wayplaner.learn_room.ui.theme.grayColor
-import com.wayplaner.learn_room.ui.theme.lightGrayColor
-import com.wayplaner.learn_room.ui.theme.redLogoColor
-import com.wayplaner.learn_room.ui.theme.textFieldHint
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
+import com.wayplaner.learn_room.ui.theme.whiteColor
 
 
 @Composable
@@ -48,12 +42,12 @@ fun PhoneViewCard(
 
     Card(
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(Color.White)
+        colors = CardDefaults.cardColors(orderCreateCard)
     ) {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(text = "Номер телефона", fontSize = 18.sp)
+            Text(text = "Номер телефона", fontSize = 18.sp, color = grayList)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -61,7 +55,7 @@ fun PhoneViewCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(55.dp),
-                colors = CardDefaults.cardColors(lightGrayColor),
+                colors = CardDefaults.cardColors(orderCreateBackField),
                 shape = RoundedCornerShape(14.dp)) {
                 Row(
                     modifier = Modifier
@@ -72,11 +66,13 @@ fun PhoneViewCard(
                     Icon(
                         imageVector = Icons.Filled.Add,
                         modifier = Modifier.size(21.dp).padding(bottom = 2.dp),
-                        tint = textFieldHint,
+                        tint = grayList,
                         contentDescription = null
                     )
                     TextField(
                         colors = TextFieldDefaults.colors(
+                            focusedTextColor = whiteColor,
+                            unfocusedTextColor = grayList,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = Color.Transparent,

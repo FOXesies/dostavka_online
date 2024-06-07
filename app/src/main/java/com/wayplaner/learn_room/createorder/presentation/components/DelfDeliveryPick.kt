@@ -50,28 +50,33 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderModelView
 import com.wayplaner.learn_room.createorder.util.AddressPick
 import com.wayplaner.learn_room.createorder.util.OrderFormState
-import com.wayplaner.learn_room.ui.theme.grayColor
-import com.wayplaner.learn_room.ui.theme.lightGrayColor
-import com.wayplaner.learn_room.ui.theme.redLogoColor
+import com.wayplaner.learn_room.ui.theme.backOrgHome
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.textFieldHint
+import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
     var textColorValue = TextFieldDefaults.textFieldColors(
+        focusedTextColor = whiteColor,
+        unfocusedTextColor = grayList,
         containerColor = Color.Transparent,
-        cursorColor = redLogoColor,
-        focusedIndicatorColor = redLogoColor,
-        unfocusedIndicatorColor = grayColor,
-        focusedLabelColor = redLogoColor,
-        unfocusedLabelColor = grayColor,
+        cursorColor = whiteColor,
+        focusedIndicatorColor = whiteColor,
+        unfocusedIndicatorColor = grayList,
+        focusedLabelColor = whiteColor,
+        unfocusedLabelColor = grayList,
     )
 
     Column(
         modifier = Modifier
-            .background(color = lightGrayColor)
+            .background(color = orderCreateCard)
             .padding(horizontal = 2.dp)
+            .background(backOrgHome)
             .verticalScroll(rememberScrollState())
     ) {
 
@@ -93,7 +98,7 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
 
             Card(
                 shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(Color.White)
+                colors = CardDefaults.cardColors(orderCreateCard)
             ) {
 
                 Column(modifier = Modifier.padding(horizontal = 20.dp)) {
@@ -107,7 +112,7 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(lightGrayColor),
+                        colors = CardDefaults.cardColors(orderCreateBackField),
                         shape = RoundedCornerShape(14.dp),
                         onClick = { /*TODO*/ }) {
                         Row(
@@ -144,7 +149,8 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
                                         leadingIcon = {
                                             Icon(
                                                 imageVector = Icons.Filled.AccessTime,
-                                                contentDescription = null
+                                                contentDescription = null,
+                                                tint = grayList
                                             )
                                         },
                                         trailingIcon = {
@@ -154,6 +160,8 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
                                             )
                                         },
                                         colors = TextFieldDefaults.colors(
+                                            focusedTextColor = whiteColor,
+                                            unfocusedTextColor = grayList,
                                             focusedIndicatorColor = Color.Transparent,
                                             unfocusedIndicatorColor = Color.Transparent,
                                             focusedContainerColor = Color.Transparent,

@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,7 +36,7 @@ import com.wayplaner.learn_room.navigation.CustomAppBar
 import com.wayplaner.learn_room.navigation.DrawerMenu
 import com.wayplaner.learn_room.navigation.Navigation
 import com.wayplaner.learn_room.ui.theme.Learn_roomTheme
-import com.wayplaner.learn_room.ui.theme.grayColor
+import com.wayplaner.learn_room.ui.theme.backHeader
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -48,7 +49,8 @@ class MainActivityPage: ComponentActivity() {
             Learn_roomTheme {
                 val systemUiController = rememberSystemUiController()
                 SideEffect {
-                    systemUiController.setSystemBarsColor(grayColor)
+                    systemUiController.setSystemBarsColor(Color.Transparent)
+                    systemUiController.setStatusBarColor(backHeader)
                 }
                 Surface(
                     modifier = Modifier
@@ -83,7 +85,8 @@ enum class MainRoute(value: String) {
     Admin_Home("admin_home"),
     Admin_Orders("admin_order"),
     Admin_MenuList("admin_menu_list"),
-    Admin_MenuProduct("admin_menu_product")
+    Admin_MenuProduct("admin_menu_product"),
+    Admin_OrderInfo("admin_order_info")
 }
 
 @Composable

@@ -61,9 +61,12 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
 import com.wayplaner.learn_room.product.domain.model.Product
-import com.wayplaner.learn_room.ui.theme.grayColor_Text
+import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.backOrgHome
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.redBlackColor
+import com.wayplaner.learn_room.ui.theme.summRedColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -125,8 +128,8 @@ fun ProductScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 254.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = CardDefaults.cardColors(whiteColor)
+                    shape = RoundedCornerShape(topEnd = 28.0.dp, topStart = 28.0.dp, bottomEnd = 0.dp, bottomStart = 0.dp),
+                    colors = CardDefaults.cardColors(backOrgHome)
                 ) {
 
                     Column(
@@ -142,7 +145,7 @@ fun ProductScreen(
                             Text(
                                 modifier = Modifier.weight(1f),
                                 fontSize = 22.sp,
-                                color = Color.Black,
+                                color = Color.White,
                                 text = productValue.name,
                                 fontFamily = FontFamily(
                                     Font(
@@ -154,7 +157,7 @@ fun ProductScreen(
 
                             Text(
                                 fontSize = 22.sp,
-                                color = redBlackColor,
+                                color = summRedColor,
                                 text = "${productValue.price} р.",
                                 fontFamily = FontFamily(
                                     Font(
@@ -170,33 +173,35 @@ fun ProductScreen(
                         productValue.description?.let {
                             Text(
                                 fontSize = 18.sp,
-                                color = grayColor_Text,
+                                color = grayList,
                                 maxLines = 12,
                                 text = it//"это горячее блюдо, обычно состоящее из котлеты из измельчённого мяса, как правило, говядины, помещённой внутрь нарезанной булочки. Гамбургеры часто подают с сыром, салатом, помидорами, луком, маринованными огурцами, беконом или чили; соусами, такими как кетчуп, горчица, майонез, релиш; и часто их кладут на булочки с кунжутом.",
                             )
                         }
                     }
                 }
+
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .clip(MaterialTheme.shapes.small)
                         .padding(top = 8.dp, start = 10.dp)
                         .size(45.dp),
-                    containerColor = whiteColor,
+                    containerColor = backHeader,
                     onClick = { navController.navigateUp() }) {
                     Icon(
                         Icons.Filled.KeyboardArrowLeft,
-                        tint = redActionColor,
+                        tint = whiteColor,
                         modifier = Modifier.size(32.dp),
                         contentDescription = "Добавить"
                     )
                 }
+
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .clip(MaterialTheme.shapes.small)
-                        .padding(top = 8.dp, end = 10.dp)
+                        .padding(top = 12.dp, start = 16.dp, bottom = 5.dp, end = 5.dp)
                         .size(45.dp),
                     containerColor = redActionColor,
                     onClick = {  }) {
@@ -209,7 +214,7 @@ fun ProductScreen(
                 }
 
                 BottomAppBar(
-                    containerColor = whiteColor,
+                    containerColor = Color.Transparent,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .shadow(20.dp)
@@ -230,9 +235,7 @@ fun CreateBottomView(productValue: Product, vmBasket: BasketModelView, idOrg: Lo
     if (productBasketCount.value != 0) {
         Row(
             modifier = Modifier
-                .background(redActionColor)
-                .clip(RoundedCornerShape(0.dp))
-                .height(55.dp),
+                .background(redActionColor).fillMaxWidth().fillMaxHeight()
         ) {
             Row(
                 modifier = Modifier

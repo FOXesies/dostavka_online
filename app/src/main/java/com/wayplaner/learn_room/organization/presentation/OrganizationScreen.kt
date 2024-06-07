@@ -18,10 +18,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -55,11 +57,11 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import com.wayplaner.learn_room.organization.presentation.components.ProductCard
-import com.wayplaner.learn_room.ui.theme.categoryColor
-import com.wayplaner.learn_room.ui.theme.grayColor
-import com.wayplaner.learn_room.ui.theme.grayColor_Text
+import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.backHome
+import com.wayplaner.learn_room.ui.theme.backOrgHome
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.redActionColor
-import com.wayplaner.learn_room.ui.theme.redBlackColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 import kotlinx.coroutines.launch
 
@@ -114,8 +116,8 @@ fun OrganizationCardOrg(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 200.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    colors = CardDefaults.cardColors(whiteColor)
+                    shape = RoundedCornerShape(topEnd = 28.0.dp, topStart = 28.0.dp, bottomEnd = 0.dp, bottomStart = 0.dp),
+                    colors = CardDefaults.cardColors(backOrgHome)
                 ) {
                     Column(
                         modifier = Modifier
@@ -125,7 +127,7 @@ fun OrganizationCardOrg(
                         Row(modifier = Modifier.padding(end = 10.dp)) {
                             Text(
                                 fontSize = 22.sp,
-                                color = redBlackColor,
+                                color = White,
                                 text = "${organization_const.name}",
                                 fontFamily = FontFamily(
                                     Font(
@@ -134,7 +136,7 @@ fun OrganizationCardOrg(
                                     )
                                 ),
                                 modifier = Modifier
-                                    .weight(4f)
+                                    .weight(3f)
                             )
 
                             Column(
@@ -147,8 +149,8 @@ fun OrganizationCardOrg(
                                     horizontalArrangement = Arrangement.End
                                 ) {
                                     Icon(
-                                        Icons.Filled.StarBorder,
-                                        tint = redBlackColor,
+                                        Icons.Filled.Star,
+                                        tint = whiteColor,
                                         contentDescription = "star_organization"
                                     )
 
@@ -161,6 +163,7 @@ fun OrganizationCardOrg(
                                                 FontWeight.SemiBold
                                             )
                                         ),
+                                        color = whiteColor,
                                         fontSize = 14.sp
                                     )
                                 }
@@ -175,7 +178,6 @@ fun OrganizationCardOrg(
                                                 organization_const.ratingCount!!
                                             )
                                         }",
-                                        color = grayColor,
                                         modifier = Modifier.padding(top = 1.dp, start = 2.dp),
                                         fontFamily = FontFamily(
                                             Font(
@@ -183,7 +185,8 @@ fun OrganizationCardOrg(
                                                 FontWeight.SemiBold
                                             )
                                         ),
-                                        fontSize = 10.sp
+                                        color = grayList,
+                                        fontSize = 12.sp
                                     )
                                 }
                             }
@@ -193,7 +196,7 @@ fun OrganizationCardOrg(
 
                         Text(
                             fontSize = 14.sp,
-                            color = grayColor_Text,
+                            color = grayList,
                             text = /*"Рестораны сильно различаются по внешнему виду и предложениям, " +
                                         "включая широкий выбор кухонь и моделей обслуживания, начиная от " +
                                         "недорогих ресторанов быстрого питания и кафетериев, до семейных " +
@@ -205,6 +208,7 @@ fun OrganizationCardOrg(
                         )
 
                         Text(
+                            color = whiteColor,
                             text = "Адрес: ${organization_const.locationsAll.values.first()
                                 .map {
                                     organization_const.locationsAll.keys.first() + ", " + it.address
@@ -224,13 +228,13 @@ fun OrganizationCardOrg(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .clip(MaterialTheme.shapes.small)
-                        .padding(top = 8.dp, start = 10.dp)
+                        .padding(top = 12.dp, start = 16.dp, bottom = 5.dp, end = 5.dp)
                         .size(45.dp),
-                    containerColor = whiteColor,
+                    containerColor = backHeader,
                     onClick = { navController.navigateUp() }) {
                     Icon(
                         Icons.Filled.KeyboardArrowLeft,
-                        tint = redActionColor,
+                        tint = whiteColor,
                         modifier = Modifier.size(32.dp),
                         contentDescription = "Добавить"
                     )
@@ -300,7 +304,7 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
                     },
                 ) {
                     Text(
-                        color = if (pagerState.currentPage == index) redActionColor else categoryColor,
+                        color = if (pagerState.currentPage == index) redActionColor else whiteColor,
                         text = tab,
                         modifier = Modifier.padding(12.dp)
                     )
@@ -310,11 +314,11 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
 
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.background(backHome)
         ) {
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                    .fillMaxSize()
             ) {
                 items(
                     if(categories[pagerState.currentPage] == "Все")

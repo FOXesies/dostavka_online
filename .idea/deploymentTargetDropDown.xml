@@ -2,13 +2,10 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="Preview">
+      <entry key="EditProfileScreenPreview">
         <State />
       </entry>
-      <entry key="TestOrganization">
-        <State />
-      </entry>
-      <entry key="TestOrganization (1)">
+      <entry key="ReviewsScreenPreview">
         <State />
       </entry>
       <entry key="app">
@@ -18,6 +15,9 @@
         <State />
       </entry>
       <entry key="previewProduct">
+        <State />
+      </entry>
+      <entry key="prewivasdmionfoorder">
         <State />
       </entry>
     </value>

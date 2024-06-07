@@ -12,10 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.orderlist.presentation.ListOrderModelView
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
-import org.example.order.DTO.sen_response.SendACtiveOrderSelf
 
 @Composable
 fun ActiveOrders(vmListorder: ListOrderModelView) {
@@ -23,17 +21,14 @@ fun ActiveOrders(vmListorder: ListOrderModelView) {
         .padding(vertical = 5.dp, horizontal = 10.dp)
         .background(Color.Transparent)) {
             vmListorder.onEvent(UiOrderEvent.OpenActiveOrder)
-            val orders = vmListorder.combineOrder.observeAsState()
+            val orders = vmListorder.activeOrder.observeAsState()
             if(!orders.value.isNullOrEmpty()) {
                 LazyColumn(
                     modifier = Modifier.padding(vertical = 5.dp, horizontal = 6.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(orders.value!!) {
-                        when (it) {
-                            is Order -> createCardOrderActive(it) { vmListorder.onEvent(UiOrderEvent.CancelOrder(true, it.orderId!!)) }
-                            is SendACtiveOrderSelf -> createCardOrderActive(it) { vmListorder.onEvent(UiOrderEvent.CancelOrder(false, it.idOrderSelf!!)) }
-                        }
+                    items(orders.value!!) { order ->
+                        CardActiveOrder(order.idOrder!!.toString(), order.organizationName!!,order.fromTimeCooking!!, order.summ.toString(), order.status!!, order.isSelf)
                     }
                 }
             }

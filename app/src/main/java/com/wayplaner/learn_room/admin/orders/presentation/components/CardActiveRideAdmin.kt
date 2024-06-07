@@ -19,11 +19,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.skydoves.balloon.ArrowOrientation
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
@@ -32,37 +32,40 @@ import com.skydoves.balloon.BalloonHighlightAnimation
 import com.skydoves.balloon.BalloonSizeSpec
 import com.skydoves.balloon.compose.Balloon
 import com.skydoves.balloon.compose.rememberBalloonBuilder
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
-import com.wayplaner.learn_room.createorder.domain.model.Order
-import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getBackColor
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getNext
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getText
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getTextColor
+import com.wayplaner.learn_room.orderlist.presentation.components.cardForStatusDelivery
+import com.wayplaner.learn_room.orderlist.presentation.components.getLocalDateTime
+import com.wayplaner.learn_room.ui.theme.backOrgHome
 import com.wayplaner.learn_room.ui.theme.deliveryType
 import com.wayplaner.learn_room.ui.theme.deliveryTypeBack
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.selfdeliveryType
 import com.wayplaner.learn_room.ui.theme.selfdeliveryTypeBack
 import com.wayplaner.learn_room.ui.theme.testButton
-import com.wayplaner.learn_room.ui.theme.testText
+import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: String, status: StatusOrder, isDelivery: Boolean, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit) {
-    var status by remember { mutableStateOf(status) }
+fun CardActiveOrderAdmin(navController: NavController, idOrder: String, dateOrder: String, summ: String, statusOrder: StatusOrder, isDelivery: Boolean, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit) {
+    var status by remember { mutableStateOf(statusOrder) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(Color.White)) {
+        colors = CardDefaults.cardColors(backOrgHome)) {
         Column(modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
-            cardForStatusDeliveryAdmin(isDelivery)
+            cardForStatusDelivery(isDelivery)
             Card(
                 colors = CardDefaults.cardColors(status.getBackColor())
             ) {
                 Text(text = status.getText(),
                     color = status.getTextColor(),
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
             }
 
@@ -71,16 +74,16 @@ private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: Strin
                     .fillMaxWidth()
                     .padding(top = 16.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "ID заказа", color = testText)
-                    Text(text = idOrder)
+                    Text(text = "ID заказа", color = grayList)
+                    Text(text = idOrder, color = whiteColor)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Дата", color = testText)
-                    Text(text = dateOrder)
+                    Text(text = "Дата", color = grayList)
+                    Text(text = getLocalDateTime(dateOrder), color = whiteColor)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Цена", color = testText)
-                    Text(text = summ + " руб")
+                    Text(text = "Цена", color = grayList)
+                    Text(text = summ + " руб", color = whiteColor)
                 }
             }
 
@@ -88,7 +91,7 @@ private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: Strin
                 Button(shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(redActionColor),
                     onClick = {  }) {
-                    Text(text = "Отследить заказ",
+                    Text(text = "Открыть заказ",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
@@ -113,8 +116,7 @@ private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: Strin
                 Button(shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(nextValue.getBackColor()),
                     onClick = {
-                        status = nextValue
-                        logicSwitchStatus()
+                        navController.navigate(MainRoute.Admin_OrderInfo.name)
                     }) {
                     Text(text = nextValue.getText(),
                         color = nextValue.getTextColor(),
@@ -126,16 +128,6 @@ private fun CardActiveOrderAdmin(idOrder: String, dateOrder: String, summ: Strin
             }
         }
     }
-}
-
-@Composable
-fun createCardOrderActiveAdmin(order: Order, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit){
-    CardActiveOrderAdmin(order.uuid!!.id.toString(), "10 марта", order.summ.toString(), order.status?: StatusOrder.COMPLETE_ORDER, true, loginCancel, logicSwitchStatus)
-}
-
-@Composable
-fun createCardOrderActiveAdmin(orderSelf: OrderSelfDelivery, loginCancel: () -> Unit, logicSwitchStatus: () -> Unit){
-    CardActiveOrderAdmin(orderSelf.uuid!!.id.toString(), "10 марта", orderSelf.summ.toString(), orderSelf.status?: StatusOrder.COMPLETE_ORDER, false, loginCancel, logicSwitchStatus)
 }
 
 @Composable

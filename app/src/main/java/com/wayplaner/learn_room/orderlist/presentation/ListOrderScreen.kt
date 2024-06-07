@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,8 +29,9 @@ import com.wayplaner.learn_room.navigation.CustomAppBar
 import com.wayplaner.learn_room.orderlist.presentation.components.ActiveOrders
 import com.wayplaner.learn_room.orderlist.presentation.components.CanceledOrders
 import com.wayplaner.learn_room.orderlist.presentation.components.CompleteOrders
-import com.wayplaner.learn_room.ui.theme.categoryColor
-import com.wayplaner.learn_room.ui.theme.lightGrayColor
+import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import kotlinx.coroutines.launch
 
@@ -57,8 +57,8 @@ fun ListOrderScreen(navController: NavController,
                 ScrollableTabRow(
                     modifier = Modifier.fillMaxWidth(),
                     selectedTabIndex = pagerState.currentPage,
-                    containerColor = Color.Transparent,
-                    contentColor = Color(0xFFFEFEFA),
+                    containerColor = backHeader,
+                    contentColor = backHeader,
                     indicator = {
                         Spacer(
                             Modifier
@@ -74,7 +74,7 @@ fun ListOrderScreen(navController: NavController,
                                 coroutineScope.launch { pagerState.animateScrollToPage(index) }
                             }) {
                             Text(
-                                color = if (pagerState.currentPage == index) redActionColor else categoryColor,
+                                color = if (pagerState.currentPage == index) redActionColor else grayList,
                                 text = tab,
                                 modifier = Modifier.padding(14.dp)
                             )
@@ -87,7 +87,7 @@ fun ListOrderScreen(navController: NavController,
                     state = pagerState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(lightGrayColor)
+                        .background(orderCreateCard)
                 ) {
                     when (pagerState.currentPage) {
                         0 -> ActiveOrders(vmListorder)

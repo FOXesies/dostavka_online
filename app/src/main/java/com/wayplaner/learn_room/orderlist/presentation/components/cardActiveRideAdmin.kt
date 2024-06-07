@@ -17,7 +17,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,28 +30,28 @@ import com.skydoves.balloon.BalloonSizeSpec
 import com.skydoves.balloon.compose.Balloon
 import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.wayplaner.learn_room.R
-import com.wayplaner.learn_room.createorder.domain.model.Order
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getBackColor
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getText
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getTextColor
+import com.wayplaner.learn_room.ui.theme.backOrgHome
 import com.wayplaner.learn_room.ui.theme.deliveryType
 import com.wayplaner.learn_room.ui.theme.deliveryTypeBack
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.selfdeliveryType
 import com.wayplaner.learn_room.ui.theme.selfdeliveryTypeBack
 import com.wayplaner.learn_room.ui.theme.testButton
-import com.wayplaner.learn_room.ui.theme.testText
-import org.example.order.DTO.sen_response.SendACtiveOrderSelf
+import com.wayplaner.learn_room.ui.theme.whiteColor
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-private fun CardActiveOrder(idOrder: String, nameOrg: String, dateOrder: String, summ: String, statusOrder: StatusOrder, isDelivery: Boolean, loginCancel: () -> Unit) {
+fun CardActiveOrder(idOrder: String, nameOrg: String, dateOrder: String, summ: String, statusOrder: StatusOrder, isDelivery: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(Color.White)) {
+        colors = CardDefaults.cardColors(backOrgHome)) {
         Column(modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
             cardForStatusDelivery(isDelivery)
             Card(
@@ -65,23 +64,24 @@ private fun CardActiveOrder(idOrder: String, nameOrg: String, dateOrder: String,
             }
             Text(text = "Ресторан: $nameOrg", modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp))
+                .padding(top = 12.dp),
+                color = whiteColor)
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "ID заказа", color = testText)
-                    Text(text = idOrder)
+                    Text(text = "ID заказа", color = grayList)
+                    Text(text = idOrder, color = whiteColor)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Дата", color = testText)
-                    Text(text = dateOrder)
+                    Text(text = "Дата", color = grayList)
+                    Text(text = getLocalDateTime(dateOrder), color = whiteColor)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = "Цена", color = testText)
-                    Text(text = summ + " руб")
+                    Text(text = "Цена", color = grayList)
+                    Text(text = summ + " руб", color = whiteColor)
                 }
             }
 
@@ -89,7 +89,7 @@ private fun CardActiveOrder(idOrder: String, nameOrg: String, dateOrder: String,
                 Button(shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(redActionColor),
                     onClick = {  }) {
-                    Text(text = "Отследить заказ",
+                    Text(text = "Посмотреть заказ",
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         textAlign = TextAlign.Center)
                 }
@@ -98,7 +98,7 @@ private fun CardActiveOrder(idOrder: String, nameOrg: String, dateOrder: String,
 
                 Button(shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(testButton),
-                    onClick = { loginCancel() }) {
+                    onClick = {}) {
                     Text(text = "Отменить", color = redActionColor,
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         textAlign = TextAlign.Center)
@@ -108,20 +108,9 @@ private fun CardActiveOrder(idOrder: String, nameOrg: String, dateOrder: String,
     }
 }
 
-@Composable
-fun createCardOrderActive(order: Order, loginCancel: () -> Unit){
-    CardActiveOrder(order.uuid!!.id.toString(), "","10 марта", order.summ.toString(), order.status!!, true, loginCancel)
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun createCardOrderActive(orderSelf: SendACtiveOrderSelf, loginCancel: () -> Unit){
-    CardActiveOrder(orderSelf.uuid!!.id.toString(), orderSelf.organizationName!!, getLocalDateTime(orderSelf.fromTimeCooking!!), orderSelf.summ.toString(), orderSelf.status!!,false, loginCancel)
-}
-
 @RequiresApi(Build.VERSION_CODES.O)
 fun formatLocalDateTime(localDateTime: LocalDateTime): String {
-    val formatter = DateTimeFormatter.ofPattern("d MMMM HH:mm", Locale("ru")) // Форматирование на русском языке
+    val formatter = DateTimeFormatter.ofPattern("d MMMM", Locale("ru")) // Форматирование на русском языке
     return localDateTime.format(formatter)
 }
 

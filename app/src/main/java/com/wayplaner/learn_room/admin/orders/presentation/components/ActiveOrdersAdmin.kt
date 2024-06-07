@@ -12,35 +12,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.wayplaner.learn_room.admin.orders.presentation.AdminOrdersModelView
-import com.wayplaner.learn_room.createorder.domain.model.Order
-import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
+import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
-fun ActiveOrdersAdmin(vmListorder: AdminOrdersModelView) {
-    Column(modifier = Modifier
-        .padding(vertical = 5.dp, horizontal = 10.dp)
-        .background(Color.Transparent)) {
-            vmListorder.onEvent(UiOrderEvent.OpenActiveOrder)
-            val orders = vmListorder.combineOrder.observeAsState()
-            if(!orders.value.isNullOrEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(orders.value!!) {
-                        when (it) {
-                            is Order -> createCardOrderActiveAdmin(it,
-                                loginCancel = { vmListorder.onEvent(UiOrderEvent.CancelOrder(true, it.orderId!!)) },
-                                logicSwitchStatus = { vmListorder.onEvent(UiOrderEvent.SwitchOrder(it.orderId!!, it.status!!)) })
-                            is OrderSelfDelivery -> createCardOrderActiveAdmin(it,
-                                loginCancel = { vmListorder.onEvent(UiOrderEvent.CancelOrder(false, it.idOrderSelf!!)) },
-                                logicSwitchStatus = { vmListorder.onEvent(UiOrderEvent.SwitchOrderSelf(it.idOrderSelf!!, it.status!!)) })
-                        }
-                    }
+fun ActiveOrdersAdmin(navController: NavController, vmListorder: AdminOrdersModelView) {
+    Column(
+        modifier = Modifier
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .background(Color.Transparent)
+    ) {
+        vmListorder.onEvent(UiOrderEvent.OpenActiveOrder)
+        val orders = vmListorder.activeOrder.observeAsState()
+        if (!orders.value.isNullOrEmpty()) {
+            LazyColumn(
+                modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(orders.value!!) { order ->
+                    CardActiveOrderAdmin(navController, order.idOrder.toString(),
+                        order.fromTimeCooking!!,
+                        order.summ.toString(),
+                        order.status ?: StatusOrder.COMPLETE_ORDER,
+                        order.isSelf,
+                        loginCancel = { vmListorder.onEvent(UiOrderEvent.CancelOrder(order.idOrder!!)) },
+                        logicSwitchStatus = { vmListorder.onEvent(UiOrderEvent.SwitchOrder(order.idOrder!!, order.status!!)) })
                 }
             }
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 package com.wayplaner.learn_room.createorder.domain.repository
 
-import com.wayplaner.learn_room.createorder.domain.model.Order
+import com.wayplaner.learn_room.createorder.domain.model.OrderCreateDTO
 import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
 import com.wayplaner.learn_room.organization.domain.model.LocationOrganization
 import retrofit2.Response
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Singleton
 interface OrderApi {
     @POST("order/deliveri/add")
-    suspend fun sendOrder(@Body order: Order)
+    suspend fun sendOrder(@Body order: OrderCreateDTO)
     @POST("order/self_deliveri/add")
     suspend fun sendOrderSelf(@Body order: OrderSelfDelivery)
     @GET("organizations/addresses/{id}/")

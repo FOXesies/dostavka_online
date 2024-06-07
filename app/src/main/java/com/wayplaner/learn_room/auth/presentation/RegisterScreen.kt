@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -30,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -50,7 +53,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,6 +67,7 @@ import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.ui.theme.backGrayColor
 import com.wayplaner.learn_room.ui.theme.conteinertextFieldError
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.textFieldBack
 import com.wayplaner.learn_room.ui.theme.textFieldFocus
@@ -186,7 +193,7 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                         if(userInfo.errorPhone != null){
                                 Text(
                                     text = userInfo.errorPhone!!,
-                                    color = MaterialTheme.colorScheme.error,
+                                    color = grayList,
                                     fontSize = 12.sp,
                                     modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                                 )
@@ -217,7 +224,7 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                         if(userInfo.errorName != null){
                             Text(
                                 text = userInfo.errorName!!,
-                                color = MaterialTheme.colorScheme.error,
+                                color = grayList,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                             )
@@ -279,13 +286,15 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                         if(userInfo.errorCity != null){
                             Text(
                                 text = userInfo.errorCity!!,
-                                color = MaterialTheme.colorScheme.error,
+                                color = grayList,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                             )
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
+
+                        var showPassword by remember { mutableStateOf(false) }
 
                         TextField(modifier = Modifier.fillMaxWidth(),
                             value = passwordText.value,
@@ -301,8 +310,15 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                                     contentDescription = null
                                 )
                             },
+                            trailingIcon = {
+                                // Password visibility toggle icon
+                                PasswordVisibilityToggleIcon(
+                                    showPassword = showPassword,
+                                    onTogglePasswordVisibility = { showPassword = !showPassword })
+                            },
+                            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                             colors = colorContext,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                             placeholder = {
                                 Text(text = "Введите пароль", fontSize = 16.sp)
                             }
@@ -310,7 +326,7 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                         if(userInfo.passwordError != null){
                             Text(
                                 text = userInfo.passwordError!!,
-                                color = MaterialTheme.colorScheme.error,
+                                color = grayList,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                             )
@@ -324,16 +340,23 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                                 authModelView.onEvent(EventFormUserState.ChangedPasswordRepeat(it))
                             },
                             shape = RoundedCornerShape(16.dp),
-                            singleLine = true,
                             textStyle = TextStyle(fontSize = 16.sp),
+                            singleLine = true,
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Filled.Password,
                                     contentDescription = null
                                 )
                             },
+                            trailingIcon = {
+                                // Password visibility toggle icon
+                                PasswordVisibilityToggleIcon(
+                                    showPassword = showPassword,
+                                    onTogglePasswordVisibility = { showPassword = !showPassword })
+                            },
+                            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                             colors = colorContext,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                             placeholder = {
                                 Text(text = "Подтвердите пароль", fontSize = 16.sp)
                             }
@@ -341,7 +364,7 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                         if(userInfo.passwordRepeatError != null){
                             Text(
                                 text = userInfo.passwordRepeatError!!,
-                                color = MaterialTheme.colorScheme.error,
+                                color = grayList,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                             )
@@ -382,6 +405,19 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                 )
             }
         }
+    }
+}@Composable
+fun PasswordVisibilityToggleIcon(
+    showPassword: Boolean,
+    onTogglePasswordVisibility: () -> Unit
+) {
+    // Determine the icon based on password visibility
+    val image = if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+    val contentDescription = if (showPassword) "Hide password icon" else "Show password icon"
+
+    // IconButton to toggle password visibility
+    IconButton(onClick = onTogglePasswordVisibility) {
+        Icon(imageVector = image, contentDescription = contentDescription)
     }
 }
 

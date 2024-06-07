@@ -27,6 +27,7 @@ import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.SettingsScreen
 import com.wayplaner.learn_room.admin.basic_info.presentation.BasicInfo
+import com.wayplaner.learn_room.admin.infoorder.presintation.InfoOrderAdmin
 import com.wayplaner.learn_room.admin.menu.presentation.MenuAddScreen
 import com.wayplaner.learn_room.admin.menu.presentation.MenuList
 import com.wayplaner.learn_room.admin.orders.presentation.AdminOrders
@@ -123,6 +124,9 @@ fun Navigation(
             }
             composable(MainRoute.Admin_Home.name) {
                 com.wayplaner.learn_room.admin.home.presentation.HomeScreen(navController)
+            }
+            composable(MainRoute.Admin_OrderInfo.name) {
+                InfoOrderAdmin(navController)
             }
             composable(MainRoute.Admin_MenuList.name) {
                 MenuList(navController)

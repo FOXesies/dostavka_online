@@ -28,18 +28,18 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.organization.domain.model.ResponseProductOrg
-import com.wayplaner.learn_room.ui.theme.categoryColor
-import com.wayplaner.learn_room.ui.theme.redBlackColor
-import com.wayplaner.learn_room.ui.theme.titleProductColor
+import com.wayplaner.learn_room.ui.theme.backOrgHome
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.summRedColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun ProductCard(product: ResponseProductOrg, orgId: Long, navController: NavController) {
+fun ProductCard(product: ResponseProductOrg, orgId: Long, navController: NavController, clickable: Boolean = true) {
     Card(modifier = Modifier
         .wrapContentHeight(Alignment.CenterVertically)
-        .clickable { navController.navigate("${MainRoute.Product.name}/${orgId}/${product.id}") },
+        .clickable { if(clickable) navController.navigate("${MainRoute.Product.name}/${orgId}/${product.id}") },
         elevation = CardDefaults.elevatedCardElevation(4.dp),
-        colors = CardDefaults.cardColors(whiteColor)) {
+        colors = CardDefaults.cardColors(backOrgHome)) {
 
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -77,7 +77,7 @@ fun ProductCard(product: ResponseProductOrg, orgId: Long, navController: NavCont
                     text = product.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontSize = 16.sp,
-                    color = titleProductColor
+                    color = whiteColor
                 )
 
                 product.description?.let {
@@ -86,13 +86,13 @@ fun ProductCard(product: ResponseProductOrg, orgId: Long, navController: NavCont
                         text = it,//"это горячее блюдо, обычно состоящее из котлеты из измельчённого мяса, как правило, говядины, помещённой внутрь нарезанной булочки. Гамбургеры часто подают с сыром, салатом, помидорами, луком, маринованными огурцами, беконом или чили; соусами, такими как кетчуп, горчица, майонез, релиш; и часто их кладут на булочки с кунжутом.",
                         maxLines = 2,
                         fontSize = 12.sp,
-                        color = categoryColor,
+                        color = grayList,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
                     Text(modifier = Modifier.padding(top = 10.dp),
                         text = "${product.price} руб.",
-                        color = redBlackColor,
+                        color = summRedColor,
                         fontSize = 16.sp
                     )
             }

@@ -28,18 +28,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.admin.orders.presentation.components.ActiveOrdersAdmin
-import com.wayplaner.learn_room.admin.orders.presentation.components.CanceledOrdersAdmin
 import com.wayplaner.learn_room.admin.orders.presentation.components.CompleteOrdersAdmin
-import com.wayplaner.learn_room.ui.theme.categoryColor
-import com.wayplaner.learn_room.ui.theme.lightGrayColor
+import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 import kotlinx.coroutines.launch
@@ -60,17 +63,25 @@ fun AdminOrders(navController: NavController, vmListorder: AdminOrdersModelView 
             val pagerState = rememberPagerState { 3 }
             val coroutineScope = rememberCoroutineScope()
             Column() {
-                Box(modifier = Modifier.fillMaxWidth()){
-                    Text(text = "Список заказов", fontSize = 18.sp,
-                        modifier = Modifier
-                            .fillMaxWidth().padding(top = 18.dp),
-                        textAlign = TextAlign.Center)
+                Box(modifier = Modifier.fillMaxWidth().background(backHeader)){
+                    Text(modifier = Modifier
+                        .fillMaxWidth().padding(top = 18.dp),
+                        text = "Список заказов", fontSize = 22.sp,
+                        color = whiteColor,
+                        fontFamily = FontFamily(
+                                        Font(
+                                            R.font.ag_cooper_cyr,
+                                            FontWeight.Medium
+                                        )
+                                    ),
+                        textAlign = TextAlign.Center
+                    )
 
                     FloatingActionButton(
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .clip(MaterialTheme.shapes.small)
-                            .padding(top = 8.dp, start = 10.dp, end = 2.dp, bottom = 2.dp)
+                            .padding(top = 8.dp, start = 10.dp, end = 5.dp, bottom = 5.dp)
                             .size(45.dp),
                         containerColor = whiteColor,
                         onClick = { navController.navigateUp() }) {
@@ -86,8 +97,8 @@ fun AdminOrders(navController: NavController, vmListorder: AdminOrdersModelView 
                 ScrollableTabRow(
                     modifier = Modifier.fillMaxWidth().padding(0.dp),
                     selectedTabIndex = pagerState.currentPage,
-                    containerColor = Color.Transparent,
-                    contentColor = Color(0xFFFEFEFA),
+                    containerColor = backHeader,
+                    contentColor = backHeader,
                     indicator = {
                         Spacer(
                             Modifier
@@ -103,7 +114,7 @@ fun AdminOrders(navController: NavController, vmListorder: AdminOrdersModelView 
                                 coroutineScope.launch { pagerState.animateScrollToPage(index) }
                             }) {
                             Text(
-                                color = if (pagerState.currentPage == index) redActionColor else categoryColor,
+                                color = if (pagerState.currentPage == index) redActionColor else grayList,
                                 text = tab,
                                 modifier = Modifier.padding(14.dp)
                             )
@@ -116,12 +127,12 @@ fun AdminOrders(navController: NavController, vmListorder: AdminOrdersModelView 
                     state = pagerState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(lightGrayColor)
+                        .background(orderCreateCard)
                 ) {
                     when (pagerState.currentPage) {
-                        0 -> ActiveOrdersAdmin(vmListorder)
+                        0 -> ActiveOrdersAdmin(navController, vmListorder)
                         1 -> CompleteOrdersAdmin()
-                        2 -> CanceledOrdersAdmin(vmListorder)
+                        //2 -> CanceledOrdersAdmin(vmListorder)
                     }
 
                 }

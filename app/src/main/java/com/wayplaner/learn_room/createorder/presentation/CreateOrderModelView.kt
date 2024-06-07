@@ -9,8 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.basket.util.Basketproduct
 import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
-import com.wayplaner.learn_room.createorder.domain.model.Order
-import com.wayplaner.learn_room.createorder.domain.model.OrderSelfDelivery
+import com.wayplaner.learn_room.createorder.domain.model.OrderCreateDTO
 import com.wayplaner.learn_room.createorder.domain.model.OrderStateFrom
 import com.wayplaner.learn_room.createorder.domain.usecase.ValidatePhone
 import com.wayplaner.learn_room.createorder.util.OrderFormState
@@ -33,9 +32,8 @@ class CreateOrderModelView
 ):ViewModel() {
 
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-    private val order_ = mutableStateOf(Order())
+    private val order_ = mutableStateOf(OrderCreateDTO())
     private val order = mutableStateOf(OrderStateFrom(order = order_.value))
-    private val orderSelf_ = mutableStateOf(OrderSelfDelivery())
     private var hasErrors = mutableListOf(false)
 
     var comment = mutableStateOf("")
@@ -59,22 +57,27 @@ class CreateOrderModelView
             _uiEvent.send(uiEvent)
         }
     }
-    fun sumbit(self: Boolean) {
-        if(order_.value.addressUser == null && order_.value.addressUser?.lat == null){
-            sendUiEvent(OrderRegisterEvent.Failed("Введён некорректный адрес"))
-            order.value.errorAddress = "Введён некорректный адрес"
-            return
+    fun sumbit() {
+        if(order_.value.isSelf) {
+            order_.value.addressUser = null
+        }
+        else{
+            order_.value.idLocation = null
+
+            if (order_.value.addressUser == null && order_.value.addressUser?.lat == null){
+                sendUiEvent(OrderRegisterEvent.Failed("Введён некорректный адрес"))
+                order.value.errorAddress = "Введён некорректный адрес"
+                return
+            }
         }
         if(!hasErrors[0]){
+
             sendUiEvent(OrderRegisterEvent.Failed("Неверный номер телфона"))
             order.value.errorPhone = "Неверный номер телфона"
             return
         }
 
-        if (self)
-            sendOrderSelf()
-        else
-            sendOrder()
+        sendOrder()
     }
 
     fun onValidateEvent(eventOrder: OrderFormState){
@@ -86,30 +89,29 @@ class CreateOrderModelView
                 val checked = validatephone.execute(eventOrder.phone)
                 hasErrors[0] = checked.success
                 order_.value.phoneUser = eventOrder.phone
-                orderSelf_.value.phoneUser = eventOrder.phone
             }
             is OrderFormState.PodiezdChanged -> {
-                order_.value.podezd = eventOrder.podiezd
+                order_.value.addressUser!!.podezd = eventOrder.podiezd
             }
             is OrderFormState.AppartementChanged -> {
-                order_.value.appartamnet = eventOrder.appartament
+                order_.value.addressUser!!.appartamnet = eventOrder.appartament
             }
             is OrderFormState.HomePhoneChanged -> {
-                order_.value.homephome = eventOrder.homePhone
+                order_.value.addressUser!!.homephome = eventOrder.homePhone
             }
             is OrderFormState.LevelChanged -> {
-                order_.value.level = eventOrder.level
+                order_.value.addressUser!!.level = eventOrder.level
             }
             is OrderFormState.Sumbit -> {
                 sendUiEvent(OrderRegisterEvent.CheckValidOrder)
-                sumbit(eventOrder.isSelf)
+                order_.value.isSelf = eventOrder.isSelf
+                sumbit()
             }
             is OrderFormState.ToTimeChaged -> {
-                orderSelf_.value.phoneUser = eventOrder.time.format(formatter)
                 order_.value.toTimeDelivery = eventOrder.time.format(formatter)
             }
 
-            is OrderFormState.IdAddressChanged -> orderSelf_.value.idLocation = eventOrder.idAddress
+            is OrderFormState.IdAddressChanged -> order_.value.idLocation = eventOrder.idAddress
         }
     }
 
@@ -119,15 +121,6 @@ class CreateOrderModelView
         order_.value.fromTimeDelivery = LocalDateTime.now().format(formatter)
         viewModelScope.launch {
             orderApiImpl.sendOrder(order_.value)
-            sendUiEvent(OrderRegisterEvent.Success)
-        }
-    }
-    private fun sendOrderSelf(){
-        orderSelf_.value.summ = Basketproduct.summ
-        orderSelf_.value.comment = comment.value
-        orderSelf_.value.fromTimeCooking = LocalDateTime.now().format(formatter)
-        viewModelScope.launch {
-            orderApiImpl.sendOrderSelf(orderSelf_.value)
             sendUiEvent(OrderRegisterEvent.Success)
         }
     }

@@ -9,6 +9,8 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.domain.repository.BasicInfoRepository
+import com.wayplaner.learn_room.admin.infoorder.data.repository.InfoOrderApiImpl
+import com.wayplaner.learn_room.admin.infoorder.domain.repository.AdminInfoOrderApi
 import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
 import com.wayplaner.learn_room.admin.menu.domain.repository.MenuProductRepository
 import com.wayplaner.learn_room.admin.orders.data.repository.AdminOrderImpl
@@ -19,6 +21,7 @@ import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
 import com.wayplaner.learn_room.basket.domain.repository.BasketApi
 import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
 import com.wayplaner.learn_room.createorder.domain.repository.OrderApi
+import com.wayplaner.learn_room.di.deserializer.OrderDEserialezer
 import com.wayplaner.learn_room.di.deserializer.OrganizationIdDTODeserializer
 import com.wayplaner.learn_room.di.deserializer.ProductDeserializer
 import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
@@ -52,6 +55,12 @@ class AppModule {
 
     private val gsonOrd: Gson = GsonBuilder()
         .registerTypeAdapter(Image::class.java, ImageDeserializer())
+        .create()
+
+    private val gsonOrder: Gson = GsonBuilder()
+        .registerTypeAdapter(Image::class.java, ImageDeserializer())
+        .registerTypeAdapter(OrganizationIdDTO::class.java, OrderDEserialezer())
+        .registerTypeAdapter(Product::class.java, ProductDeserializer())
         .create()
 
     private val gsonOrdId: Gson = GsonBuilder()
@@ -163,6 +172,15 @@ class AppModule {
     @Provides
     fun admin_OrderService(retrofit: Retrofit): AdminOrderApi = retrofit.create(
         AdminOrderApi::class.java)
+
+    @Singleton
+    @Provides
+    fun admin_OrderInfoRepository(adminInfoOrderApi: AdminInfoOrderApi) = InfoOrderApiImpl(adminInfoOrderApi, gsonOrder)
+
+    @Singleton
+    @Provides
+    fun admin_OrderInfoService(retrofit: Retrofit): AdminInfoOrderApi = retrofit.create(
+        AdminInfoOrderApi::class.java)
 
     @Singleton
     @Provides

@@ -3,7 +3,6 @@ package com.wayplaner.learn_room.createorder.presentation.components
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,10 +42,10 @@ import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.MapSearchActivity
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderModelView
 import com.wayplaner.learn_room.createorder.util.OrderFormState
-import com.wayplaner.learn_room.ui.theme.grayColor
-import com.wayplaner.learn_room.ui.theme.lightGrayColor
-import com.wayplaner.learn_room.ui.theme.redLogoColor
-import com.wayplaner.learn_room.ui.theme.textFieldHint
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
+import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,18 +54,20 @@ fun DeliveryPick(
     vmCreateOrder: CreateOrderModelView
 ) {
     var textColorValue = TextFieldDefaults.textFieldColors(
+        focusedTextColor = whiteColor,
+        unfocusedTextColor = grayList,
         containerColor = Color.Transparent,
-        cursorColor = redLogoColor,
-        focusedIndicatorColor = redLogoColor,
-        unfocusedIndicatorColor = grayColor,
-        focusedLabelColor = redLogoColor,
-        unfocusedLabelColor = grayColor,
+        cursorColor = whiteColor,
+        focusedIndicatorColor = whiteColor,
+        unfocusedIndicatorColor = grayList,
+        focusedLabelColor = whiteColor,
+        unfocusedLabelColor = grayList,
     )
 
     val context = LocalContext.current
 
-    Column(modifier = Modifier
-        .background(color = lightGrayColor)
+    Column(modifier = Modifier/*
+        .background(color = lightGrayColor)*/
         .padding(horizontal = 2.dp)
         .verticalScroll(rememberScrollState())) {
 
@@ -80,21 +81,21 @@ fun DeliveryPick(
 
         Card(
             shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(Color.White)
+            colors = CardDefaults.cardColors(orderCreateCard)
         ) {
 
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Text(text = "Куда", fontSize = 18.sp)
+                Text(text = "Куда", fontSize = 18.sp, color = grayList)
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(lightGrayColor),
+                    colors = ButtonDefaults.buttonColors(orderCreateBackField),
                     shape = RoundedCornerShape(14.dp),
                     onClick = {
                         val intent = Intent(context, MapSearchActivity::class.java)
@@ -112,12 +113,12 @@ fun DeliveryPick(
                             text = if(address.value!!.displayText != null) address.value?.displayText!! else "Выберите адрес ",
                             modifier = Modifier.weight(1f),
                             fontSize = 16.sp,
-                            color = textFieldHint
+                            color = grayList
                         )
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                             modifier = Modifier.size(21.dp),
-                            tint = textFieldHint,
+                            tint = grayList,
                             contentDescription = null
                         )
                     }
@@ -193,7 +194,7 @@ fun DeliveryPick(
                     Icon(
                         imageVector = Icons.Filled.CommentBank,
                         modifier = Modifier.size(21.dp),
-                        tint = textFieldHint,
+                        tint = grayList,
                         contentDescription = null
                     )
 

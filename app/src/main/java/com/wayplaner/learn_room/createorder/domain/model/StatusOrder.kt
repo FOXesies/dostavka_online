@@ -37,6 +37,17 @@ enum class StatusOrder {
                 COMPLETE_ORDER -> return null
             }
         }
+        fun StatusOrder.getBack(): StatusOrder? {
+            when (this) {
+                COMPLETE_ORDER -> return COMPLETE_WAY
+                COMPLETE_WAY -> return ON_TWE_WAY
+                ON_TWE_WAY -> return COOKING_END
+                COOKING_END -> return PROCESS_COOKING
+                PROCESS_COOKING -> return IN_LINE_COOKING
+                IN_LINE_COOKING -> return WAIT_ACCEPT
+                WAIT_ACCEPT -> return null
+            }
+        }
         fun StatusOrder.getBackColor(): Color {
             when(this){
                 WAIT_ACCEPT -> {

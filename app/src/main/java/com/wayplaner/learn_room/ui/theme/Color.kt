@@ -22,9 +22,16 @@ val no_pickRedColor = Color(0xFFEC7979)
 val grayList = Color(0xFFD3D2D2)
 
 val backHomeCategory = Color(0xFF4D4D4D)
-val backHeader = Color(0xFF303030)
-val backHome = Color(0xFF3D3D3D)
+val backHeader = Color(0xFF2E2E2E)
+val backHome = Color(0xFF3F3F3F)
 val backOrgHome = Color(0xFF303030)
+
+val orderCreateCard = Color(0xFF3C3C3C)
+val orderCreateBackField = Color(0xFF5A5A5A)
+
+val summRedColor = Color(0xFFE75656)
+val starColor = Color(0xFFF0EDED)
+
 
 val blackTransperent = Color(0xC1272727)
 val grayColor = Color(0xFF757575)
@@ -40,6 +47,10 @@ val conteinertextFieldError = Color(0xFFECBDBD)
 val textFieldHint = Color(0xFF4D4C4C)
 
 val backGrayColor = Color(0xD33C3B3B)
+val saveColor = Color(0xD30E720E)
+val logoutColor = Color(0xD3B84E15)
+
+val phoneCallColor = Color(0xFF44CE24)
 
 
 val testText = Color(0xC64E4E4E)

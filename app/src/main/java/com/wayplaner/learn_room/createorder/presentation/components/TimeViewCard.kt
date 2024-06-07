@@ -37,7 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderModelView
 import com.wayplaner.learn_room.createorder.util.OrderFormState
-import com.wayplaner.learn_room.ui.theme.lightGrayColor
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
+import com.wayplaner.learn_room.ui.theme.whiteColor
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -53,12 +56,12 @@ fun TimeViewCard(
 
     Card(
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(Color.White)
+        colors = CardDefaults.cardColors(orderCreateCard)
     ) {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(text = "Доставить ко времени", fontSize = 18.sp)
+            Text(text = "Доставить ко времени", fontSize = 18.sp, color = grayList)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -66,7 +69,7 @@ fun TimeViewCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(55.dp),
-                colors = CardDefaults.cardColors(lightGrayColor),
+                colors = CardDefaults.cardColors(orderCreateBackField),
                 shape = RoundedCornerShape(14.dp)) {
                 Row(
                     modifier = Modifier
@@ -109,23 +112,27 @@ fun TimeViewCard(
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Filled.AccessTime,
-                                        contentDescription = null
+                                        contentDescription = null,
+                                        tint = grayList
                                     )
                                 },
                                 trailingIcon = {
                                     Icon(
                                         imageVector = Icons.Filled.KeyboardArrowDown,
-                                        contentDescription = null
+                                        contentDescription = null,
+                                        tint = grayList
                                     )
                                 },
                                 colors = TextFieldDefaults.colors(
+                                    focusedTextColor = whiteColor,
+                                    unfocusedTextColor = grayList,
                                     focusedIndicatorColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent,
                                     focusedContainerColor = Color.Transparent,
                                     unfocusedContainerColor = Color.Transparent),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                 placeholder = {
-                                    Text(text = "Выберите город", fontSize = 16.sp)
+                                    Text(text = "Выберите город", fontSize = 16.sp, color = grayList)
                                 }
                             )
                             ExposedDropdownMenu(

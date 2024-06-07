@@ -53,9 +53,13 @@ import com.wayplaner.learn_room.createorder.presentation.components.DeliveryPick
 import com.wayplaner.learn_room.createorder.presentation.components.SelfDeliveryPick
 import com.wayplaner.learn_room.createorder.util.OrderFormState
 import com.wayplaner.learn_room.createorder.util.OrderRegisterEvent
-import com.wayplaner.learn_room.ui.theme.categoryColor
+import com.wayplaner.learn_room.ui.theme.backHome
+import com.wayplaner.learn_room.ui.theme.backOrgHome
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.headphoneColor
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.redActionColor
+import com.wayplaner.learn_room.ui.theme.whiteColor
 import com.wayplaner.learn_room.utils.InitMaps
 import com.yandex.mapkit.MapKitFactory
 import kotlinx.coroutines.launch
@@ -85,9 +89,10 @@ fun CreateOrderScreen(
     }
 
     Card(
+        colors = CardDefaults.cardColors(backOrgHome),
         modifier = Modifier
             .fillMaxSize(),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(0.dp)
     ) {
         val picking = listOf("Доставка", "Самовывоз")
         var scope = rememberCoroutineScope()
@@ -97,17 +102,12 @@ fun CreateOrderScreen(
 
         Box(contentAlignment = Alignment.BottomCenter) {
 
-            LaunchedEffect(pagerState.currentPage) {
-                // Обработка изменения страницы
-
-            }
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
                 Card(
-                    colors = CardDefaults.cardColors(Color.White),
+                    colors = CardDefaults.cardColors(orderCreateCard),
                     modifier = Modifier
                         .wrapContentHeight()
                         .padding(10.dp),
@@ -118,12 +118,13 @@ fun CreateOrderScreen(
                         modifier = Modifier.wrapContentHeight(),
                         selectedTabIndex = pagerState.currentPage,
                         containerColor = Color.Transparent,
-                        contentColor = Color(0xFFFEFEFA),
+                        contentColor = Color.Transparent,
                         indicator = {
                             Spacer(
                                 Modifier
                                     .tabIndicatorOffset(it[pagerState.currentPage])
                                     .height(2.5.dp)
+                                    .fillMaxWidth()
                                     .background(redActionColor)
                             )
                         }
@@ -153,7 +154,7 @@ fun CreateOrderScreen(
                                     contentDescription = null
                                 )
                                 Text(
-                                    color = if (pagerState.currentPage == index) redActionColor else categoryColor,
+                                    color = if (pagerState.currentPage == index) redActionColor else grayList,
                                     text = tab,
                                     fontSize = 15.sp,
                                     modifier = Modifier.padding(bottom = 8.dp, top = 2.dp)
@@ -180,6 +181,7 @@ fun CreateOrderScreen(
                             .fillMaxSize()
                             .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 96.dp)
                             .clip(RoundedCornerShape(10.dp))
+                            .background(backOrgHome)
                     ) {
                         if (page == 0) {
                             DeliveryPick(vmCreateOrder)
@@ -203,7 +205,7 @@ private fun BottomPayCard(vmCreateOrder: CreateOrderModelView, isSelf: Boolean) 
             .wrapContentHeight()
             .fillMaxWidth(),
             elevation = CardDefaults.cardElevation(20.dp),
-            colors = CardDefaults.cardColors(Color.White),
+            colors = CardDefaults.cardColors(backHome),
             shape = RoundedCornerShape(
                 topEnd = 30.dp,
                 topStart = 30.dp,
@@ -214,8 +216,8 @@ private fun BottomPayCard(vmCreateOrder: CreateOrderModelView, isSelf: Boolean) 
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Row {
                     Column(modifier = Modifier.padding(top = 18.dp)) {
-                        Text(text = Basketproduct.summ.toString(), fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                        Text(text = "с доставкой", fontSize = 12.sp)
+                        Text(text = Basketproduct.summ.toString(), fontSize = 17.sp, color = whiteColor, fontWeight = FontWeight.Bold)
+                        Text(text = "с доставкой", fontSize = 12.sp, color = whiteColor)
                     }
 
                     Spacer(modifier = Modifier.width(20.dp))
