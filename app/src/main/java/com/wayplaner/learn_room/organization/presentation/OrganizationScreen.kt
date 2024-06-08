@@ -69,11 +69,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun OrganizationCardOrg(
     id: Long,
+    city: String,
     navController: NavController,
     organizationViewModel: OrganizationModelView = hiltViewModel()){
 
     LaunchedEffect(Unit) {
-        organizationViewModel.loadOrganization(id)
+        organizationViewModel.loadOrganization(id, city)
     }
 
     val organization = organizationViewModel.getOrganization().observeAsState()

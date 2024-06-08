@@ -8,5 +8,5 @@ data class Product(
     var price: Double?,
     var weight: Float?,
     var description: String?,
-    var images: List<Image?>? = emptyList()
+    var images: List<Image>? = null
 )

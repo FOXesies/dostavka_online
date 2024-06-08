@@ -14,4 +14,12 @@ class ValidateName @Inject constructor(){
         }
         return ValidationResult(errorMessage == null, errorMessage ?: "")
     }
+    fun executeOrg(name: String): ValidationResult {
+        val errorMessage = when {
+            name.length < 2 -> "Название короткое"
+            name.length > 35 -> "Название слишком длиное"
+            else -> null
+        }
+        return ValidationResult(errorMessage == null, errorMessage ?: "")
+    }
 }

@@ -10,13 +10,10 @@ import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
 import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
 import com.wayplaner.learn_room.admin.util.AdminAccount
+import com.wayplaner.learn_room.organization.domain.model.ResponseProductOrg
 import com.wayplaner.learn_room.product.domain.model.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,19 +22,18 @@ class MenuModelView @Inject constructor(
 ): ViewModel() {
 
     private var UiStatus_ = MutableLiveData<StatusMenuChange>()
+
+    private var category = ""
     val UiStatus: LiveData<StatusMenuChange> = UiStatus_
 
-    private var listProducts_ = MutableLiveData<Map<String, List<Product>>>()
-    val listProducts: LiveData<Map<String, List<Product>>> = listProducts_
+    private var listProducts_ = MutableLiveData<Map<String, List<ResponseProductOrg>>>()
+    val listProducts: LiveData<Map<String, List<ResponseProductOrg>>> = listProducts_
 
-    private var categories_ = MutableLiveData<MutableList<String>>()
-    val categories: LiveData<MutableList<String>> = categories_
+    private var responseProduct_ = MutableLiveData<Product?>(null)
+    var responseProduct: LiveData<Product?> = responseProduct_
 
-    private var responseProduct_ = MutableLiveData<ResponseProduct?>(null)
-    var responseProduct: LiveData<ResponseProduct?> = responseProduct_
-
-    private var imageProduct_ = MutableLiveData<ByteArray?>(null)
-    var imageProduct: LiveData<ByteArray?> = imageProduct_
+    private var categories_ = MutableLiveData<List<String>?>(null)
+    var categories: LiveData<List<String>?> = categories_
 
     companion object {
         private var product = ResponseProduct()
@@ -55,67 +51,63 @@ class MenuModelView @Inject constructor(
                 getAllProducts()
             }
             is UiEventMenuAdd.PickProduct -> {
-                getProduct()
+                getProduct(event.idProduct)
             }
             is UiEventMenuAdd.ChangeCategoryProduct -> {
-                responseProduct_.value!!.category = event.category
+                category = event.category
             }
-            is UiEventMenuAdd.ChangeImageProduct -> {
-                responseProduct_.value!!.image = event.imageBt
+            is UiEventMenuAdd.UpdateProduct -> {
+                updateProduct(Product(
+                    event.id,
+                    event.name,
+                    event.price,
+                    event.weight,
+                    event.description,
+                    event.images.ifEmpty { null }
+                )
+                )
             }
-            is UiEventMenuAdd.Sumbit -> {
-                responseProduct_.value!!.product!!.name = event.name
-                responseProduct_.value!!.product!!.description = event.description
-                responseProduct_.value!!.product!!.price = event.price
-                responseProduct_.value!!.product!!.weight = event.weight
-
-                submit(event.context)
+            is UiEventMenuAdd.GetCategories -> {
+                getCategories()
             }
         }
     }
 
-    private fun getProduct(){
+    private fun getCategories() {
         viewModelScope.launch {
-            responseProduct_.postValue(product)
-            categories_.postValue(repository.getCategories().toMutableList())
-            /*imageProduct_.postValue(product.product?.imageProduct?.let {
-                repository.getImage(it)
-            })*/
+            categories_.postValue(repository.getCategories(AdminAccount.idOrg).body())
+        }
+    }
+
+    private fun getProduct(idProduct: Long){
+        viewModelScope.launch {
+            responseProduct_.postValue(repository.getProductinfo(idProduct).body())
+        }
+    }
+
+    private fun updateProduct(product: Product){
+        viewModelScope.launch {
+            repository.updateProduct(product)
         }
     }
 
     private fun getAllProducts(){
         viewModelScope.launch {
-            listProducts_.postValue(repository.getAllInfo(AdminAccount.idOrg))
+            listProducts_.postValue(repository.getAllInfo(AdminAccount.idOrg).body())
         }
     }
 
     private fun addCategory(category: String){
-        if(!categories.value!!.contains(category)) {
+        /*if(!categories.value!!.contains(category)) {
             val items = categories_.value?: mutableListOf()
             items.add(category)
             categories_.postValue(items)
-        }
+        }*/
     }
 
     private fun submit(applicationContext: Context) {
         viewModelScope.launch {
-            val file = File.createTempFile("tempImage", null, applicationContext.cacheDir)
-            file.writeBytes(imageProduct_.value?: ByteArray(0))
 
-            val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
-            val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-
-            try {
-                val response = repository.updateProducts(body, responseProduct_.value!!)
-                if (response.isSuccessful) {
-                    // Обработка успешного запроса
-                } else {
-                    // Обработка ошибки
-                }
-            } catch (e: Exception) {
-                // Обработка исключения
-            }
         }
     }
 }

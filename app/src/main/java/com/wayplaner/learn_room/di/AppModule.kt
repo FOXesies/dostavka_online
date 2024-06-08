@@ -12,6 +12,7 @@ import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
 import com.wayplaner.learn_room.admin.basic_info.domain.repository.BasicInfoRepository
 import com.wayplaner.learn_room.admin.infoorder.data.repository.InfoOrderApiImpl
 import com.wayplaner.learn_room.admin.infoorder.domain.repository.AdminInfoOrderApi
+import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
 import com.wayplaner.learn_room.admin.menu.domain.repository.MenuProductRepository
 import com.wayplaner.learn_room.admin.orders.data.repository.AdminOrderImpl
@@ -26,6 +27,7 @@ import com.wayplaner.learn_room.di.deserializer.BasicInfoDeserializer
 import com.wayplaner.learn_room.di.deserializer.OrderDEserialezer
 import com.wayplaner.learn_room.di.deserializer.OrganizationIdDTODeserializer
 import com.wayplaner.learn_room.di.deserializer.ProductDeserializer
+import com.wayplaner.learn_room.di.deserializer.ProductResponseDeserializer
 import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
 import com.wayplaner.learn_room.home.domain.model.Image
 import com.wayplaner.learn_room.home.domain.repository.HomeApi
@@ -63,6 +65,11 @@ class AppModule {
         .registerTypeAdapter(Image::class.java, ImageDeserializer())
         .registerTypeAdapter(OrganizationIdDTO::class.java, OrderDEserialezer())
         .registerTypeAdapter(Product::class.java, ProductDeserializer())
+        .create()
+
+    private val gsonProductsAdmin: Gson = GsonBuilder()
+        .registerTypeAdapter(Image::class.java, ImageDeserializer())
+        .registerTypeAdapter(ResponseProduct::class.java, ProductResponseDeserializer())
         .create()
 
     private val gsonOrdId: Gson = GsonBuilder()
@@ -164,7 +171,7 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun admin_menuProductRepository(menuProductRepository: MenuProductRepository) = MenuProductImpl(menuProductRepository)
+    fun admin_menuProductRepository(menuProductRepository: MenuProductRepository) = MenuProductImpl(menuProductRepository, gsonProductsAdmin, gsonOrd)
 
     @Singleton
     @Provides
@@ -205,7 +212,8 @@ class ImageDeserializer : JsonDeserializer<Image> {
         val jsonObject = json.asJsonObject
         val id = jsonObject.get("id").asLong
         val value = jsonObject.get("value").asString
+        val main = jsonObject.get("main").asBoolean
         val byteArray = Base64.getDecoder().decode(value)
-        return Image(id, byteArray)
+        return Image(id, byteArray, main)
     }
 }

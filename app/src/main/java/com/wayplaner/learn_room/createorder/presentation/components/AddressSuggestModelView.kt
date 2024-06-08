@@ -115,9 +115,9 @@ class AddressSuggestModelView @Inject constructor(
             return
         }
 
-        val endAddress = if (cityPick != null)
+        val endAddress = /*if (cityPick != null)
                 "$cityPick $address"
-            else
+            else*/
                 address
         _searchQuery.value = endAddress
         suggestSession!!.suggest(endAddress, MapKitConstant.BOUNDING_BOX, MapKitConstant.SEARCH_OPTIONS, this);

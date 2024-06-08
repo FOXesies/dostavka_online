@@ -18,9 +18,9 @@ class OrganizationModelView @Inject constructor(
     private var organizations = MutableLiveData<OrganizationIdDTO>()
     fun getOrganization() = organizations
 
-    fun loadOrganization(id: Long){
+    fun loadOrganization(id: Long, city: String){
         viewModelScope.launch {
-            val response = organizationApi.getOrganizationById(id)
+            val response = organizationApi.getOrganizationById(id, city)
             if(response.isSuccessful){
                 organizations.postValue(response.body())
             }

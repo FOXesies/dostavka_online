@@ -22,40 +22,54 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.R
-import com.wayplaner.learn_room.product.domain.model.Product
-import com.wayplaner.learn_room.ui.theme.categoryColor
-import com.wayplaner.learn_room.ui.theme.redBlackColor
-import com.wayplaner.learn_room.ui.theme.titleProductColor
+import com.wayplaner.learn_room.admin.util.toBitmapImage
+import com.wayplaner.learn_room.organization.domain.model.ResponseProductOrg
+import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
+import com.wayplaner.learn_room.ui.theme.summRedColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun AdminProductItem(product: Product, onClick: () -> Unit) {
+fun AdminProductItem(product: ResponseProductOrg, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp).clickable { onClick() },
         elevation = CardDefaults.elevatedCardElevation(4.dp),
-        colors = CardDefaults.cardColors(whiteColor)
+        colors = CardDefaults.cardColors(orderCreateBackField)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 10.dp)
         ) {
-            Image(
-                modifier = Modifier
-                    .size(92.dp)
-                    .align(Alignment.CenterVertically)
-                    .clip(MaterialTheme.shapes.small),
-                contentScale = ContentScale.Crop,
-                painter = painterResource(id = R.drawable.no_fof),
-                contentDescription = "card_product_for_category_organization"
-            )
+            if(product.image == null) {
+                Image(
+                    modifier = Modifier
+                        .size(92.dp)
+                        .align(Alignment.CenterVertically)
+                        .clip(MaterialTheme.shapes.small),
+                    contentScale = ContentScale.Crop,
+                    painter = painterResource(id = R.drawable.no_fof),
+                    contentDescription = "card_product_for_category_organization"
+                )
+            }
+            else{
+                Image(
+                    modifier = Modifier
+                        .size(92.dp)
+                        .align(Alignment.CenterVertically)
+                        .clip(MaterialTheme.shapes.small),
+                    contentScale = ContentScale.Crop,
+                    bitmap = product.image!!.value.toBitmapImage(),
+                    contentDescription = "card_product_for_category_organization"
+                )
+            }
             Column(modifier = Modifier.padding(start = 14.dp, end = 5.dp)) {
 
                 Text(
                     text = product.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontSize = 16.sp,
-                    color = titleProductColor
+                    color = whiteColor
                 )
 
                 product.description?.let {
@@ -64,7 +78,7 @@ fun AdminProductItem(product: Product, onClick: () -> Unit) {
                         text = it,//"это горячее блюдо, обычно состоящее из котлеты из измельчённого мяса, как правило, говядины, помещённой внутрь нарезанной булочки. Гамбургеры часто подают с сыром, салатом, помидорами, луком, маринованными огурцами, беконом или чили; соусами, такими как кетчуп, горчица, майонез, релиш; и часто их кладут на булочки с кунжутом.",
                         maxLines = 2,
                         fontSize = 12.sp,
-                        color = categoryColor,
+                        color = grayList,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -74,7 +88,7 @@ fun AdminProductItem(product: Product, onClick: () -> Unit) {
                         modifier = Modifier
                             .weight(2f),
                         text = "${product.price} руб.",
-                        color = redBlackColor,
+                        color = summRedColor,
                         fontSize = 16.sp
                     )
                 }

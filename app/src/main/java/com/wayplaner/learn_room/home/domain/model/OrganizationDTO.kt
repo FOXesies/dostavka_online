@@ -11,4 +11,4 @@ data class OrganizationDTO(
     var rating: Double?,
     var ratingCount: Int?,
 )
-data class Image(val id: Long, val value: ByteArray)
+data class Image(val id: Long? = null, val value: ByteArray, var main: Boolean = false)

@@ -95,11 +95,12 @@ fun Navigation(
             composable(MainRoute.Settings.name) {
                 SettingsScreen(drawerState)
             }
-            composable(MainRoute.Organization.name + "/{id}") { navBackStack ->
+            composable(MainRoute.Organization.name + "/{city}/{id}") { navBackStack ->
 
                 // Extracting the argument
-                val counter = navBackStack.arguments?.getString("id")
-                OrganizationCardOrg(counter!!.toLong(), navController)
+                val city = navBackStack.arguments?.getString("city")
+                val id = navBackStack.arguments?.getString("id")
+                OrganizationCardOrg(id!!.toLong(), city!!, navController)
             }
             composable(MainRoute.Product.name + "/{idOrd}/{idProduct}") { navBackStack ->
 
@@ -131,8 +132,10 @@ fun Navigation(
             composable(MainRoute.Admin_MenuList.name) {
                 MenuList(navController)
             }
-            composable(MainRoute.Admin_MenuProduct.name) {
-                MenuAddScreen(navController)
+            composable(MainRoute.Admin_MenuProduct.name + "/{id}/{category}") {navBackStack ->
+                val idProduct = navBackStack.arguments?.getString("id")
+                val category = navBackStack.arguments?.getString("category")
+                MenuAddScreen(idProduct?.toLong(), category, navController)
             }
         }
     }

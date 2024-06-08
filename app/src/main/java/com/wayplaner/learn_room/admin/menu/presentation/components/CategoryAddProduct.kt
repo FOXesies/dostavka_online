@@ -18,7 +18,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,7 +34,7 @@ import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun CategoryAdminView(modelView: MenuModelView, category: String){
+fun CategoryAdminView(modelView: MenuModelView, category: String) {
     val colorET = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
@@ -44,52 +43,70 @@ fun CategoryAdminView(modelView: MenuModelView, category: String){
         unfocusedContainerColor = lightGrayColor,
     )
 
-
     var selectedCategory by remember { mutableStateOf("") }
     selectedCategory = category
-
-    val categories = modelView.categories.observeAsState().value
     var addState by remember { mutableStateOf(false) }
 
-        if(categories != null) {
-            LazyRow(Modifier.fillMaxWidth()) {
-                items(categories) {
-                    Button(modifier = Modifier
-                        .padding(horizontal = 5.dp),
-                        colors = if(it == selectedCategory) ButtonDefaults.buttonColors(redActionColor) else ButtonDefaults.buttonColors(grayColor),
-                        onClick = {
-                            selectedCategory = it
-                            modelView.onEvent(UiEventMenuAdd.ChangeCategoryProduct(it))
-                        }) {
-                        Text(
-                            text = it,
-                            color = whiteColor,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-                item {
-                    Button(modifier = Modifier
-                        .padding(horizontal = 5.dp),
-                        colors = ButtonDefaults.buttonColors(grayColor),
-                        contentPadding = PaddingValues(start = 10.dp, end = 18.dp),
-                        onClick = { addState = true }) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = null,
-                            Modifier.padding(start = 0.dp)
-                        )
-                        Text(
-                            text = "Добавить",
-                            color = whiteColor,
-                            fontSize = 14.sp
-                        )
-                    }
+    val categories = modelView.categories.value
+
+    if (categories != null) {
+        LazyRow(Modifier.fillMaxWidth()) {
+            items(categories) {
+                Button(modifier = Modifier
+                    .padding(horizontal = 5.dp),
+                    colors = if (it == selectedCategory) ButtonDefaults.buttonColors(redActionColor) else ButtonDefaults.buttonColors(
+                        grayColor
+                    ),
+                    onClick = {
+                        selectedCategory = it
+                        modelView.onEvent(UiEventMenuAdd.ChangeCategoryProduct(it))
+                    }) {
+                    Text(
+                        text = it,
+                        color = whiteColor,
+                        fontSize = 14.sp
+                    )
                 }
             }
+            item {
+                Button(modifier = Modifier
+                    .padding(horizontal = 5.dp),
+                    colors = ButtonDefaults.buttonColors(grayColor),
+                    contentPadding = PaddingValues(start = 10.dp, end = 18.dp),
+                    onClick = { addState = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        Modifier.padding(start = 0.dp)
+                    )
+                    Text(
+                        text = "Добавить",
+                        color = whiteColor,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+    } else {
+        Button(modifier = Modifier
+            .padding(horizontal = 5.dp).padding(top = 80.dp),
+            colors = ButtonDefaults.buttonColors(grayColor),
+            contentPadding = PaddingValues(start = 10.dp, end = 18.dp),
+            onClick = { addState = true }) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null,
+                Modifier.padding(start = 0.dp)
+            )
+            Text(
+                text = "Добавить",
+                color = whiteColor,
+                fontSize = 14.sp
+            )
+        }
     }
 
-    if(addState) {
+    if (addState) {
         var category by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { addState = false },
@@ -104,7 +121,8 @@ fun CategoryAdminView(modelView: MenuModelView, category: String){
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(20)),
                     colors = colorET
-                ) },
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     modelView.onEvent(UiEventMenuAdd.AddCategoryInList(category))

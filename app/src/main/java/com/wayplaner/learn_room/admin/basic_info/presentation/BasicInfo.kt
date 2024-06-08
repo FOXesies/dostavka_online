@@ -1,6 +1,7 @@
 package com.wayplaner.learn_room.admin.basic_info.presentation
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -46,8 +47,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,11 +79,13 @@ import com.wayplaner.learn_room.createorder.presentation.components.AddressSugge
 import com.wayplaner.learn_room.organization.model.CityOrganization
 import com.wayplaner.learn_room.ui.theme.adminAdressAddCity
 import com.wayplaner.learn_room.ui.theme.adminAdressCity
+import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.backHome
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.redActionColor
-import com.wayplaner.learn_room.ui.theme.redBlackColor
-import com.wayplaner.learn_room.ui.theme.redLogoColor
-import com.wayplaner.learn_room.ui.theme.testText
 import com.wayplaner.learn_room.ui.theme.whiteColor
 import com.yandex.mapkit.geometry.Point
 import kotlinx.coroutines.launch
@@ -94,14 +99,13 @@ fun BasicInfo(
     val context = LocalContext.current
     val colorET = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
+        focusedTextColor = whiteColor,
+        cursorColor = whiteColor,
+        unfocusedTextColor = grayList,
         unfocusedIndicatorColor = Color.Transparent,
-        disabledContainerColor = lightGrayColor,
-        focusedContainerColor = lightGrayColor,
-        unfocusedContainerColor = lightGrayColor,
-    )
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent)
 
-    //vmBasic.onEvent(UiEventBasicInfoA.SearchOrg(1))
-    var imageUpdate by remember { mutableStateOf(false) }
     var infoUpdate by remember { mutableStateOf(false) }
     val result = vmBasic.UiStatus.observeAsState()
 
@@ -117,24 +121,35 @@ fun BasicInfo(
             var phoneValue by remember { mutableStateOf(resultFound.organizationResponse.phone) }
             var description by remember { mutableStateOf(resultFound.organizationResponse.description) }
 
+                val error = vmBasic.errorMessage.observeAsState()
+                if(error.value != null){
+                    Toast.makeText(context, error.value, Toast.LENGTH_LONG).show()
+                    vmBasic.errorMessage.value = null
+                }
 
-            var selectImages by remember { mutableStateOf(resultFound.organizationResponse.idImages?.toMutableList()) }
+
+            val selectImages = remember { mutableStateListOf<ImageDTO>() }
+
+            LaunchedEffect(Unit){
+                selectImages.addAll(resultFound.organizationResponse.idImages?: emptyList())
+            }
 
             val coroutineScope = rememberCoroutineScope()
-            var state = rememberPagerState(pageCount = { selectImages?.size?: 0})
             val galleryLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
                     val inputStream = uri?.let { context.contentResolver.openInputStream(it) }
                     val byteArray = inputStream?.readBytes()
                     if(byteArray != null) {
-                        if(selectImages == null) selectImages = mutableListOf(ImageDTO(byteArray = byteArray))
-                        else selectImages!!.add(ImageDTO(byteArray = byteArray))
+                        if(selectImages.size == 0) selectImages.add(ImageDTO(byteArray = byteArray))
+                        else selectImages.add(ImageDTO(byteArray = byteArray))
                     }
                 }
 
             Box(modifier = Modifier.fillMaxSize()) {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    if(selectImages == null || selectImages!![0].byteArray == null){
+                Column(modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .background(backHome)) {
+                    if(selectImages.size == 0){
                         Image(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -145,11 +160,8 @@ fun BasicInfo(
                         )
                     }
                     else {
-
-                        Button(onClick = { galleryLauncher.launch("image/*") },
-                            colors = ButtonDefaults.buttonColors(redActionColor),
-                            modifier = Modifier.padding(top = 190.dp)) {
-                            Text(text = "Добавить фото")
+                        val state = rememberPagerState {
+                            selectImages.size
                         }
 
                         HorizontalPager(
@@ -165,12 +177,38 @@ fun BasicInfo(
                             ) {
                                 Box(contentAlignment = Alignment.BottomCenter) {
                                     Image(
-                                        bitmap = selectImages!![page].byteArray!!.toBitmapImage(),
+                                        bitmap = selectImages[page].byteArray!!.toBitmapImage(),
                                         contentDescription = "",
                                         Modifier
                                             .fillMaxSize(),
                                         contentScale = ContentScale.Crop
                                     )
+
+                                    var color = remember {
+                                        mutableStateOf(if(selectImages[page].main) redActionColor else backHeader.copy(alpha = 0.3f))
+                                    }
+
+                                        FloatingActionButton(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomEnd)
+                                            .clip(MaterialTheme.shapes.small)
+                                            .padding(bottom = 8.dp, end = 10.dp)
+                                            .size(45.dp),
+                                        containerColor = color.value,
+                                        onClick = {
+                                            selectImages.forEach { it.main = false }
+                                            selectImages[page].main = true
+                                            color.value = if(selectImages[page].main) redActionColor else backHeader.copy(alpha = 0.5f)
+                                        }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.home_image),
+                                            tint = if(selectImages[page].main) whiteColor else grayList,
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .background(Color.Transparent),
+                                            contentDescription = "Удалить"
+                                        )
+                                    }
 
                                     FloatingActionButton(
                                         modifier = Modifier
@@ -178,24 +216,24 @@ fun BasicInfo(
                                             .clip(MaterialTheme.shapes.small)
                                             .padding(top = 8.dp, end = 10.dp)
                                             .size(45.dp),
-                                        containerColor = whiteColor,
+                                        containerColor = backHeader,
                                         onClick = {
                                             coroutineScope.launch {
-                                                if(selectImages!!.size != 1) {
+                                                if (selectImages.size != 1) {
                                                     if (page == 0)
                                                         state.animateScrollToPage(page.plus(1))
                                                     else
                                                         state.animateScrollToPage(page.minus(1))
 
-                                                    selectImages!!.removeAt(page)
-                                                }
-                                                else
-                                                    selectImages = null
-                                            }}) {
+                                                    selectImages.removeAt(page)
+                                                } else
+                                                    selectImages.removeAt(page)
+                                            }
+                                        }) {
                                         Image(
                                             painter = painterResource(id = R.drawable.trash_can_115312),
                                             modifier = Modifier.size(24.dp),
-                                            contentDescription = "Удалить"
+                                            contentDescription = "Главная фотография"
                                         )
                                     }
                                 }
@@ -203,76 +241,111 @@ fun BasicInfo(
                         }
                     }
 
+                    Button(
+                        onClick = { galleryLauncher.launch("image/*") },
+                        shape = RoundedCornerShape(15.dp),
+                        colors = ButtonDefaults.buttonColors(redActionColor),
+                        modifier = Modifier
+                            .padding(top = 15.dp)
+                            .padding(horizontal = 25.dp)
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Text(text = "Добавить фото", fontSize = 16.sp)
+                    }
+
                     Spacer(modifier = Modifier.height(30.dp))
 
                     Column(modifier = Modifier.padding(horizontal = 25.dp)) {
 
                         Text(
-                            text = "Название ресторана", fontSize = 16.sp,
+                            text = "Название ресторана", fontSize = 16.sp, color = grayList,
                             modifier = Modifier.padding(start = 5.dp)
                         )
 
                         Spacer(modifier = Modifier.height(2.dp))
 
-                        TextField(
-                            value = nameValue,
-                            onValueChange = {
-                                nameValue = it
-                                infoUpdate = true
-                            },
+                        Card(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20)),
-                            colors = colorET
-                        )
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(orderCreateBackField),
+                            shape = RoundedCornerShape(14.dp)) {
+
+                            TextField(
+                                value = nameValue,
+                                onValueChange = {
+                                    nameValue = it
+                                    infoUpdate = true
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 5.dp)
+                                    .clip(RoundedCornerShape(20)),
+                                colors = colorET
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Text(
-                            text = "Номер телефона", fontSize = 16.sp,
+                            text = "Номер телефона", fontSize = 16.sp, color = grayList,
                             modifier = Modifier.padding(start = 5.dp)
                         )
 
                         Spacer(modifier = Modifier.height(2.dp))
 
-                        TextField(
-                            value = phoneValue,
-                            onValueChange = {
-                                phoneValue = it
-                                infoUpdate = true
-                            },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        Card(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20)),
-                            colors = colorET
-                        )
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(orderCreateBackField),
+                            shape = RoundedCornerShape(14.dp)) {
+                            TextField(
+                                value = phoneValue,
+                                onValueChange = {
+                                    phoneValue = it
+                                    infoUpdate = true
+                                },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 5.dp)
+                                    .clip(RoundedCornerShape(20)),
+                                colors = colorET
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Text(
-                            text = "Описание ресторана", fontSize = 16.sp,
+                            text = "Описание ресторана", fontSize = 16.sp, color = grayList,
                             modifier = Modifier.padding(start = 5.dp)
                         )
 
                         Spacer(modifier = Modifier.height(2.dp))
 
-                        TextField(
-                            value = description ?: "",
-                            onValueChange = {
-                                description = it
-                                infoUpdate = true
-                            },
+                        Card(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20)),
-                            colors = colorET
-                        )
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(orderCreateBackField),
+                            shape = RoundedCornerShape(14.dp)) {
+                            TextField(
+                                value = description ?: "",
+                                onValueChange = {
+                                    description = it
+                                    infoUpdate = true
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 5.dp)
+                                    .clip(RoundedCornerShape(20)),
+                                colors = colorET
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Text(
-                            text = "Города ресторана", fontSize = 16.sp,
+                            text = "Города ресторана", fontSize = 16.sp, color = grayList,
                             modifier = Modifier.padding(start = 5.dp)
                         )
 
@@ -280,44 +353,25 @@ fun BasicInfo(
 
                         AddressCity(vmBasic)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(30.dp))
 
                         Button(
                             onClick = {
-                                      },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(45.dp),
-                            colors = ButtonDefaults.buttonColors(redLogoColor),
-                            shape = RoundedCornerShape(40)
-                        ) {
-                            Text(text = "Изменить фото")
-                        }
-
-                        Spacer(modifier = Modifier.height(28.dp))
-
-                        Button(
-                            onClick = {
-                                /*if (imageUpdate)
-                                    vmBasic.onEvent(
-                                        UiEventBasicInfoA.UpdateImage(
-                                            1,
-                                            context,
-                                            selectImages!![0].byteArray!!
-                                        )
-                                    )
-                                if (!nameValue.isNullOrEmpty() && infoUpdate)
-                                    vmBasic.onEvent(
-                                        UiEventBasicInfoA.UpdateOrg
-                                    )*/
+                                vmBasic.onEvent(
+                                    UiEventBasicInfoA.UpdateOrg(
+                                        name = nameValue,
+                                        phone = phoneValue,
+                                        description = description?: "",
+                                        images = selectImages.toList()
+                                    ))
                             },
                             Modifier
                                 .fillMaxWidth()
-                                .height(45.dp),
-                            colors = ButtonDefaults.buttonColors(redBlackColor),
-                            shape = RoundedCornerShape(40)
+                                .height(50.dp),
+                            colors = ButtonDefaults.buttonColors(redActionColor),
+                            shape = RoundedCornerShape(15)
                         ) {
-                            Text(text = "Сохранить изменения")
+                            Text(text = "Сохранить изменения", fontSize = 16.sp)
                         }
                         Spacer(modifier = Modifier.height(30.dp))
                     }
@@ -329,11 +383,11 @@ fun BasicInfo(
                         .clip(MaterialTheme.shapes.small)
                         .padding(top = 8.dp, start = 10.dp)
                         .size(45.dp),
-                    containerColor = whiteColor,
+                    containerColor = backHeader,
                     onClick = { navController.navigateUp() }) {
                     Icon(
                         Icons.Filled.KeyboardArrowLeft,
-                        tint = redActionColor,
+                        tint = whiteColor,
                         modifier = Modifier.size(32.dp),
                         contentDescription = "Добавить"
                     )
@@ -365,7 +419,7 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20))
-                    .background(lightGrayColor)
+                    .background(orderCreateBackField)
                     .padding(horizontal = 15.dp, vertical = 10.dp)
                     .clickable { expanded = !expanded })
             {
@@ -373,11 +427,15 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
                 Text(
                     text = selectedText,
                     fontSize = 16.sp,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 5.dp),
+                    color =  grayList
                 )
 
                 Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = null)
                 DropdownMenu(expanded = expanded,
+                    modifier = Modifier.background(orderCreateBackField),
                     onDismissRequest = {
                         expanded = false
                     }) {
@@ -389,12 +447,12 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
                         val style = if (isSelected) {
                             MaterialTheme.typography.bodySmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
+                                color = whiteColor
                             )
                         } else {
                             MaterialTheme.typography.bodySmall.copy(
                                 fontWeight = FontWeight.Normal,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = grayList
                             )
                         }
 
@@ -413,7 +471,7 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "Адреса в городе", fontSize = 16.sp,
+            text = "Адреса в городе", fontSize = 16.sp, color = grayList,
             modifier = Modifier.padding(start = 5.dp)
         )
 
@@ -501,9 +559,10 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
 @Composable
 private fun AlertDeleteAddress(confirmLogic: () -> Unit, dismissLogic: () -> Unit) {
     AlertDialog(
+        containerColor = orderCreateCard,
         onDismissRequest = {  },
-        title = { Text("Вы уверены, что хотите удалить ресторан?!", fontSize = 20.sp) },
-        text = { Text("По этому адресу пользователи не смогут найти ресторан на карте", fontSize = 12.sp) },
+        title = { Text("Вы уверены, что хотите удалить ресторан?!", fontSize = 20.sp, color = whiteColor) },
+        text = { Text("По этому адресу пользователи не смогут найти ресторан на карте", fontSize = 12.sp, color = grayList) },
         confirmButton = {
             TextButton(colors = ButtonDefaults.buttonColors(redActionColor), onClick = {
                 confirmLogic()
@@ -513,7 +572,7 @@ private fun AlertDeleteAddress(confirmLogic: () -> Unit, dismissLogic: () -> Uni
         },
         dismissButton = {
             TextButton(onClick = { dismissLogic() }) {
-                Text("Закрыть".uppercase())
+                Text("Закрыть".uppercase(), color = grayList)
             }
         },
     )
@@ -532,7 +591,7 @@ fun addCity(vmBasic: BasicInfoModelView) {
     var addState by remember { mutableStateOf(false) }
     if(!addState) {
         Row(modifier = Modifier
-            .background(color = testText)
+            .background(color = orderCreateCard)
             .clickable {
                 addState = true
             }) {
@@ -542,12 +601,12 @@ fun addCity(vmBasic: BasicInfoModelView) {
                 tint = whiteColor,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(25.dp)
+                    .size(22.dp)
                     .align(Alignment.CenterVertically)
             )
             Text(
                 text = "Добавить город",
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = whiteColor,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)

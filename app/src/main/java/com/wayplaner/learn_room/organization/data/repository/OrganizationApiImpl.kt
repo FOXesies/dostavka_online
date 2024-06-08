@@ -10,8 +10,8 @@ class OrganizationApiImpl(
     private val gson: Gson) {
 
     // получение ресторана
-    suspend fun getOrganizationById(id: Long): Response<OrganizationIdDTO> {
-        val response = organizationApi.getOrganizationsById(id)
+    suspend fun getOrganizationById(id: Long, city: String): Response<OrganizationIdDTO> {
+        val response = organizationApi.getOrganizationsById(id, city)
         val responseBody = response.body()?.string()
         val organizations = gson.fromJson(responseBody, OrganizationIdDTO::class.java)
         return Response.success(organizations)

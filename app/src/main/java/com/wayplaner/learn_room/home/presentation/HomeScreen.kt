@@ -112,7 +112,7 @@ fun HomeScreen(drawerState: DrawerState?,
                                 Organization(
                                     navController,
                                     organization,
-                                    "${MainRoute.Organization.name}/${organization.idOrganization}"
+                                    "${MainRoute.Organization.name}/${city.value}/${organization.idOrganization}"
                                 )
                         }
 

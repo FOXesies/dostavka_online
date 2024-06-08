@@ -1,6 +1,5 @@
 package com.wayplaner.learn_room.admin.basic_info.presentation
 
-import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,21 +7,25 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
+import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
+import com.wayplaner.learn_room.admin.util.AdminAccount
+import com.wayplaner.learn_room.auth.usecase.ValidateCity
+import com.wayplaner.learn_room.auth.usecase.ValidateName
+import com.wayplaner.learn_room.auth.usecase.ValidatePhone
 import com.wayplaner.learn_room.organization.model.CityOrganization
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
 import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class BasicInfoModelView @Inject constructor(
-    private val repositoryBasicInfo: BasicInfoImpl
+    private val repositoryBasicInfo: BasicInfoImpl,
+    private val validateCity: ValidateCity = ValidateCity(),
+    private val validatePhone: ValidatePhone = ValidatePhone(),
+    private val validateName: ValidateName = ValidateName(),
 ): ViewModel() {
 
     private var isChanged = false
@@ -30,14 +33,15 @@ class BasicInfoModelView @Inject constructor(
     private var UiStatus_ = MutableLiveData<StatusBasicInfo>()
     val UiStatus: LiveData<StatusBasicInfo> = UiStatus_
 
+    val errorMessage = MutableLiveData<String?>(null)
+
     private var infoOrg_ = mutableStateOf<BasicInfoResponse?>(null)
-    private var imageByteArray = mutableStateOf(ByteArray(0))
 
     private var cities_ = MutableLiveData<Map<String, MutableList<CityOrganization>>>()
     val cities: LiveData<Map<String, MutableList<CityOrganization>>> = cities_
 
     init {
-        getInfoBasic(1)
+        getInfoBasic(AdminAccount.idOrg)
     }
 
     fun onEvent(event: UiEventBasicInfoA){
@@ -45,9 +49,8 @@ class BasicInfoModelView @Inject constructor(
             is UiEventBasicInfoA.SearchOrg -> getInfoBasic(event.idOrg)
             is UiEventBasicInfoA.AddCities -> addCity(event.cities)
             is UiEventBasicInfoA.AddAddresss -> addAddress(event.city, event.address)
-            is UiEventBasicInfoA.UpdateImage -> updateImage(event.idOrg, event.context, event.imageBt)
             is UiEventBasicInfoA.RemoveAddresss -> removeCity(event.city, event.address)
-            is UiEventBasicInfoA.UpdateOrg -> updateProduct()
+            is UiEventBasicInfoA.UpdateOrg -> updateBasicInfo(event.name, event.phone, event.description, event.images)
         }
     }
 
@@ -70,7 +73,7 @@ class BasicInfoModelView @Inject constructor(
     }
 
     private fun addAddress(city: String, address: CityOrganization?) {
-        val info = infoOrg_.value!!.locationAll!!.toMutableMap()
+        val info = infoOrg_.value!!.locationAll.toMutableMap()
         info[city]!!.add(address!!)
         cities_.postValue(info)
         isChanged = true
@@ -94,43 +97,36 @@ class BasicInfoModelView @Inject constructor(
         }
     }
 
-    private fun updateImage(idOrg: Long, applicationContext: Context, imageByteArray: ByteArray) {
-        viewModelScope.launch {
-            val file = File.createTempFile("tempImage", null, applicationContext.cacheDir)
-            file.writeBytes(imageByteArray)
+    private fun updateBasicInfo(name: String, phone: String, description: String, images: List<ImageDTO>){
+        val nameValid = validateName.executeOrg(name)
+        val phoneValid = validatePhone.execute(phone)
 
-            val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
-            val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-
-           /* val call = repositoryBasicInfo.uploadImage(idOrg, body)
-            call.enqueue(object : Callback<Void> {
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    // Обработка успешного запроса
-                }
-
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    // Обработка ошибки
-                }
-            })*/
-        }
-    }
-
-    private fun updateProduct() {
-        if(!isChanged){
-            //TODO
+        if(!nameValid.successful){
+            errorMessage.postValue(nameValid.errormessage)
             return
         }
 
-        val value = infoOrg_.value!!
-        /*viewModelScope.launch {
-            repositoryBasicInfo.updateInfo(
+        if(!phoneValid.successful){
+            errorMessage.postValue(phoneValid.errormessage)
+            return
+        }
+
+        viewModelScope.launch {
+            errorMessage.postValue(repositoryBasicInfo.updateInfo(
                 BasicInfoResponse(
-                    idOrg = value.idOrganization!!,
-                    name = value.name,
-                    description = value.descriptions!!,
-                    phone = value.phoneForUser,
-                    locationAll = value.locationsAll,
-                ))
-        }*/
+                    idOrg = AdminAccount.idOrg,
+                    name = name,
+                    phone = phone,
+                    description = description,
+                    locationAll = cities.value ?: emptyMap()
+                )
+            ).error_message)
+        }
+
+        viewModelScope.launch {
+            if(images != infoOrg_.value?.idImages){
+                repositoryBasicInfo.updateImages(images)
+            }
+        }
     }
 }
