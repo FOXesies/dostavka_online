@@ -8,6 +8,7 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
+import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
 import com.wayplaner.learn_room.admin.basic_info.domain.repository.BasicInfoRepository
 import com.wayplaner.learn_room.admin.infoorder.data.repository.InfoOrderApiImpl
 import com.wayplaner.learn_room.admin.infoorder.domain.repository.AdminInfoOrderApi
@@ -21,6 +22,7 @@ import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
 import com.wayplaner.learn_room.basket.domain.repository.BasketApi
 import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
 import com.wayplaner.learn_room.createorder.domain.repository.OrderApi
+import com.wayplaner.learn_room.di.deserializer.BasicInfoDeserializer
 import com.wayplaner.learn_room.di.deserializer.OrderDEserialezer
 import com.wayplaner.learn_room.di.deserializer.OrganizationIdDTODeserializer
 import com.wayplaner.learn_room.di.deserializer.ProductDeserializer
@@ -67,6 +69,11 @@ class AppModule {
         .registerTypeAdapter(Image::class.java, ImageDeserializer())
         .registerTypeAdapter(OrganizationIdDTO::class.java, OrganizationIdDTODeserializer())
         .registerTypeAdapter(Product::class.java, ProductDeserializer())
+        .create()
+
+    private val gsonOrdBasic: Gson = GsonBuilder()
+        .registerTypeAdapter(Image::class.java, ImageDeserializer())
+        .registerTypeAdapter(BasicInfoResponse::class.java, BasicInfoDeserializer())
         .create()
 
     @Singleton
@@ -148,7 +155,7 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun admin_basicInfoRepository(basicInfoRepository: BasicInfoRepository) = BasicInfoImpl(basicInfoRepository)
+    fun admin_basicInfoRepository(basicInfoRepository: BasicInfoRepository) = BasicInfoImpl(basicInfoRepository, gsonOrdBasic)
 
     @Singleton
     @Provides

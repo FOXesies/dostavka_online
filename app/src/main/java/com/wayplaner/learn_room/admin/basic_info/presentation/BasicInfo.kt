@@ -4,9 +4,11 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -46,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.MapSearchActivity
 import com.wayplaner.learn_room.R
+import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
 import com.wayplaner.learn_room.admin.util.toBitmapImage
@@ -77,7 +83,9 @@ import com.wayplaner.learn_room.ui.theme.redLogoColor
 import com.wayplaner.learn_room.ui.theme.testText
 import com.wayplaner.learn_room.ui.theme.whiteColor
 import com.yandex.mapkit.geometry.Point
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BasicInfo(
     navController: NavController,
@@ -106,30 +114,94 @@ fun BasicInfo(
         } else {
             val resultFound = (result.value as StatusBasicInfo.FoundInfo)
             var nameValue by remember { mutableStateOf(resultFound.organizationResponse.name) }
-            var phoneValue by remember { mutableStateOf(resultFound.organizationResponse.phoneForUser) }
-            var description by remember { mutableStateOf(resultFound.organizationResponse.descriptions) }
-            var selectImages by remember { mutableStateOf(resultFound.image) }
+            var phoneValue by remember { mutableStateOf(resultFound.organizationResponse.phone) }
+            var description by remember { mutableStateOf(resultFound.organizationResponse.description) }
 
+
+            var selectImages by remember { mutableStateOf(resultFound.organizationResponse.idImages?.toMutableList()) }
+
+            val coroutineScope = rememberCoroutineScope()
+            var state = rememberPagerState(pageCount = { selectImages?.size?: 0})
             val galleryLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
                     val inputStream = uri?.let { context.contentResolver.openInputStream(it) }
                     val byteArray = inputStream?.readBytes()
                     if(byteArray != null) {
-                        selectImages = byteArray
-                        imageUpdate = true
+                        if(selectImages == null) selectImages = mutableListOf(ImageDTO(byteArray = byteArray))
+                        else selectImages!!.add(ImageDTO(byteArray = byteArray))
                     }
                 }
 
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    Image(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(220.dp),
-                        contentScale = ContentScale.Crop,
-                        bitmap = selectImages.toBitmapImage(),
-                        contentDescription = null
-                    )
+                    if(selectImages == null || selectImages!![0].byteArray == null){
+                        Image(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(220.dp),
+                            contentScale = ContentScale.Crop,
+                            painter = painterResource(id = R.drawable.no_fof),
+                            contentDescription = null
+                        )
+                    }
+                    else {
+
+                        Button(onClick = { galleryLauncher.launch("image/*") },
+                            colors = ButtonDefaults.buttonColors(redActionColor),
+                            modifier = Modifier.padding(top = 190.dp)) {
+                            Text(text = "Добавить фото")
+                        }
+
+                        HorizontalPager(
+                            state = state, modifier = Modifier
+                                .height(280.dp)
+                                .fillMaxWidth()
+                        ) { page ->
+
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Top,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Box(contentAlignment = Alignment.BottomCenter) {
+                                    Image(
+                                        bitmap = selectImages!![page].byteArray!!.toBitmapImage(),
+                                        contentDescription = "",
+                                        Modifier
+                                            .fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+
+                                    FloatingActionButton(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .clip(MaterialTheme.shapes.small)
+                                            .padding(top = 8.dp, end = 10.dp)
+                                            .size(45.dp),
+                                        containerColor = whiteColor,
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                if(selectImages!!.size != 1) {
+                                                    if (page == 0)
+                                                        state.animateScrollToPage(page.plus(1))
+                                                    else
+                                                        state.animateScrollToPage(page.minus(1))
+
+                                                    selectImages!!.removeAt(page)
+                                                }
+                                                else
+                                                    selectImages = null
+                                            }}) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.trash_can_115312),
+                                            modifier = Modifier.size(24.dp),
+                                            contentDescription = "Удалить"
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(30.dp))
 
@@ -211,7 +283,8 @@ fun BasicInfo(
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Button(
-                            onClick = { galleryLauncher.launch("image/*") },
+                            onClick = {
+                                      },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(45.dp),
@@ -225,18 +298,18 @@ fun BasicInfo(
 
                         Button(
                             onClick = {
-                                if (imageUpdate)
+                                /*if (imageUpdate)
                                     vmBasic.onEvent(
                                         UiEventBasicInfoA.UpdateImage(
                                             1,
                                             context,
-                                            selectImages
+                                            selectImages!![0].byteArray!!
                                         )
                                     )
                                 if (!nameValue.isNullOrEmpty() && infoUpdate)
                                     vmBasic.onEvent(
                                         UiEventBasicInfoA.UpdateOrg
-                                    )
+                                    )*/
                             },
                             Modifier
                                 .fillMaxWidth()
