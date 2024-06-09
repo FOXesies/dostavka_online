@@ -5,20 +5,34 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.wayplaner.learn_room.admin.basic_info.util.StatusMenuChange
 import com.wayplaner.learn_room.admin.menu.data.model.ResponseProduct
 import com.wayplaner.learn_room.admin.menu.data.repository.MenuProductImpl
 import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
 import com.wayplaner.learn_room.admin.util.AdminAccount
+import com.wayplaner.learn_room.auth.usecase.ValidateName
+import com.wayplaner.learn_room.home.domain.model.Image
 import com.wayplaner.learn_room.organization.domain.model.ResponseProductOrg
 import com.wayplaner.learn_room.product.domain.model.Product
+import com.wayplaner.learn_room.product.domain.model.ProductDToUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class MenuModelView @Inject constructor(
-    private val repository: MenuProductImpl
+    private val repository: MenuProductImpl,
+    private val validateName: ValidateName = ValidateName()
 ): ViewModel() {
 
     private var UiStatus_ = MutableLiveData<StatusMenuChange>()
@@ -34,6 +48,8 @@ class MenuModelView @Inject constructor(
 
     private var categories_ = MutableLiveData<List<String>?>(null)
     var categories: LiveData<List<String>?> = categories_
+
+    val errorMessage = MutableLiveData<String?>(null)
 
     companion object {
         private var product = ResponseProduct()
@@ -56,15 +72,21 @@ class MenuModelView @Inject constructor(
             is UiEventMenuAdd.ChangeCategoryProduct -> {
                 category = event.category
             }
+            is UiEventMenuAdd.UpdateImage -> {
+                updateImage(1, event.context, event.array)
+            }
             is UiEventMenuAdd.UpdateProduct -> {
+                val images = event.images
                 updateProduct(Product(
                     event.id,
                     event.name,
                     event.price,
                     event.weight,
                     event.description,
-                    event.images.ifEmpty { null }
-                )
+                    event.images
+                ),
+                    images,
+                    event.context
                 )
             }
             is UiEventMenuAdd.GetCategories -> {
@@ -85,10 +107,98 @@ class MenuModelView @Inject constructor(
         }
     }
 
-    private fun updateProduct(product: Product){
-        viewModelScope.launch {
-            repository.updateProduct(product)
+    private fun updateProduct(product: Product, ifEmpty: List<Image>, context: Context){
+
+        val errorPhone = validateName.execute(product.name)
+        if(!errorPhone.successful){
+            errorMessage.postValue(errorPhone.errormessage)
+            return
         }
+
+        val errorPrice = (product.price == null)
+        if(errorPrice) {
+            errorMessage.postValue("Пустое значение стоимости")
+            return
+        }
+
+        viewModelScope.launch {
+            val lists = mutableListOf<MultipartBody.Part>()
+            ifEmpty.forEach {
+                val file = File.createTempFile("tempImage", null, context.cacheDir)
+                file.writeBytes(it.value!!)
+
+                val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                lists.add(body)
+            }
+
+            product.images?.forEach { it.value = null }
+            val prosuctDTO = ProductDToUpdate(
+                name = product.name,
+                description = product.description,
+                price = product.price,
+                image = product.images,
+                category = category,
+                weight = product.weight,
+                id = product.idProduct)
+
+            val prosuctDTODataJson = Gson().toJson(prosuctDTO)
+            val prosuctDTORequestBody = prosuctDTODataJson.toRequestBody("application/json".toMediaTypeOrNull())
+            val call = repository.updateProduct(lists, prosuctDTORequestBody)
+            call.enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    if (response.isSuccessful) {
+                        getProduct(product.idProduct!!)
+                    } else {
+                        // Обработка ошибки
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    // Обработка ошибки
+                }
+           /* repository.updateProduct(ifEmpty,
+                product,
+                category)*/
+        })
+    }
+    }
+
+    fun createPartFromProduct(product: ProductDToUpdate): MultipartBody.Part {
+        val gson = Gson()
+        val json = gson.toJson(product)
+        val requestBody = json.toRequestBody("application/json".toMediaTypeOrNull())
+        return MultipartBody.Part.createFormData("product", json, requestBody)
+    }
+
+    private fun updateImage(idOrg: Long, applicationContext: Context, imageByteArray: ByteArray) {
+        viewModelScope.launch {
+            /*val file = File.createTempFile("tempImage", null, applicationContext.cacheDir)
+            file.writeBytes(imageByteArray)
+
+            val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+            val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+
+            val call = repository.uploadImage(idOrg, body)
+            call.enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    // Обработка успешного запроса
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    // Обработка ошибки
+                }
+            })*/
+        }
+    }
+
+
+    private fun createPartFromByteArray(index: String, byteArray: ByteArray, applicationContext: Context): MultipartBody.Part {
+        val file = File.createTempFile("tempImage", null, applicationContext.cacheDir)
+        file.writeBytes(byteArray)
+
+        val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+        return MultipartBody.Part.createFormData("image", file.name, requestFile)
     }
 
     private fun getAllProducts(){

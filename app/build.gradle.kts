@@ -67,18 +67,6 @@ android {
 dependencies {
     implementation("com.github.a914-gowtham:compose-ratingbar:1.3.4")
     implementation("com.yandex.android:maps.mobile:4.4.0-full")
-    implementation("com.google.firebase:firebase-storage:20.2.1")
-    implementation("com.google.firebase:firebase-core:21.1.1")
-    implementation("com.google.android.gms:play-services-safetynet:18.0.1")
-    implementation("com.google.firebase:firebase-database-ktx:20.2.2")
-    implementation("com.google.android.gms:play-services-safetynet:18.0.1")
-    implementation(platform("com.google.firebase:firebase-bom:26.5.0"))
-    implementation("com.google.firebase:firebase-messaging:23.2.1")
-    implementation("com.google.firebase:firebase-core:21.1.1")
-    implementation("com.google.firebase:firebase-auth:22.1.1")
-    implementation("com.google.firebase:firebase-firestore-ktx:24.7.0")
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     //Animation Switch
     implementation("com.google.accompanist:accompanist-navigation-animation:0.34.0")

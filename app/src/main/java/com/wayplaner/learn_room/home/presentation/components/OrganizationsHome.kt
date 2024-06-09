@@ -63,23 +63,13 @@ fun Organization(
         Column(
         ) {
                 //if (!organization.images.isNullOrEmpty())
-            val pickImage = organization.idImages[0].value
-            val bitmap = BitmapFactory.decodeByteArray(pickImage, 0, pickImage.size)
+            val pickImage = organization.idImages.value
+            val bitmap = BitmapFactory.decodeByteArray(pickImage, 0, pickImage!!.size)
             val imageBitmap = bitmap.asImageBitmap()
             Image(bitmap = imageBitmap, contentDescription = null, contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(170.dp))
-                    /*AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data("http://192.168.0.103:8080/api/v1/upload/img/" + organization.idImage)
-                                .build(),
-                        contentDescription = "organization_image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(170.dp)
-                    )*/
 
             Card(
                 modifier = Modifier

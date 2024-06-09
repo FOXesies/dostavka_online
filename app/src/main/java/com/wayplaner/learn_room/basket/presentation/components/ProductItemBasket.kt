@@ -68,7 +68,7 @@ fun ProductItemBasket(productInBasket: IdsProductInBasket, vmBasket: BasketModel
             else{
                 val images = remember { mutableListOf<ImageBitmap>() }
                 product.images?.forEach {
-                    images.add(BitmapFactory.decodeByteArray(it!!.value, 0, it.value.size).asImageBitmap())
+                    images.add(BitmapFactory.decodeByteArray(it!!.value, 0, it.value!!.size).asImageBitmap())
                 }
                 Image(
                     bitmap = images[0],

@@ -120,6 +120,7 @@ fun AddProductView(
             val state = rememberPagerState {
                 selectImages.size
             }
+
             HorizontalPager(
                 state = state, modifier = Modifier
                     .height(280.dp)
@@ -133,70 +134,72 @@ fun AddProductView(
                 ) {
 
                     Box(contentAlignment = Alignment.BottomCenter) {
-                        Image(
-                            bitmap = selectImages[page]!!.value.toBitmapImage(),
-                            contentDescription = "",
-                            Modifier
-                                .fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        var color = remember {
-                            mutableStateOf(
-                                if (selectImages[page]!!.main) redActionColor else backHeader.copy(
-                                    alpha = 0.3f
-                                )
-                            )
-                        }
-
-                        FloatingActionButton(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .clip(MaterialTheme.shapes.small)
-                                .padding(bottom = 8.dp, end = 10.dp)
-                                .size(45.dp),
-                            containerColor = color.value,
-                            onClick = {
-                                selectImages.forEach { it!!.main = false }
-                                selectImages[page]!!.main = true
-                                color.value =
-                                    if (selectImages[page]!!.main) redActionColor else backHeader.copy(
-                                        alpha = 0.5f
-                                    )
-                            }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.home_image),
-                                tint = if (selectImages[page]!!.main) whiteColor else grayList,
-                                modifier = Modifier.size(24.dp),
-                                contentDescription = "Удалить"
-                            )
-                        }
-
-                        FloatingActionButton(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .clip(MaterialTheme.shapes.small)
-                                .padding(top = 8.dp, end = 10.dp)
-                                .size(45.dp),
-                            containerColor = backHeader,
-                            onClick = {
-                                coroutineScope.launch {
-                                    if (selectImages.size != 1) {
-                                        if (page == 0)
-                                            state.animateScrollToPage(page.plus(1))
-                                        else
-                                            state.animateScrollToPage(page.minus(1))
-
-                                        selectImages.removeAt(page)
-                                    } else
-                                        selectImages.removeAt(page)
-                                }
-                            }) {
+                        if(selectImages[page].value != null) {
                             Image(
-                                painter = painterResource(id = R.drawable.trash_can_115312),
-                                modifier = Modifier.size(24.dp),
-                                contentDescription = "Главная фотография"
+                                bitmap = selectImages[page].value!!.toBitmapImage(),
+                                contentDescription = "",
+                                Modifier
+                                    .fillMaxSize(),
+                                contentScale = ContentScale.Crop
                             )
+
+                            var color = remember {
+                                mutableStateOf(
+                                    if (selectImages[page]!!.main) redActionColor else backHeader.copy(
+                                        alpha = 0.3f
+                                    )
+                                )
+                            }
+
+                            FloatingActionButton(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .padding(bottom = 8.dp, end = 10.dp)
+                                    .size(45.dp),
+                                containerColor = color.value,
+                                onClick = {
+                                    selectImages.forEach { it.main = false }
+                                    selectImages[page].main = true
+                                    color.value =
+                                        if (selectImages[page]!!.main) redActionColor else backHeader.copy(
+                                            alpha = 0.5f
+                                        )
+                                }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.home_image),
+                                    tint = if (selectImages[page]!!.main) whiteColor else grayList,
+                                    modifier = Modifier.size(24.dp),
+                                    contentDescription = "Удалить"
+                                )
+                            }
+
+                            FloatingActionButton(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .padding(top = 8.dp, end = 10.dp)
+                                    .size(45.dp),
+                                containerColor = backHeader,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        if (selectImages.size != 1) {
+                                            if (page == 0)
+                                                state.animateScrollToPage(page.plus(1))
+                                            else
+                                                state.animateScrollToPage(page.minus(1))
+
+                                            selectImages.removeAt(page)
+                                        } else
+                                            selectImages.removeAt(page)
+                                    }
+                                }) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.trash_can_115312),
+                                    modifier = Modifier.size(24.dp),
+                                    contentDescription = "Главная фотография"
+                                )
+                            }
                         }
                     }
                 }
@@ -339,14 +342,16 @@ fun AddProductView(
 
             Button(
                 onClick = {
+                          //modelView.onEvent(UiEventMenuAdd.UpdateImage(context, selectImages[0].value!!))
                     modelView.onEvent(UiEventMenuAdd.UpdateProduct(
                         id,
                         nameValue,
                         descriptionValue,
                         price.toDouble(),
                         weigth?: 0.0f,
-                        selectImages
-                    ))
+                        selectImages,
+                        context
+                    ) )
                 },
                 Modifier
                     .fillMaxWidth()

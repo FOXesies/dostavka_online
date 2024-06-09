@@ -45,6 +45,7 @@ fun CategoryAdminView(modelView: MenuModelView, category: String) {
 
     var selectedCategory by remember { mutableStateOf("") }
     selectedCategory = category
+    modelView.onEvent(UiEventMenuAdd.ChangeCategoryProduct(category))
     var addState by remember { mutableStateOf(false) }
 
     val categories = modelView.categories.value

@@ -72,7 +72,6 @@ import androidx.navigation.NavController
 import com.wayplaner.learn_room.MapSearchActivity
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
-import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
 import com.wayplaner.learn_room.admin.util.toBitmapImage
 import com.wayplaner.learn_room.createorder.presentation.components.AddressSuggestModelView
@@ -104,77 +103,81 @@ fun BasicInfo(
         unfocusedTextColor = grayList,
         unfocusedIndicatorColor = Color.Transparent,
         focusedContainerColor = Color.Transparent,
-        unfocusedContainerColor = Color.Transparent)
+        unfocusedContainerColor = Color.Transparent
+    )
 
     var infoUpdate by remember { mutableStateOf(false) }
-    val result = vmBasic.UiStatus.observeAsState()
+    val result = vmBasic.infoOrg.observeAsState()
 
-    if (result.value != null) {
-        if (result.value == StatusBasicInfo.NoFoundInfo) {
-            Text(
-                text = "НИЧЕГО НЕ НАЙДЕНО", fontSize = 16.sp,
-                modifier = Modifier.padding(start = 5.dp)
-            )
-        } else {
-            val resultFound = (result.value as StatusBasicInfo.FoundInfo)
-            var nameValue by remember { mutableStateOf(resultFound.organizationResponse.name) }
-            var phoneValue by remember { mutableStateOf(resultFound.organizationResponse.phone) }
-            var description by remember { mutableStateOf(resultFound.organizationResponse.description) }
+    if (result.value == null) {
+        Text(
+            text = "НИЧЕГО НЕ НАЙДЕНО", fontSize = 16.sp,
+            modifier = Modifier.padding(start = 5.dp)
+        )
+    } else {
+        val resultFound = result.value!!
+        var nameValue by remember { mutableStateOf(resultFound.name) }
+        var phoneValue by remember { mutableStateOf(resultFound.phone) }
+        var description by remember { mutableStateOf(resultFound.description) }
 
-                val error = vmBasic.errorMessage.observeAsState()
-                if(error.value != null){
-                    Toast.makeText(context, error.value, Toast.LENGTH_LONG).show()
-                    vmBasic.errorMessage.value = null
+        val error = vmBasic.errorMessage.observeAsState()
+        if (error.value != null) {
+            Toast.makeText(context, error.value, Toast.LENGTH_LONG).show()
+            vmBasic.errorMessage.value = null
+        }
+
+
+        val selectImages = remember { mutableStateListOf<ImageDTO>() }
+
+
+        LaunchedEffect(resultFound) {
+            if(resultFound.idImages != null)
+                selectImages.addAll(resultFound.idImages!!)
+        }
+
+        val coroutineScope = rememberCoroutineScope()
+        val galleryLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+                val inputStream = uri?.let { context.contentResolver.openInputStream(it) }
+                val byteArray = inputStream?.readBytes()
+                if (byteArray != null) {
+                    if (selectImages.size == 0) selectImages.add(ImageDTO(byteArray = byteArray))
+                    else selectImages.add(ImageDTO(byteArray = byteArray))
                 }
-
-
-            val selectImages = remember { mutableStateListOf<ImageDTO>() }
-
-            LaunchedEffect(Unit){
-                selectImages.addAll(resultFound.organizationResponse.idImages?: emptyList())
             }
 
-            val coroutineScope = rememberCoroutineScope()
-            val galleryLauncher =
-                rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-                    val inputStream = uri?.let { context.contentResolver.openInputStream(it) }
-                    val byteArray = inputStream?.readBytes()
-                    if(byteArray != null) {
-                        if(selectImages.size == 0) selectImages.add(ImageDTO(byteArray = byteArray))
-                        else selectImages.add(ImageDTO(byteArray = byteArray))
-                    }
-                }
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(modifier = Modifier
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
                     .verticalScroll(rememberScrollState())
-                    .background(backHome)) {
-                    if(selectImages.size == 0){
-                        Image(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(220.dp),
-                            contentScale = ContentScale.Crop,
-                            painter = painterResource(id = R.drawable.no_fof),
-                            contentDescription = null
-                        )
+                    .background(backHome)
+            ) {
+                if (selectImages.size == 0) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp),
+                        contentScale = ContentScale.Crop,
+                        painter = painterResource(id = R.drawable.no_fof),
+                        contentDescription = null
+                    )
+                } else {
+                    val state = rememberPagerState {
+                        selectImages.size
                     }
-                    else {
-                        val state = rememberPagerState {
-                            selectImages.size
-                        }
 
-                        HorizontalPager(
-                            state = state, modifier = Modifier
-                                .height(280.dp)
-                                .fillMaxWidth()
-                        ) { page ->
+                    HorizontalPager(
+                        state = state, modifier = Modifier
+                            .height(280.dp)
+                            .fillMaxWidth()
+                    ) { page ->
 
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.Top,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (selectImages[page].byteArray != null) {
                                 Box(contentAlignment = Alignment.BottomCenter) {
                                     Image(
                                         bitmap = selectImages[page].byteArray!!.toBitmapImage(),
@@ -185,10 +188,14 @@ fun BasicInfo(
                                     )
 
                                     var color = remember {
-                                        mutableStateOf(if(selectImages[page].main) redActionColor else backHeader.copy(alpha = 0.3f))
+                                        mutableStateOf(
+                                            if (selectImages[page].main) redActionColor else backHeader.copy(
+                                                alpha = 0.3f
+                                            )
+                                        )
                                     }
 
-                                        FloatingActionButton(
+                                    FloatingActionButton(
                                         modifier = Modifier
                                             .align(Alignment.BottomEnd)
                                             .clip(MaterialTheme.shapes.small)
@@ -198,11 +205,14 @@ fun BasicInfo(
                                         onClick = {
                                             selectImages.forEach { it.main = false }
                                             selectImages[page].main = true
-                                            color.value = if(selectImages[page].main) redActionColor else backHeader.copy(alpha = 0.5f)
+                                            color.value =
+                                                if (selectImages[page].main) redActionColor else backHeader.copy(
+                                                    alpha = 0.5f
+                                                )
                                         }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.home_image),
-                                            tint = if(selectImages[page].main) whiteColor else grayList,
+                                            tint = if (selectImages[page].main) whiteColor else grayList,
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .background(Color.Transparent),
@@ -240,162 +250,168 @@ fun BasicInfo(
                             }
                         }
                     }
+                }
 
-                    Button(
-                        onClick = { galleryLauncher.launch("image/*") },
-                        shape = RoundedCornerShape(15.dp),
-                        colors = ButtonDefaults.buttonColors(redActionColor),
+                Button(
+                    onClick = { galleryLauncher.launch("image/*") },
+                    shape = RoundedCornerShape(15.dp),
+                    colors = ButtonDefaults.buttonColors(redActionColor),
+                    modifier = Modifier
+                        .padding(top = 15.dp)
+                        .padding(horizontal = 25.dp)
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text(text = "Добавить фото", fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Column(modifier = Modifier.padding(horizontal = 25.dp)) {
+
+                    Text(
+                        text = "Название ресторана", fontSize = 16.sp, color = grayList,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Card(
                         modifier = Modifier
-                            .padding(top = 15.dp)
-                            .padding(horizontal = 25.dp)
-                            .fillMaxWidth()
-                            .height(50.dp)
+                            .fillMaxWidth(),
+                        colors = CardDefaults.cardColors(orderCreateBackField),
+                        shape = RoundedCornerShape(14.dp)
                     ) {
-                        Text(text = "Добавить фото", fontSize = 16.sp)
+
+                        TextField(
+                            value = nameValue,
+                            onValueChange = {
+                                nameValue = it
+                                infoUpdate = true
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 5.dp)
+                                .clip(RoundedCornerShape(20)),
+                            colors = colorET
+                        )
                     }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Номер телефона", fontSize = 16.sp, color = grayList,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = CardDefaults.cardColors(orderCreateBackField),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        TextField(
+                            value = phoneValue,
+                            onValueChange = {
+                                phoneValue = it
+                                infoUpdate = true
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 5.dp)
+                                .clip(RoundedCornerShape(20)),
+                            colors = colorET
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Описание ресторана", fontSize = 16.sp, color = grayList,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = CardDefaults.cardColors(orderCreateBackField),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        TextField(
+                            value = description ?: "",
+                            onValueChange = {
+                                description = it
+                                infoUpdate = true
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 5.dp)
+                                .clip(RoundedCornerShape(20)),
+                            colors = colorET
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Города ресторана", fontSize = 16.sp, color = grayList,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    AddressCity(vmBasic)
 
                     Spacer(modifier = Modifier.height(30.dp))
 
-                    Column(modifier = Modifier.padding(horizontal = 25.dp)) {
-
-                        Text(
-                            text = "Название ресторана", fontSize = 16.sp, color = grayList,
-                            modifier = Modifier.padding(start = 5.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            colors = CardDefaults.cardColors(orderCreateBackField),
-                            shape = RoundedCornerShape(14.dp)) {
-
-                            TextField(
-                                value = nameValue,
-                                onValueChange = {
-                                    nameValue = it
-                                    infoUpdate = true
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 5.dp)
-                                    .clip(RoundedCornerShape(20)),
-                                colors = colorET
+                    Button(
+                        onClick = {
+                            vmBasic.onEvent(
+                                UiEventBasicInfoA.UpdateOrg(
+                                    name = nameValue,
+                                    phone = phoneValue,
+                                    description = description ?: "",
+                                    images = selectImages.toList(),
+                                    context
+                                )
                             )
-                        }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        Text(
-                            text = "Номер телефона", fontSize = 16.sp, color = grayList,
-                            modifier = Modifier.padding(start = 5.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            colors = CardDefaults.cardColors(orderCreateBackField),
-                            shape = RoundedCornerShape(14.dp)) {
-                            TextField(
-                                value = phoneValue,
-                                onValueChange = {
-                                    phoneValue = it
-                                    infoUpdate = true
-                                },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 5.dp)
-                                    .clip(RoundedCornerShape(20)),
-                                colors = colorET
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        Text(
-                            text = "Описание ресторана", fontSize = 16.sp, color = grayList,
-                            modifier = Modifier.padding(start = 5.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            colors = CardDefaults.cardColors(orderCreateBackField),
-                            shape = RoundedCornerShape(14.dp)) {
-                            TextField(
-                                value = description ?: "",
-                                onValueChange = {
-                                    description = it
-                                    infoUpdate = true
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 5.dp)
-                                    .clip(RoundedCornerShape(20)),
-                                colors = colorET
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        Text(
-                            text = "Города ресторана", fontSize = 16.sp, color = grayList,
-                            modifier = Modifier.padding(start = 5.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        AddressCity(vmBasic)
-
-                        Spacer(modifier = Modifier.height(30.dp))
-
-                        Button(
-                            onClick = {
-                                vmBasic.onEvent(
-                                    UiEventBasicInfoA.UpdateOrg(
-                                        name = nameValue,
-                                        phone = phoneValue,
-                                        description = description?: "",
-                                        images = selectImages.toList()
-                                    ))
-                            },
-                            Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            colors = ButtonDefaults.buttonColors(redActionColor),
-                            shape = RoundedCornerShape(15)
-                        ) {
-                            Text(text = "Сохранить изменения", fontSize = 16.sp)
-                        }
-                        Spacer(modifier = Modifier.height(30.dp))
+                        },
+                        Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(redActionColor),
+                        shape = RoundedCornerShape(15)
+                    ) {
+                        Text(text = "Сохранить изменения", fontSize = 16.sp)
                     }
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
+            }
 
-                FloatingActionButton(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .clip(MaterialTheme.shapes.small)
-                        .padding(top = 8.dp, start = 10.dp)
-                        .size(45.dp),
-                    containerColor = backHeader,
-                    onClick = { navController.navigateUp() }) {
-                    Icon(
-                        Icons.Filled.KeyboardArrowLeft,
-                        tint = whiteColor,
-                        modifier = Modifier.size(32.dp),
-                        contentDescription = "Добавить"
-                    )
-                }
+            FloatingActionButton(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .clip(MaterialTheme.shapes.small)
+                    .padding(top = 8.dp, start = 10.dp)
+                    .size(45.dp),
+                containerColor = backHeader,
+                onClick = { navController.navigateUp() }) {
+                Icon(
+                    Icons.Filled.KeyboardArrowLeft,
+                    tint = whiteColor,
+                    modifier = Modifier.size(32.dp),
+                    contentDescription = "Добавить"
+                )
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -10,3 +10,13 @@ data class Product(
     var description: String?,
     var images: List<Image>? = null
 )
+
+data class ProductDToUpdate(
+    var id: Long? = null,
+    var name: String,
+    var price: Double?,
+    var weight: Float?,
+    var image: List<Image>? = null,
+    var description: String?,
+    val category: String
+)

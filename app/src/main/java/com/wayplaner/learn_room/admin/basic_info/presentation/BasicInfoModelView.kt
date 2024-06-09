@@ -1,13 +1,16 @@
 package com.wayplaner.learn_room.admin.basic_info.presentation
 
-import androidx.compose.runtime.mutableStateOf
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
 import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
+import com.wayplaner.learn_room.admin.basic_info.domain.repository.ResponseUpdate
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
 import com.wayplaner.learn_room.admin.util.AdminAccount
@@ -17,6 +20,14 @@ import com.wayplaner.learn_room.auth.usecase.ValidatePhone
 import com.wayplaner.learn_room.organization.model.CityOrganization
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.File
 import java.util.Locale
 import javax.inject.Inject
 
@@ -35,7 +46,8 @@ class BasicInfoModelView @Inject constructor(
 
     val errorMessage = MutableLiveData<String?>(null)
 
-    private var infoOrg_ = mutableStateOf<BasicInfoResponse?>(null)
+    private var infoOrg_ = MutableLiveData<BasicInfoResponse?>(null)
+    var infoOrg: LiveData<BasicInfoResponse?> = infoOrg_
 
     private var cities_ = MutableLiveData<Map<String, MutableList<CityOrganization>>>()
     val cities: LiveData<Map<String, MutableList<CityOrganization>>> = cities_
@@ -50,7 +62,7 @@ class BasicInfoModelView @Inject constructor(
             is UiEventBasicInfoA.AddCities -> addCity(event.cities)
             is UiEventBasicInfoA.AddAddresss -> addAddress(event.city, event.address)
             is UiEventBasicInfoA.RemoveAddresss -> removeCity(event.city, event.address)
-            is UiEventBasicInfoA.UpdateOrg -> updateBasicInfo(event.name, event.phone, event.description, event.images)
+            is UiEventBasicInfoA.UpdateOrg -> updateBasicInfo(event.name, event.phone, event.description, event.images, event.context)
         }
     }
 
@@ -83,21 +95,17 @@ class BasicInfoModelView @Inject constructor(
         viewModelScope.launch {
             val response = repositoryBasicInfo.getInfo(idOrg)
             if(response.isSuccessful){
-                infoOrg_.value = response.body()
+                infoOrg_.postValue(response.body())
             }
             //imageByteArray.value = repositoryBasicInfo.getImage(infoOrg_.value!!.idImage)
         }.invokeOnCompletion {
-            if(it == null) {
+            if(it != null) {
                 cities_.postValue(infoOrg_.value!!.locationAll)
-                UiStatus_.postValue(StatusBasicInfo.FoundInfo(infoOrg_.value!!))
-            }
-            else {
-                UiStatus_.postValue(StatusBasicInfo.NoFoundInfo)
             }
         }
     }
 
-    private fun updateBasicInfo(name: String, phone: String, description: String, images: List<ImageDTO>){
+    private fun updateBasicInfo(name: String, phone: String, description: String, images: List<ImageDTO>, context: Context){
         val nameValid = validateName.executeOrg(name)
         val phoneValid = validatePhone.execute(phone)
 
@@ -112,21 +120,44 @@ class BasicInfoModelView @Inject constructor(
         }
 
         viewModelScope.launch {
-            errorMessage.postValue(repositoryBasicInfo.updateInfo(
-                BasicInfoResponse(
-                    idOrg = AdminAccount.idOrg,
-                    name = name,
-                    phone = phone,
-                    description = description,
-                    locationAll = cities.value ?: emptyMap()
-                )
-            ).error_message)
-        }
+            val lists = mutableListOf<MultipartBody.Part>()
+            images.forEach {
+                val file = File.createTempFile("tempImage", null, context.cacheDir)
+                file.writeBytes(it.byteArray!!.clone())
 
-        viewModelScope.launch {
-            if(images != infoOrg_.value?.idImages){
-                repositoryBasicInfo.updateImages(images)
+                val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                lists.add(body)
+                it.byteArray = null
             }
+
+            val org = BasicInfoResponse(
+                idOrg = AdminAccount.idOrg,
+                name = name,
+                phone = phone,
+                idImages = images.toMutableList(),
+                description = description,
+                locationAll = cities.value ?: emptyMap()
+            )
+            val prosuctDTODataJson = Gson().toJson(org)
+            val prosuctDTORequestBody = prosuctDTODataJson.toRequestBody("application/json".toMediaTypeOrNull())
+
+            val call: Call<ResponseUpdate> = repositoryBasicInfo.updateInfo(prosuctDTORequestBody, lists)
+            call.enqueue(object : Callback<ResponseUpdate> {
+                override fun onResponse(call: Call<ResponseUpdate>, response: Response<ResponseUpdate>) {
+                    if (response.isSuccessful) {
+                        val error = response.body()?.error_message;
+                        if(error != null)
+                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                    } else {
+                        // Обработка неуспешного ответа
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseUpdate>, t: Throwable) {
+                    // Обработка ошибки
+                }
+            })
         }
     }
 }

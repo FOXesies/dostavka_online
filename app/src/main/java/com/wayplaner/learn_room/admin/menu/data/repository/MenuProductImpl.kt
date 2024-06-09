@@ -2,10 +2,11 @@ package com.wayplaner.learn_room.admin.menu.data.repository
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.wayplaner.learn_room.admin.basic_info.domain.repository.ResponseUpdate
 import com.wayplaner.learn_room.admin.menu.domain.repository.MenuProductRepository
 import com.wayplaner.learn_room.organization.domain.model.ResponseProductOrg
 import com.wayplaner.learn_room.product.domain.model.Product
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 class MenuProductImpl(
@@ -27,6 +28,8 @@ class MenuProductImpl(
         return Response.success(product)
     }
 
-    suspend fun updateProduct(product: Product): ResponseUpdate = repository.updateProduct(product)
-    //suspend fun updateProducts(image: MultipartBody.Part, product: ResponseProduct) = repository.updateProducts(image, product)
+    suspend fun updateProduct(images: List<MultipartBody.Part>, product: RequestBody) = repository.uploadImage(images, product)
+
+    /*suspend fun uploadImage(idOrg: Long, image: MultipartBody.Part) = repository.uploadImage(listOf(image, image), idOrg)*/
+
 }

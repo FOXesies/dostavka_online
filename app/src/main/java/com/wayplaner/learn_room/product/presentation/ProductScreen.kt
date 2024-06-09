@@ -107,7 +107,7 @@ fun ProductScreen(
 
                             val images = remember { mutableListOf<ImageBitmap>() }
                                 product.value!!.images?.forEach {
-                                    images.add(BitmapFactory.decodeByteArray(it!!.value, 0, it.value.size).asImageBitmap())
+                                    images.add(BitmapFactory.decodeByteArray(it.value, 0, it.value!!.size).asImageBitmap())
                                 }
                             if(images.size > 0) {
                                 Image(

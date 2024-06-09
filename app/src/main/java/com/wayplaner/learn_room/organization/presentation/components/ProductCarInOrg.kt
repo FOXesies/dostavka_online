@@ -48,7 +48,7 @@ fun ProductCard(product: ResponseProductOrg, orgId: Long, navController: NavCont
             if(product.image != null) {
                 val pickImage = product.image!!.value
                 val bitmap =
-                    remember { BitmapFactory.decodeByteArray(pickImage, 0, pickImage.size) }
+                    remember { BitmapFactory.decodeByteArray(pickImage, 0, pickImage!!.size) }
                 val imageBitmap = remember { bitmap.asImageBitmap() }
 
                 Image(

@@ -30,7 +30,7 @@ class BasicInfoDeserializer : JsonDeserializer<BasicInfoResponse> {
             phone = jsonObject.get("phone").asString,
             description = jsonObject.get("description").asString,
             locationAll = locationsAll,
-            idImages = images.map { ImageDTO(id = it.id, byteArray = it.value) }
+            idImages = images.map { ImageDTO(id = it.id, byteArray = it.value, main = it.main) }.toMutableList()
         )
     }
 }

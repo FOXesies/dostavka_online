@@ -2,8 +2,9 @@ package com.wayplaner.learn_room.admin.basic_info.data.repository
 
 import com.google.gson.Gson
 import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
-import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
 import com.wayplaner.learn_room.admin.basic_info.domain.repository.BasicInfoRepository
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 class BasicInfoImpl(private val repository: BasicInfoRepository, private val gsonOrdBasic: Gson) {
@@ -13,6 +14,5 @@ class BasicInfoImpl(private val repository: BasicInfoRepository, private val gso
         val info = gsonOrdBasic.fromJson(responseBody, BasicInfoResponse::class.java)
         return Response.success(info)
     }
-    suspend fun updateInfo(organization: BasicInfoResponse) = repository.updateInfo(organization)
-    suspend fun updateImages(images: List<ImageDTO>) = repository.updateImages(images)
+    suspend fun updateInfo(organization: RequestBody, lists: MutableList<MultipartBody.Part>) = repository.updateInfo(lists, organization)
 }

@@ -59,7 +59,7 @@ fun AdminProductItem(product: ResponseProductOrg, onClick: () -> Unit) {
                         .align(Alignment.CenterVertically)
                         .clip(MaterialTheme.shapes.small),
                     contentScale = ContentScale.Crop,
-                    bitmap = product.image!!.value.toBitmapImage(),
+                    bitmap = product.image!!.value!!.toBitmapImage(),
                     contentDescription = "card_product_for_category_organization"
                 )
             }

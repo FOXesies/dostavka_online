@@ -8,11 +8,11 @@ data class BasicInfoResponse(
     val phone: String,
     val description: String? = null,
     val locationAll: Map<String, MutableList<CityOrganization>> = mutableMapOf(),
-    var idImages: List<ImageDTO>? = null
+    var idImages: MutableList<ImageDTO>? = null
 )
 
 data class ImageDTO(
     val id: Long? = null,
-    val byteArray: ByteArray? = null,
+    var byteArray: ByteArray? = null,
     var main: Boolean = false
 )
