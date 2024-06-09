@@ -1,6 +1,7 @@
 package com.wayplaner.learn_room.admin.menu.presentation
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -34,6 +35,8 @@ class MenuModelView @Inject constructor(
     private val repository: MenuProductImpl,
     private val validateName: ValidateName = ValidateName()
 ): ViewModel() {
+
+    var back = MutableLiveData<Boolean>()
 
     private var UiStatus_ = MutableLiveData<StatusMenuChange>()
 
@@ -148,7 +151,8 @@ class MenuModelView @Inject constructor(
             call.enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if (response.isSuccessful) {
-                        getProduct(product.idProduct!!)
+                        Toast.makeText(context, "Сохранено", Toast.LENGTH_LONG).show()
+                        back.postValue(true)
                     } else {
                         // Обработка ошибки
                     }

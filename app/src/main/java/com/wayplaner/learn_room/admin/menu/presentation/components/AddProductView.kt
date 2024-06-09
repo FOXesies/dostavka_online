@@ -30,6 +30,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.admin.menu.presentation.MenuModelView
 import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
@@ -68,7 +70,8 @@ fun AddProductView(
     description: String,
     weihth: Float?,
     price: Double,
-    image: List<Image>?
+    image: List<Image>?,
+    navController: NavController
 ) {
     val colorET = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
@@ -83,6 +86,10 @@ fun AddProductView(
     var descriptionValue by remember { mutableStateOf(description) }
     var weigth by remember { mutableStateOf(weihth) }
     var price by remember { mutableStateOf(price.toString()) }
+
+    if(modelView.back.observeAsState().value!!){
+        navController.navigateUp()
+    }
 
     val selectImages = remember { mutableStateListOf<Image>() }
     val context = LocalContext.current

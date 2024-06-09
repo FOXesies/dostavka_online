@@ -12,8 +12,18 @@ fun CompleteOrders() {
     LazyColumn(
         modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)){
-        items(4){
-            CardCompleteOrder()
+        items(2){
+            CardCompleteOrder("sdf",1,
+                "2024-06-09T11:25:00",
+                1010.0,
+                false,
+                null)
+
+            CardCompleteOrder("sdf",1,
+                "2024-06-09T11:25:00",
+                1010.0,
+                true,
+                "5")
         }
     }
 }

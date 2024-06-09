@@ -8,15 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrder
-import com.wayplaner.learn_room.orderlist.domain.model.CanceledOrderSelf
 import com.wayplaner.learn_room.orderlist.presentation.ListOrderModelView
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
 fun CanceledOrders(vmListorder: ListOrderModelView) {
     vmListorder.onEvent(UiOrderEvent.OpenCanceledOrder)
-    val value = vmListorder.cancelCombineOrder.observeAsState()
+    val value = vmListorder.cancelOrder.observeAsState()
 
     if(value.value!!.isNotEmpty()) {
         LazyColumn(
@@ -24,10 +22,7 @@ fun CanceledOrders(vmListorder: ListOrderModelView) {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(value.value!!){
-                when(it){
-                    is CanceledOrder -> createCancelOrderCard(canceledOrder = it)
-                    is CanceledOrderSelf -> createCancelOrderCard(canceledOrderSelf = it)
-                }
+                createCancelOrderCard(it)
             }
         }
     }

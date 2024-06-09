@@ -5,11 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.orderlist.data.repository.ListOrderImpl
+import com.wayplaner.learn_room.orderlist.domain.model.CancelOrderPreview
 import com.wayplaner.learn_room.orderlist.domain.model.OrderPreviewDTO
+import com.wayplaner.learn_room.orderlist.domain.model.ResponseCancel
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 import com.wayplaner.learn_room.orderlist.util.UiOrderListEvent
 import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,6 +20,15 @@ import javax.inject.Inject
 class ListOrderModelView @Inject constructor(
     private val listOrderImpl: ListOrderImpl
 ): ViewModel()  {
+
+    init {
+        viewModelScope.launch {
+            loadOrders(CustomerAccount.info!!.profileUUID)
+            loadCompledOrder(CustomerAccount.info!!.profileUUID)
+            loadCanceledOrder(CustomerAccount.info!!.profileUUID)
+            delay(3500)
+        }
+    }
 
     private val eventActive_ = MutableLiveData<UiOrderListEvent>()
     val eventActive: LiveData<UiOrderListEvent> = eventActive_
@@ -33,11 +45,11 @@ class ListOrderModelView @Inject constructor(
     private val activeOrder_ = MutableLiveData<List<OrderPreviewDTO>?>(mutableListOf())
     val activeOrder: LiveData<List<OrderPreviewDTO>?> = activeOrder_
 
-    private val cancelCombineOrder_ = MutableLiveData<List<Any>?>(mutableListOf())
-    val cancelCombineOrder: LiveData<List<Any>?> = cancelCombineOrder_
+    private val cancelOrder_ = MutableLiveData<List<CancelOrderPreview>?>(mutableListOf())
+    val cancelOrder: LiveData<List<CancelOrderPreview>?> = cancelOrder_
 
-    private val completeCombineOrder_ = MutableLiveData<List<Any>?>(mutableListOf())
-    val completeCombineOrder: LiveData<List<Any>?> = completeCombineOrder_
+    private val completeOrder_ = MutableLiveData<List<Any>?>(mutableListOf())
+    val completeOrder: LiveData<List<Any>?> = completeOrder_
 
     fun onEvent(event: UiOrderEvent){
         when(event){
@@ -45,12 +57,11 @@ class ListOrderModelView @Inject constructor(
                 loadOrders(CustomerAccount.info!!.profileUUID)
             }
             is UiOrderEvent.CancelOrder -> {
-                cancelOrder(event.idOrder)
+                cancelOrder(event.idOrder, event.comment)
                 return
-                //cancelOrderSelf(event.idOrder)
             }
             is UiOrderEvent.OpenCanceledOrder -> {
-                //loadAllCanceledOrder(CustomerAccount.info!!.profileUUID)
+                loadCanceledOrder(CustomerAccount.info!!.profileUUID)
             }
             else -> {}
         }
@@ -65,32 +76,32 @@ class ListOrderModelView @Inject constructor(
         }
     }
 
-
-
-    private fun cancelOrder(idOrder: Long) {
-        /*viewModelScope.launch {
-            listOrderImpl.cancelOrder(ResponseCancel(idOrder, ""))
-            val value = combineOrder_.value!!.toMutableList()
-            value.removeIf {
-                if (it.javaClass == OrderSelfDelivery::class.java)
-                    (it as OrderSelfDelivery).idOrderSelf == idOrder
-                else
-                    false
+    private fun loadCanceledOrder(uid: Long) {
+        viewModelScope.launch {
+            val response = listOrderImpl.getAllCanceleOrder(uid)
+            if(response.isSuccessful) {
+                cancelOrder_.postValue(response.body()!!.toMutableList())
             }
-
-            combineOrder_.postValue(value)
-        }*/
+        }
     }
 
+    private fun loadCompledOrder(uid: Long) {
+        viewModelScope.launch {
+            val response = listOrderImpl.getAllCompleteOrder(uid)
+            if(response.isSuccessful) {
+                completeOrder_.postValue(response.body()!!.toMutableList())
+            }
+        }
+    }
 
-    fun setUiValueActive(event: UiOrderListEvent){
-        eventActive_.value = event
+    private fun cancelOrder(idOrder: Long, comment: String) {
+        viewModelScope.launch {
+            listOrderImpl.cancelOrder(ResponseCancel(idOrder, comment))
+            val list = cancelOrder_.value
+            list?.toMutableList()?.removeIf { it.orderPreview!!.idOrder == idOrder }
+            cancelOrder_.postValue(list)
+        }
     }
-    fun setUiValueComplete(event: UiOrderListEvent){
-        eventComplete_.value = event
-    }
-    fun setUiValueCanceled(event: UiOrderListEvent){
-        eventCanceled_.value = event
-    }
+
 
 }

@@ -57,7 +57,7 @@ fun MenuAddScreen(
             }
         if(idProduct == null) {
             val result = modelView.responseProduct.observeAsState()
-            MenuExist(modelView, result.value, "category")
+            MenuExist(modelView, result.value, "category", navController)
 
             Text(
                 modifier = Modifier
@@ -82,7 +82,7 @@ fun MenuAddScreen(
 
             val product = modelView.responseProduct
             if(product.value != null)
-                MenuExist(modelView, product.value, category)
+                MenuExist(modelView, product.value, category, navController)
 
             Text(
                 modifier = Modifier
@@ -119,7 +119,7 @@ fun MenuAddScreen(
 }
 
 @Composable
-private fun MenuExist(modelView: MenuModelView, result: Product?, category: String?){
+private fun MenuExist(modelView: MenuModelView, result: Product?, category: String?, navController: NavController){
     Column(modifier = Modifier
         .verticalScroll(rememberScrollState())){
         Text(text = "Категория блюда", fontSize = 16.sp, color = grayList, modifier = Modifier
@@ -137,7 +137,8 @@ private fun MenuExist(modelView: MenuModelView, result: Product?, category: Stri
                 result.description?: "",
                 result.weight,
                 result.price!!,
-                result.images
+                result.images,
+                navController
             )
         }
         else{
@@ -148,7 +149,8 @@ private fun MenuExist(modelView: MenuModelView, result: Product?, category: Stri
                 "",
                 null,
                 0.0,
-                null)
+                null,
+                navController)
         }
     }
 }

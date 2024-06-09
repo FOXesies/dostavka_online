@@ -20,7 +20,7 @@ interface BasicInfoRepository {
     fun updateInfo(
         @Part image: List<MultipartBody.Part>,
         @Part("organization") organization: RequestBody
-    ): Call<ResponseUpdate>
+    ): Call<ResponseBody>
 
     @GET("organizations/get_info/{id}")
     suspend fun getInfo(@Path("id") idOrg: Long): Response<ResponseBody>

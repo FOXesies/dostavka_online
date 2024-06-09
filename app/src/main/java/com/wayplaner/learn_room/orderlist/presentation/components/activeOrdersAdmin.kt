@@ -28,7 +28,7 @@ fun ActiveOrders(vmListorder: ListOrderModelView) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(orders.value!!) { order ->
-                        CardActiveOrder(order.idOrder!!.toString(), order.organizationName!!,order.fromTimeCooking!!, order.summ.toString(), order.status!!, order.isSelf)
+                        CardActiveOrder(vmListorder, order.idOrder!!.toString(), order.organizationName!!,order.fromTimeCooking!!, order.summ.toString(), order.status!!, order.isSelf)
                     }
                 }
             }

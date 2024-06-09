@@ -135,6 +135,10 @@ fun BasicInfo(
                 selectImages.addAll(resultFound.idImages!!)
         }
 
+        if(vmBasic.back.observeAsState().value!!){
+            navController.navigateUp()
+        }
+
         val coroutineScope = rememberCoroutineScope()
         val galleryLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->

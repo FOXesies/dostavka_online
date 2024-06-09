@@ -10,7 +10,6 @@ import com.google.gson.Gson
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
 import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
-import com.wayplaner.learn_room.admin.basic_info.domain.repository.ResponseUpdate
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
 import com.wayplaner.learn_room.admin.util.AdminAccount
@@ -24,6 +23,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -39,7 +39,7 @@ class BasicInfoModelView @Inject constructor(
     private val validateName: ValidateName = ValidateName(),
 ): ViewModel() {
 
-    private var isChanged = false
+    var back = MutableLiveData<Boolean>(false)
 
     private var UiStatus_ = MutableLiveData<StatusBasicInfo>()
     val UiStatus: LiveData<StatusBasicInfo> = UiStatus_
@@ -71,7 +71,6 @@ class BasicInfoModelView @Inject constructor(
             val info = infoOrg_.value!!.locationAll!!.toMutableMap()
             info[city]!!.remove(address)
             cities_.postValue(info)
-            isChanged = true
         }
     }
 
@@ -88,7 +87,6 @@ class BasicInfoModelView @Inject constructor(
         val info = infoOrg_.value!!.locationAll.toMutableMap()
         info[city]!!.add(address!!)
         cities_.postValue(info)
-        isChanged = true
     }
 
     private fun getInfoBasic(idOrg: Long){
@@ -142,19 +140,14 @@ class BasicInfoModelView @Inject constructor(
             val prosuctDTODataJson = Gson().toJson(org)
             val prosuctDTORequestBody = prosuctDTODataJson.toRequestBody("application/json".toMediaTypeOrNull())
 
-            val call: Call<ResponseUpdate> = repositoryBasicInfo.updateInfo(prosuctDTORequestBody, lists)
-            call.enqueue(object : Callback<ResponseUpdate> {
-                override fun onResponse(call: Call<ResponseUpdate>, response: Response<ResponseUpdate>) {
-                    if (response.isSuccessful) {
-                        val error = response.body()?.error_message;
-                        if(error != null)
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                    } else {
-                        // Обработка неуспешного ответа
-                    }
+            val call: Call<ResponseBody> = repositoryBasicInfo.updateInfo(prosuctDTORequestBody, lists)
+            call.enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    Toast.makeText(context, "Сохранено", Toast.LENGTH_LONG).show()
+                    back.postValue(true)
                 }
 
-                override fun onFailure(call: Call<ResponseUpdate>, t: Throwable) {
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                     // Обработка ошибки
                 }
             })

@@ -33,17 +33,17 @@ fun ActiveOrdersAdmin(navController: NavController, vmListorder: AdminOrdersMode
             ) {
                 items(orders.value!!) { order ->
                     CardActiveOrderAdmin(navController, order.idOrder.toString(),
+                        vmListorder,
                         order.fromTimeCooking!!,
                         order.summ.toString(),
                         order.status ?: StatusOrder.COMPLETE_ORDER,
-                        order.isSelf,
-                        loginCancel = { vmListorder.onEvent(UiOrderEvent.CancelOrder(order.idOrder!!)) },
-                        logicSwitchStatus = { vmListorder.onEvent(UiOrderEvent.SwitchOrder(order.idOrder!!, order.status!!)) })
+                        order.isSelf)
                 }
             }
         }
     }
 }
+
 
 @Preview
 @Composable
