@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.admin.orders.presentation.components.ActiveOrdersAdmin
+import com.wayplaner.learn_room.admin.orders.presentation.components.CanceledOrdersAdmin
 import com.wayplaner.learn_room.admin.orders.presentation.components.CompleteOrdersAdmin
 import com.wayplaner.learn_room.ui.theme.backHeader
 import com.wayplaner.learn_room.ui.theme.grayList
@@ -50,6 +51,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AdminOrders(navController: NavController, vmListorder: AdminOrdersModelView = hiltViewModel()) {
+
     Scaffold(
     ) { paddingValues ->
         Column(
@@ -131,8 +133,8 @@ fun AdminOrders(navController: NavController, vmListorder: AdminOrdersModelView 
                 ) {
                     when (pagerState.currentPage) {
                         0 -> ActiveOrdersAdmin(navController, vmListorder)
-                        1 -> CompleteOrdersAdmin()
-                        //2 -> CanceledOrdersAdmin(vmListorder)
+                        1 -> CompleteOrdersAdmin(vmListorder, navController)
+                        2 -> CanceledOrdersAdmin(vmListorder, navController)
                     }
 
                 }

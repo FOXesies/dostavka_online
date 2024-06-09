@@ -77,6 +77,7 @@ enum class MainRoute(value: String) {
     Basket("basket"),
     CreateOrder("createorder"),
     Orders("orders"),
+    OrdersInfo("orders_info"),
 
     Settings("settings"),
 

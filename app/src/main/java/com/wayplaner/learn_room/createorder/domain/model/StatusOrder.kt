@@ -23,29 +23,32 @@ enum class StatusOrder {
     COOKING_END,
     ON_TWE_WAY,
     COMPLETE_WAY,
-    COMPLETE_ORDER;
+    COMPLETE,
+    CANCELE;
 
     companion object {
         fun StatusOrder.getNext(): StatusOrder? {
-            when (this) {
+            return when (this) {
                 WAIT_ACCEPT -> return IN_LINE_COOKING
                 IN_LINE_COOKING -> return PROCESS_COOKING
                 PROCESS_COOKING -> return COOKING_END
                 COOKING_END -> return ON_TWE_WAY
                 ON_TWE_WAY -> return COMPLETE_WAY
-                COMPLETE_WAY -> return COMPLETE_ORDER
-                COMPLETE_ORDER -> return null
+                COMPLETE_WAY -> return COMPLETE
+                COMPLETE -> return null
+                else ->  null
             }
         }
         fun StatusOrder.getBack(): StatusOrder? {
-            when (this) {
-                COMPLETE_ORDER -> return COMPLETE_WAY
+            return  when (this) {
+                COMPLETE -> return COMPLETE_WAY
                 COMPLETE_WAY -> return ON_TWE_WAY
                 ON_TWE_WAY -> return COOKING_END
                 COOKING_END -> return PROCESS_COOKING
                 PROCESS_COOKING -> return IN_LINE_COOKING
                 IN_LINE_COOKING -> return WAIT_ACCEPT
                 WAIT_ACCEPT -> return null
+                else -> null
             }
         }
         fun StatusOrder.getBackColor(): Color {
@@ -74,9 +77,11 @@ enum class StatusOrder {
                     return finishStatusBack
                 }
 
-                COMPLETE_ORDER -> {
+                COMPLETE -> {
                     return endStatusBack
                 }
+
+                else -> { return endStatusBack }
             }
         }
         fun StatusOrder.getTextColor(): Color {
@@ -105,9 +110,11 @@ enum class StatusOrder {
                     return finishStatus
                 }
 
-                COMPLETE_ORDER -> {
+                COMPLETE -> {
                     return endStatus
                 }
+
+                else -> { return endStatus }
             }
         }
         fun StatusOrder.getText(): String{
@@ -136,7 +143,15 @@ enum class StatusOrder {
                     return "Заказ ждёт вас"
                 }
 
-                COMPLETE_ORDER -> {
+                COMPLETE -> {
+                    return "Доставлено"
+                }
+
+                CANCELE -> {
+                    return "Отменено"
+                }
+
+                else -> {
                     return "Доставлено"
                 }
             }

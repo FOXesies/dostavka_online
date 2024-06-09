@@ -8,11 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.orderlist.presentation.ListOrderModelView
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
-fun CanceledOrders(vmListorder: ListOrderModelView) {
+fun CanceledOrders(vmListorder: ListOrderModelView, navController: NavController) {
     vmListorder.onEvent(UiOrderEvent.OpenCanceledOrder)
     val value = vmListorder.cancelOrder.observeAsState()
 
@@ -22,7 +24,9 @@ fun CanceledOrders(vmListorder: ListOrderModelView) {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(value.value!!){
-                createCancelOrderCard(it)
+                createCancelOrderCard(it){
+                    navController.navigate(MainRoute.OrdersInfo.name + "/${it.orderPreview!!.idOrder}")
+                }
             }
         }
     }

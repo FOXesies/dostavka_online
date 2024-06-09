@@ -72,7 +72,8 @@ fun CardActiveOrder(
     dateOrder: String,
     summ: String,
     statusOrder: StatusOrder,
-    isDelivery: Boolean
+    isDelivery: Boolean,
+    logicOpenOrder: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -126,7 +127,7 @@ fun CardActiveOrder(
                 }
                 Button(shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(redActionColor),
-                    onClick = {  }) {
+                    onClick = { logicOpenOrder() }) {
                     Text(text = "Посмотреть заказ",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -157,12 +158,24 @@ fun formatLocalDateTime(localDateTime: LocalDateTime): String {
     val formatter = DateTimeFormatter.ofPattern("d MMMM", Locale("ru")) // Форматирование на русском языке
     return localDateTime.format(formatter)
 }
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatLocalDateTimeFull(localDateTime: LocalDateTime): String {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM HH:mm", Locale("ru")) // Форматирование на русском языке
+    return localDateTime.format(formatter)
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun getLocalDateTime(date: String): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
     val result = LocalDateTime.parse(date, formatter)
     return formatLocalDateTime(result)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun getLocalDateTimeFull(date: String): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    val result = LocalDateTime.parse(date, formatter)
+    return formatLocalDateTimeFull(result)
 }
 
 @Composable

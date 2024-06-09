@@ -64,7 +64,7 @@ class CreateOrderModelView
         else{
             order_.value.idLocation = null
 
-            if (order_.value.addressUser == null && order_.value.addressUser?.lat == null){
+            if (order_.value.addressUser == null || order_.value.addressUser?.lat == null){
                 sendUiEvent(OrderRegisterEvent.Failed("Введён некорректный адрес"))
                 order.value.errorAddress = "Введён некорректный адрес"
                 return

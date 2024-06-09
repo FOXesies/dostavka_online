@@ -31,6 +31,8 @@ import com.wayplaner.learn_room.di.deserializer.ProductResponseDeserializer
 import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
 import com.wayplaner.learn_room.home.domain.model.Image
 import com.wayplaner.learn_room.home.domain.repository.HomeApi
+import com.wayplaner.learn_room.order_info.data.repository.InfoOrderIMpl
+import com.wayplaner.learn_room.order_info.domain.repository.InfoOrderApi
 import com.wayplaner.learn_room.orderlist.data.repository.ListOrderImpl
 import com.wayplaner.learn_room.orderlist.domain.repository.ListOrderApi
 import com.wayplaner.learn_room.organization.data.repository.OrganizationApiImpl
@@ -150,6 +152,15 @@ class AppModule {
     @Provides
     fun provideProductApiService(retrofit: Retrofit): ProductRepository = retrofit.create(
         ProductRepository::class.java)
+
+    @Singleton
+    @Provides
+    fun ordersInfoApi(orderApi: InfoOrderApi) = InfoOrderIMpl(orderApi, gsonOrder)
+
+    @Singleton
+    @Provides
+    fun ordersInfoApiService(retrofit: Retrofit): InfoOrderApi = retrofit.create(
+        InfoOrderApi::class.java)
 
     @Singleton
     @Provides

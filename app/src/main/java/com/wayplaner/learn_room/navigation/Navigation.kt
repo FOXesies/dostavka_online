@@ -36,6 +36,7 @@ import com.wayplaner.learn_room.auth.presentation.RegisterScreen
 import com.wayplaner.learn_room.basket.presentation.BasketScreen
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderScreen
 import com.wayplaner.learn_room.home.presentation.HomeScreen
+import com.wayplaner.learn_room.order_info.presentation.InfoOrderUser
 import com.wayplaner.learn_room.orderlist.presentation.ListOrderScreen
 import com.wayplaner.learn_room.organization.presentation.OrganizationCardOrg
 import com.wayplaner.learn_room.product.presentation.ProductScreen
@@ -92,6 +93,10 @@ fun Navigation(
             composable(MainRoute.Basket.name) {
                 BasketScreen(drawerState, navController)
             }
+            composable(MainRoute.OrdersInfo.name + "/{id}") { navBackStack ->
+                val id = navBackStack.arguments?.getString("id")
+                InfoOrderUser(id!!.toLong(), navController)
+            }
             composable(MainRoute.Settings.name) {
                 SettingsScreen(drawerState)
             }
@@ -126,8 +131,9 @@ fun Navigation(
             composable(MainRoute.Admin_Home.name) {
                 com.wayplaner.learn_room.admin.home.presentation.HomeScreen(navController)
             }
-            composable(MainRoute.Admin_OrderInfo.name) {
-                InfoOrderAdmin(navController)
+            composable(MainRoute.Admin_OrderInfo.name + "/{id}") { navBackStack ->
+                val id = navBackStack.arguments?.getString("id")
+                InfoOrderAdmin(id!!.toLong(), navController)
             }
             composable(MainRoute.Admin_MenuList.name) {
                 MenuList(navController)

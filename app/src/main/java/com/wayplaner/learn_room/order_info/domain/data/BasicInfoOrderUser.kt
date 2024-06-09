@@ -16,6 +16,7 @@ data class BasicInfoOrderUser(
     var fromTimeDelivery: String? = null,
     var toTimeDelivery: String? = null,
     var productOrder: List<ResponseProductOrg> = mutableListOf(),
+    var counts: List<Int> = mutableListOf(),
     var status: StatusOrder? = null,
     var isSelf: Boolean? = null,
     var idLocation: LocationOrganization? = null,

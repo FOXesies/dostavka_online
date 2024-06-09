@@ -33,7 +33,8 @@ fun CardCanceledOrder(
     canceledTime: String?,
     summ: Double?,
     isDelivery: Boolean,
-    canceledComment: String
+    canceledComment: String,
+    logicOpen: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -46,6 +47,7 @@ fun CardCanceledOrder(
             ) {
                 Text(text = "Заказ отменён по причине \"$canceledComment\"",
                     color = errorStatus,
+                    fontSize = 14.sp,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
             }
 
@@ -75,7 +77,7 @@ fun CardCanceledOrder(
                 Button(shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.padding(top = 20.dp),
                     colors = ButtonDefaults.buttonColors(redActionColor),
-                    onClick = { }) {
+                    onClick = { logicOpen() }) {
                     Text(
                         text = "Посмотреть заказ",
                         modifier = Modifier
@@ -99,18 +101,19 @@ fun CardCanceledOrder(
 }
 
 @Composable
-fun createCancelOrderCard(canceledOrder: CancelOrderPreview){
-    CardCanceledOrder(canceledOrder.orderPreview!!.organizationName, canceledOrder.orderPreview!!.idOrder!!, canceledOrder.orderPreview!!.toTimeCooking!!, canceledOrder.orderPreview!!.summ!!, canceledOrder.orderPreview!!.isSelf, canceledOrder.comment!!)
+fun createCancelOrderCard(canceledOrder: CancelOrderPreview, logicOpen: () -> Unit){
+    CardCanceledOrder(canceledOrder.orderPreview!!.organizationName, canceledOrder.orderPreview!!.idOrder!!, canceledOrder.orderPreview!!.toTimeCooking!!, canceledOrder.orderPreview!!.summ!!, canceledOrder.orderPreview!!.isSelf, canceledOrder.comment!!, logicOpen)
 }
 @Preview
 @Composable
 fun CcardActivityOrders(){
-    CardCanceledOrder(
-       " canceledOrder.orderPreview!!.organizationName",
+/*    CardCanceledOrder(
+        " canceledOrder.orderPreview!!.organizationName",
         1,
         "2024-06-09T11:25:00",
         1010.0,
         true,
-        "sdfsd"
-    )
+        "sdfsd",
+        logicOpen
+    )*/
 }

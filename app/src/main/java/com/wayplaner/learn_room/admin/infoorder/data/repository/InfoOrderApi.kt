@@ -4,6 +4,7 @@ package com.wayplaner.learn_room.admin.infoorder.data.repository
 import com.google.gson.Gson
 import com.wayplaner.learn_room.admin.infoorder.domain.model.SendBasicInfoOrder
 import com.wayplaner.learn_room.admin.infoorder.domain.repository.AdminInfoOrderApi
+import com.wayplaner.learn_room.admin.orders.domain.model.AdminStatusResponse
 import retrofit2.Response
 
 class InfoOrderApiImpl(private val adminInfoOrderApi: AdminInfoOrderApi, private val gson: Gson) {
@@ -13,4 +14,6 @@ class InfoOrderApiImpl(private val adminInfoOrderApi: AdminInfoOrderApi, private
         val info = gson.fromJson(responseBody, SendBasicInfoOrder::class.java)
         return Response.success(info)
     }
+
+    suspend fun switchStatus(response: AdminStatusResponse) = adminInfoOrderApi.switchStatus(response)
 }

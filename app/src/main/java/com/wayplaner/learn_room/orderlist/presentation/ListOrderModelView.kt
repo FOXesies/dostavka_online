@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.orderlist.data.repository.ListOrderImpl
 import com.wayplaner.learn_room.orderlist.domain.model.CancelOrderPreview
+import com.wayplaner.learn_room.orderlist.domain.model.CompleteOrderPreview
 import com.wayplaner.learn_room.orderlist.domain.model.OrderPreviewDTO
 import com.wayplaner.learn_room.orderlist.domain.model.ResponseCancel
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
-import com.wayplaner.learn_room.orderlist.util.UiOrderListEvent
 import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -23,24 +23,14 @@ class ListOrderModelView @Inject constructor(
 
     init {
         viewModelScope.launch {
-            loadOrders(CustomerAccount.info!!.profileUUID)
-            loadCompledOrder(CustomerAccount.info!!.profileUUID)
-            loadCanceledOrder(CustomerAccount.info!!.profileUUID)
-            delay(3500)
+            while (true) {
+                loadOrders(CustomerAccount.info!!.profileUUID)
+                loadCompledOrder(CustomerAccount.info!!.profileUUID)
+                loadCanceledOrder(CustomerAccount.info!!.profileUUID)
+                delay(3500)
+            }
         }
     }
-
-    private val eventActive_ = MutableLiveData<UiOrderListEvent>()
-    val eventActive: LiveData<UiOrderListEvent> = eventActive_
-
-    private val eventActiveSelf_ = MutableLiveData<UiOrderListEvent>()
-    val eventActiveSelf: LiveData<UiOrderListEvent> = eventActiveSelf_
-
-    private val eventComplete_ = MutableLiveData<UiOrderListEvent>()
-    val eventComplete: LiveData<UiOrderListEvent> = eventComplete_
-
-    private val eventCanceled_ = MutableLiveData<UiOrderListEvent>()
-    val eventCanceled: LiveData<UiOrderListEvent> = eventCanceled_
 
     private val activeOrder_ = MutableLiveData<List<OrderPreviewDTO>?>(mutableListOf())
     val activeOrder: LiveData<List<OrderPreviewDTO>?> = activeOrder_
@@ -48,20 +38,20 @@ class ListOrderModelView @Inject constructor(
     private val cancelOrder_ = MutableLiveData<List<CancelOrderPreview>?>(mutableListOf())
     val cancelOrder: LiveData<List<CancelOrderPreview>?> = cancelOrder_
 
-    private val completeOrder_ = MutableLiveData<List<Any>?>(mutableListOf())
-    val completeOrder: LiveData<List<Any>?> = completeOrder_
+    private val completeOrder_ = MutableLiveData<List<CompleteOrderPreview>?>(mutableListOf())
+    val completeOrder: LiveData<List<CompleteOrderPreview>?> = completeOrder_
 
     fun onEvent(event: UiOrderEvent){
         when(event){
             is UiOrderEvent.OpenActiveOrder -> {
-                loadOrders(CustomerAccount.info!!.profileUUID)
+                //loadOrders(CustomerAccount.info!!.profileUUID)
             }
             is UiOrderEvent.CancelOrder -> {
                 cancelOrder(event.idOrder, event.comment)
                 return
             }
             is UiOrderEvent.OpenCanceledOrder -> {
-                loadCanceledOrder(CustomerAccount.info!!.profileUUID)
+                //loadCanceledOrder(CustomerAccount.info!!.profileUUID)
             }
             else -> {}
         }

@@ -12,11 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.orderlist.presentation.ListOrderModelView
 import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
-fun ActiveOrders(vmListorder: ListOrderModelView) {
+fun ActiveOrders(vmListorder: ListOrderModelView, navController: NavController) {
     Column(modifier = Modifier
         .padding(vertical = 5.dp, horizontal = 10.dp)
         .background(Color.Transparent)) {
@@ -28,7 +30,9 @@ fun ActiveOrders(vmListorder: ListOrderModelView) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(orders.value!!) { order ->
-                        CardActiveOrder(vmListorder, order.idOrder!!.toString(), order.organizationName!!,order.fromTimeCooking!!, order.summ.toString(), order.status!!, order.isSelf)
+                        CardActiveOrder(vmListorder, order.idOrder!!.toString(), order.organizationName!!,order.fromTimeCooking!!, order.summ.toString(), order.status!!, order.isSelf){
+                            navController.navigate(MainRoute.OrdersInfo.name + "/${order.idOrder}")
+                        }
                     }
                 }
             }

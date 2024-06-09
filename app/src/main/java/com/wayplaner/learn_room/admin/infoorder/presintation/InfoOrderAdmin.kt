@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -67,7 +68,12 @@ import com.wayplaner.learn_room.ui.theme.summRedColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
-fun InfoOrderAdmin(navController: NavController, infoOrderAdminModelView: InfoOrderAdminModelView = hiltViewModel()) {
+fun InfoOrderAdmin(idOrder: Long, navController: NavController, infoOrderAdminModelView: InfoOrderAdminModelView = hiltViewModel()) {
+
+    LaunchedEffect(Unit) {
+        infoOrderAdminModelView.getOrder(idOrder)
+    }
+
     val infoOrder = infoOrderAdminModelView.info.observeAsState()
 
     Box(
@@ -123,7 +129,7 @@ fun InfoOrderAdmin(navController: NavController, infoOrderAdminModelView: InfoOr
                     }
                 }
                 item {
-                    DeliverySummary(infoOrder.value!!, navController)
+                    DeliverySummary(infoOrder.value!!, navController, infoOrderAdminModelView)
                 }
             }
         }
@@ -147,7 +153,7 @@ fun InfoOrderAdmin(navController: NavController, infoOrderAdminModelView: InfoOr
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController) {
+fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController, infoOrderAdminModelView: InfoOrderAdminModelView) {
     val textColorValue = TextFieldDefaults.textFieldColors(
         focusedTextColor = whiteColor,
         unfocusedTextColor = grayList,
@@ -234,7 +240,9 @@ fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController) {
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    CustomStatusCard("Статус доставки", value.status!!)
+    CustomStatusCard("Статус доставки", value.status!!){
+        infoOrderAdminModelView.switchStsatus(value.orderId, it)
+    }
 
     Spacer(modifier = Modifier.height(10.dp))
 
@@ -283,7 +291,7 @@ fun CustomAdminListProduct(products: List<ResponseProductOrg>, navController: Na
 }
 
 @Composable
-fun CustomStatusCard(label: String, value: StatusOrder){
+fun CustomStatusCard(label: String, value: StatusOrder, onSwitch: (StatusOrder) -> Unit){
     var status by remember { mutableStateOf(value) }
     Card(
         shape = RoundedCornerShape(15.dp),
@@ -324,13 +332,16 @@ fun CustomStatusCard(label: String, value: StatusOrder){
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            val nextValue = (status.getNext()?: StatusOrder.COMPLETE_ORDER)
+            val nextValue = (status.getNext()?: StatusOrder.COMPLETE)
             Button(shape = RoundedCornerShape(15.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(nextValue.getBackColor()),
-                onClick = { status = nextValue }) {
+                onClick = {
+                    status = nextValue
+                    onSwitch(status)
+                }) {
                 Text(text = nextValue.getText(), fontSize = 16.sp, color = nextValue.getTextColor())
             }
 
@@ -343,7 +354,10 @@ fun CustomStatusCard(label: String, value: StatusOrder){
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(backValue.getBackColor()),
-                    onClick = { status = backValue }) {
+                    onClick = {
+                        status = backValue
+                        onSwitch(status)
+                    }) {
                     Text(text = "Вернуть назад", fontSize = 16.sp, color = backValue.getTextColor())
                 }
             }

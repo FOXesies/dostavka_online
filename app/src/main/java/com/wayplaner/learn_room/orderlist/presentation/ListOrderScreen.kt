@@ -90,9 +90,9 @@ fun ListOrderScreen(navController: NavController,
                         .background(orderCreateCard)
                 ) {
                     when (pagerState.currentPage) {
-                        0 -> ActiveOrders(vmListorder)
-                        1 -> CompleteOrders()
-                        2 -> CanceledOrders(vmListorder)
+                        0 -> ActiveOrders(vmListorder, navController)
+                        1 -> CompleteOrders(vmListorder, navController)
+                        2 -> CanceledOrders(vmListorder, navController)
                     }
 
                 }

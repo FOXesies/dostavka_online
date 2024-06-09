@@ -8,13 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.admin.orders.presentation.AdminOrdersModelView
-import com.wayplaner.learn_room.orderlist.util.UiOrderEvent
 
 @Composable
-fun CanceledOrdersAdmin(vmListorder: AdminOrdersModelView) {
-    vmListorder.onEvent(UiOrderEvent.OpenCanceledOrder)
-    val value = vmListorder.activeOrder.observeAsState()
+fun CanceledOrdersAdmin(vmListorder: AdminOrdersModelView, navController: NavController) {
+    val value = vmListorder.cancelOrder.observeAsState()
 
     if(value.value!!.isNotEmpty()) {
         LazyColumn(
@@ -22,6 +22,15 @@ fun CanceledOrdersAdmin(vmListorder: AdminOrdersModelView) {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(value.value!!){
+                CardCanceledOrderAdmin(
+                    it.orderPreview!!.organizationName,
+                    it.orderPreview!!.idOrder!!,
+                    it.timeCandeled,
+                    it.orderPreview!!.summ,
+                    it.orderPreview!!.isSelf,
+                    it.comment!!){
+                    navController.navigate(MainRoute.Admin_OrderInfo.name + "/${it.orderPreview!!.idOrder!!}")
+                }
             }
         }
     }

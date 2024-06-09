@@ -124,7 +124,7 @@ fun CardActiveOrderAdmin(
                 }
                 Button(shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(redActionColor),
-                    onClick = {  }) {
+                    onClick = { navController.navigate(MainRoute.Admin_OrderInfo.name + "/$idOrder") }) {
                     Text(text = "Открыть заказ",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -147,20 +147,6 @@ fun CardActiveOrderAdmin(
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
-
-                val nextValue = (status.getNext()?: StatusOrder.COMPLETE_ORDER)
-                Button(shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(nextValue.getBackColor()),
-                    onClick = {
-                        navController.navigate(MainRoute.Admin_OrderInfo.name)
-                    }) {
-                    Text(text = nextValue.getText(),
-                        color = nextValue.getTextColor(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        textAlign = TextAlign.Center)
-                }
             }
         }
     }

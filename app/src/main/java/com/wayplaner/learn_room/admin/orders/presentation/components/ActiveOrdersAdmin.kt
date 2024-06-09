@@ -36,7 +36,7 @@ fun ActiveOrdersAdmin(navController: NavController, vmListorder: AdminOrdersMode
                         vmListorder,
                         order.fromTimeCooking!!,
                         order.summ.toString(),
-                        order.status ?: StatusOrder.COMPLETE_ORDER,
+                        order.status ?: StatusOrder.COMPLETE,
                         order.isSelf)
                 }
             }
