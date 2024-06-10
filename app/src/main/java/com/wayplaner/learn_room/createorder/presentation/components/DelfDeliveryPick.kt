@@ -18,8 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CommentBank
+import androidx.compose.material.icons.filled.HolidayVillage
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,7 +54,6 @@ import com.wayplaner.learn_room.ui.theme.backOrgHome
 import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.orderCreateBackField
 import com.wayplaner.learn_room.ui.theme.orderCreateCard
-import com.wayplaner.learn_room.ui.theme.textFieldHint
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -66,8 +65,8 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
         unfocusedTextColor = grayList,
         containerColor = Color.Transparent,
         cursorColor = whiteColor,
-        focusedIndicatorColor = whiteColor,
-        unfocusedIndicatorColor = grayList,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
         focusedLabelColor = whiteColor,
         unfocusedLabelColor = grayList,
     )
@@ -105,7 +104,7 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Text(text = "Адрес ресторана", fontSize = 18.sp)
+                    Text(text = "Адрес ресторана", fontSize = 18.sp, color = grayList)
 
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -148,7 +147,7 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
                                         singleLine = true,
                                         leadingIcon = {
                                             Icon(
-                                                imageVector = Icons.Filled.AccessTime,
+                                                imageVector = Icons.Filled.HolidayVillage,
                                                 contentDescription = null,
                                                 tint = grayList
                                             )
@@ -156,29 +155,22 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
                                         trailingIcon = {
                                             Icon(
                                                 imageVector = Icons.Filled.KeyboardArrowDown,
-                                                contentDescription = null
+                                                contentDescription = null, tint = grayList
                                             )
                                         },
-                                        colors = TextFieldDefaults.colors(
-                                            focusedTextColor = whiteColor,
-                                            unfocusedTextColor = grayList,
-                                            focusedIndicatorColor = Color.Transparent,
-                                            unfocusedIndicatorColor = Color.Transparent,
-                                            focusedContainerColor = Color.Transparent,
-                                            unfocusedContainerColor = Color.Transparent
-                                        ),
+                                        colors = textColorValue,
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                         placeholder = {
                                             Text(text = "Выберите город", fontSize = 16.sp)
                                         }
                                     )
-                                    ExposedDropdownMenu(
+                                    ExposedDropdownMenu(modifier = Modifier.background(orderCreateBackField),
                                         expanded = expanded,
                                         onDismissRequest = { expanded = false }
                                     ) {
                                         valueAddress.forEach { address ->
                                             DropdownMenuItem(
-                                                text = { Text(text = address.address!!) },
+                                                text = { Text(text = address.address!!, color = if(selectedAddress == address) whiteColor else grayList) },
                                                 onClick = {
                                                     selectedAddress = address
                                                     AddressPick.address.postValue(address)
@@ -227,12 +219,21 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
                         Icon(
                             imageVector = Icons.Filled.CommentBank,
                             modifier = Modifier.size(21.dp),
-                            tint = textFieldHint,
+                            tint = grayList,
                             contentDescription = null
                         )
 
                         TextField(
-                            colors = textColorValue,
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedTextColor = whiteColor,
+                                unfocusedTextColor = grayList,
+                                containerColor = Color.Transparent,
+                                cursorColor = whiteColor,
+                                focusedIndicatorColor = whiteColor,
+                                unfocusedIndicatorColor = grayList,
+                                focusedLabelColor = whiteColor,
+                                unfocusedLabelColor = grayList,
+                            ),
                             value = vmCreateOrder.comment.value,
                             modifier = Modifier.fillMaxWidth(),
                             onValueChange = { vmCreateOrder.comment.value = it },
@@ -247,7 +248,9 @@ fun SelfDeliveryPick(vmCreateOrder: CreateOrderModelView) {
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    PayViewCardOrder()
+    PayViewCardOrder(){ payment ->
+        vmCreateOrder.onValidateEvent(OrderFormState.PaymentChange(payment))
+    }
 
 }
 

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wayplaner.learn_room.admin.menu.presentation.MenuModelView
 import com.wayplaner.learn_room.admin.menu.util.UiEventMenuAdd
+import com.wayplaner.learn_room.ui.theme.backHome
 import com.wayplaner.learn_room.ui.theme.grayColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 import com.wayplaner.learn_room.ui.theme.redActionColor
@@ -90,7 +91,8 @@ fun CategoryAdminView(modelView: MenuModelView, category: String) {
         }
     } else {
         Button(modifier = Modifier
-            .padding(horizontal = 5.dp).padding(top = 80.dp),
+            .padding(horizontal = 5.dp)
+            .padding(top = 80.dp),
             colors = ButtonDefaults.buttonColors(grayColor),
             contentPadding = PaddingValues(start = 10.dp, end = 18.dp),
             onClick = { addState = true }) {
@@ -110,8 +112,9 @@ fun CategoryAdminView(modelView: MenuModelView, category: String) {
     if (addState) {
         var category by remember { mutableStateOf("") }
         AlertDialog(
+            containerColor = backHome,
             onDismissRequest = { addState = false },
-            title = { Text("Добавьте категорию товара", fontSize = 22.sp) },
+            title = { Text("Добавьте категорию товара", fontSize = 22.sp, color = whiteColor) },
             text = {
                 TextField(
                     value = category,
@@ -125,16 +128,16 @@ fun CategoryAdminView(modelView: MenuModelView, category: String) {
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(colors = ButtonDefaults.buttonColors(redActionColor), onClick = {
                     modelView.onEvent(UiEventMenuAdd.AddCategoryInList(category))
                     addState = false
                 }) {
-                    Text("Добавить".uppercase())
+                    Text("Добавить".uppercase(), color = whiteColor, modifier = Modifier.padding(4.dp))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { addState = false }) {
-                    Text("Закрыть".uppercase())
+                    Text("Закрыть".uppercase(), color = grayColor)
                 }
             },
         )

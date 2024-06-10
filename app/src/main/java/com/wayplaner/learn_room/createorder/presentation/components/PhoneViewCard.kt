@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,10 +36,21 @@ import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneViewCard(
     vmCreateOrder: CreateOrderModelView
 ) {
+    var textColorValue = TextFieldDefaults.textFieldColors(
+        focusedTextColor = whiteColor,
+        unfocusedTextColor = grayList,
+        containerColor = Color.Transparent,
+        cursorColor = whiteColor,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedLabelColor = whiteColor,
+        unfocusedLabelColor = grayList,
+    )
 
     Card(
         shape = RoundedCornerShape(10.dp),
@@ -70,13 +82,7 @@ fun PhoneViewCard(
                         contentDescription = null
                     )
                     TextField(
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = whiteColor,
-                            unfocusedTextColor = grayList,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent),
+                        colors = textColorValue,
                         value = vmCreateOrder.phone.value,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         onValueChange = {

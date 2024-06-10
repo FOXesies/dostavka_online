@@ -212,7 +212,9 @@ fun DeliveryPick(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        PayViewCardOrder()
+        PayViewCardOrder(){ payment ->
+            vmCreateOrder.onValidateEvent(OrderFormState.PaymentChange(payment))
+        }
     }
 }
 

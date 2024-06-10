@@ -16,11 +16,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -169,7 +169,7 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
                         TextField(modifier = Modifier.fillMaxWidth(),
                             value = phoneText.value,
                             onValueChange = {
-                                if (it.length < 13) {
+                                if (it.length <= 11 && it.all { char -> char.isDigit() }) {
                                     phoneText.value = it
                                     authModelView.onEvent(EventFormUserState.ChangedPhone(it))
                                 }
@@ -180,7 +180,7 @@ fun RegisterScreen(navController: NavController, authModelView: AuthModelView = 
 
                             leadingIcon = {
                                 Icon(
-                                    imageVector = Icons.Filled.Phone,
+                                    imageVector = Icons.Filled.Add,
                                     contentDescription = null
                                 )
                             },

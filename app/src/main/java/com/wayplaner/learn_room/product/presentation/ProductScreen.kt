@@ -21,6 +21,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.AlertDialog
@@ -62,6 +63,7 @@ import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.presentation.BasketModelView
 import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.backHome
 import com.wayplaner.learn_room.ui.theme.backOrgHome
 import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.redActionColor
@@ -86,8 +88,10 @@ fun ProductScreen(
     }
 
     val product = productModelView.getProduct().observeAsState()
+    val isLike = productModelView.isLike().observeAsState()
 
     if (product.value != null) {
+        val isLikes = isLike.value!!
         val productValue = product.value!!
         Column {
             val state = rememberPagerState(pageCount = { productValue.images?.size?: 1 })
@@ -201,12 +205,12 @@ fun ProductScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .clip(MaterialTheme.shapes.small)
-                        .padding(top = 12.dp, start = 16.dp, bottom = 5.dp, end = 5.dp)
+                        .padding(top = 8.dp, end = 10.dp)
                         .size(45.dp),
-                    containerColor = redActionColor,
-                    onClick = {  }) {
+                    containerColor = if(isLikes) redActionColor else backHome,
+                    onClick = { productModelView.like(idProduct)  }) {
                     Icon(
-                        Icons.Filled.FavoriteBorder,
+                        if(isLikes) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         tint = whiteColor,
                         modifier = Modifier.size(32.dp),
                         contentDescription = "Добавить"

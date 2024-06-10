@@ -76,7 +76,7 @@ fun MenuList(navController: NavController, modelView: MenuModelView = hiltViewMo
 
                         Button(
                             onClick = {
-                                navController.navigate(MainRoute.Admin_MenuProduct.name + "/${null}/${null}")
+                                navController.navigate(MainRoute.Admin_MenuProduct.name + "/${0}/${null}")
                             },
                             Modifier
                                 .fillMaxWidth()

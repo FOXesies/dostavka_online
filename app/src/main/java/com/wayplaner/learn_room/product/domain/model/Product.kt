@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.product.domain.model
 
+import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.home.domain.model.Image
 
 data class Product(
@@ -18,5 +19,6 @@ data class ProductDToUpdate(
     var weight: Float?,
     var image: List<Image>? = null,
     var description: String?,
-    val category: String
+    val category: String,
+    val idOrg: Long = AdminAccount.idOrg!!,
 )

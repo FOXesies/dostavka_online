@@ -15,4 +15,5 @@ class BasicInfoImpl(private val repository: BasicInfoRepository, private val gso
         return Response.success(info)
     }
     suspend fun updateInfo(organization: RequestBody, lists: MutableList<MultipartBody.Part>) = repository.updateInfo(lists, organization)
+    suspend fun addInfo(organization: RequestBody, lists: MutableList<MultipartBody.Part>) = repository.addInfo(lists, organization)
 }

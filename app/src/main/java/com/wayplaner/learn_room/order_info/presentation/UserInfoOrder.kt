@@ -255,6 +255,10 @@ fun DeliverySummary(value: BasicInfoOrderUser, navController: NavController) {
     CustomCard("Сумма", value.summ!!.toString().plus(" руб.")){}
 
     Spacer(modifier = Modifier.height(10.dp))
+
+    CustomCard("Способ оплаты", value.payment?.getName(value.payment!!)!!){}
+
+    Spacer(modifier = Modifier.height(10.dp))
 }
 
 @Composable
@@ -276,7 +280,7 @@ fun CustomAdminListProduct(products: List<ResponseProductOrg>, list: List<Int>, 
                 products.forEachIndexed { index, responseProductOrg ->
                     ProductCard(
                         product = responseProductOrg,
-                        orgId = AdminAccount.idOrg,
+                        orgId = 0,
                         navController = navController
                     )
                     Text(text = "Количетсво: ${list[index]}", fontSize = 16.sp, color = grayList )

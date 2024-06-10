@@ -63,9 +63,9 @@ class AdminOrdersModelView @Inject constructor(
     }
     init {
         viewModelScope.launch {
-            loadOrders(AdminAccount.idOrg)
-            loadCompledOrder(AdminAccount.idOrg)
-            loadCanceledOrder(AdminAccount.idOrg)
+            loadOrders(AdminAccount.idOrg!!)
+            loadCompledOrder(AdminAccount.idOrg!!)
+            loadCanceledOrder(AdminAccount.idOrg!!)
             delay(3500)
         }
     }

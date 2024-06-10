@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wayplaner.learn_room.auth.domain.model.DTO.SingInRequest
 import com.wayplaner.learn_room.auth.domain.model.DTO.SingUpRequest
+import com.wayplaner.learn_room.auth.domain.model.DTO.UserResponse
 import kotlinx.coroutines.flow.first
 
 
@@ -37,6 +38,13 @@ suspend fun Context.getUser(): SingInRequest? {
         user[DataStoreKeys.PHONE]!!,
         user[DataStoreKeys.PASSWORD]!!)
 }
+
+suspend fun UserResponse.deleteUser() {
+    context_!!.user.edit {
+        it.clear()
+    }
+}
+
 
 private object DataStoreKeys {
     val PHONE = stringPreferencesKey("phone")

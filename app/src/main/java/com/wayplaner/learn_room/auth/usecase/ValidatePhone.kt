@@ -9,9 +9,8 @@ class ValidatePhone @Inject constructor(){
     fun execute(phone: String): ValidationResult {
         val message = when {
             phone.isEmpty() -> "Пустое поле"
-            !phone.replaceFirst("+", "").matches(Regex("[0-9]+")) -> "Должны быть только числа!"
-            (phone[0] != '+' && !phone.replaceFirst("+", "").matches(Regex("[0-9]"))) -> "Начните строчку с +7.."
-            phone.length - 1 != 11 -> "Должно быть 11 символов"
+            !phone.matches(Regex("[0-9]+")) -> "Должны быть только числа!"
+            phone.length != 11 -> "Должно быть 11 символов"
             else -> null
         }
         return ValidationResult(message == null, message)

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.auth.domain.model.DTO.SingInRequest
 import com.wayplaner.learn_room.auth.domain.model.DTO.SingUpRequest
 import com.wayplaner.learn_room.auth.domain.repository.AuthCustomerRepository
@@ -66,6 +67,7 @@ class AuthModelView @Inject constructor(
             val response = authCustomerRepository.sing_in(valueSend)
             val responseBody = response.body()!!
             if(responseBody.userResponse != null) {
+                AdminAccount.idOrg = authCustomerRepository.getOrgByUser(responseBody.userResponse!!.profileUUID).body()
                 CustomerAccount.info = responseBody.userResponse
                 valueSend.save()
                 success_.postValue(true)
@@ -86,6 +88,7 @@ class AuthModelView @Inject constructor(
             val response = authCustomerRepository.sing_up(valueSend)
             val responseBody = response.body()!!
             if(responseBody.userResponse != null) {
+                AdminAccount.idOrg = authCustomerRepository.getOrgByUser(responseBody.userResponse!!.profileUUID).body()
                 CustomerAccount.info = responseBody.userResponse
                 valueSend.save()
                 success_.postValue(true)

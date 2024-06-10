@@ -10,6 +10,15 @@ data class BasicInfoResponse(
     val locationAll: Map<String, MutableList<CityOrganization>> = mutableMapOf(),
     var idImages: MutableList<ImageDTO>? = null
 )
+data class BasicInfoResponseADD(
+    val idOrg: Long,
+    val name: String,
+    val phone: String,
+    val description: String? = null,
+    val locationAll: Map<String, MutableList<CityOrganization>> = mutableMapOf(),
+    var idImages: MutableList<ImageDTO>? = null,
+    var idUser: Long? = null
+)
 
 data class ImageDTO(
     val id: Long? = null,

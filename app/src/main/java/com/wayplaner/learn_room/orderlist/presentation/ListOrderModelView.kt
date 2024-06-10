@@ -23,7 +23,7 @@ class ListOrderModelView @Inject constructor(
 
     init {
         viewModelScope.launch {
-            while (true) {
+            while (CustomerAccount.info != null) {
                 loadOrders(CustomerAccount.info!!.profileUUID)
                 loadCompledOrder(CustomerAccount.info!!.profileUUID)
                 loadCanceledOrder(CustomerAccount.info!!.profileUUID)
@@ -93,5 +93,17 @@ class ListOrderModelView @Inject constructor(
         }
     }
 
+    fun createFeedback(idOrder: Long, rating: Int, comment: String?) {
+        viewModelScope.launch {
+            listOrderImpl.createFeedback(FeedbackCreate(idOrder, rating, comment))
+        }
+    }
+
 
 }
+
+data class FeedbackCreate(
+    val idOrder: Long,
+    val rating: Int,
+    val comment: String?
+)

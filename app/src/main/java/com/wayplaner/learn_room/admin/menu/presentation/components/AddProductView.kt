@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.admin.menu.presentation.components
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -69,7 +70,7 @@ fun AddProductView(
     name: String,
     description: String,
     weihth: Float?,
-    price: Double,
+    price: Double?,
     image: List<Image>?,
     navController: NavController
 ) {
@@ -84,15 +85,20 @@ fun AddProductView(
 
     var nameValue by remember { mutableStateOf(name) }
     var descriptionValue by remember { mutableStateOf(description) }
-    var weigth by remember { mutableStateOf(weihth) }
-    var price by remember { mutableStateOf(price.toString()) }
+    var weigth by remember { mutableStateOf(weihth?.toString()?: "") }
+    var price by remember { mutableStateOf(price?.toString()?: "") }
 
-    if(modelView.back.observeAsState().value!!){
+    val context = LocalContext.current
+
+    if(modelView.back.observeAsState().value != null){
         navController.navigateUp()
     }
 
+    if(modelView.errorMessage.observeAsState().value != null){
+        Toast.makeText(context, modelView.errorMessage.value, Toast.LENGTH_LONG).show()
+    }
+
     val selectImages = remember { mutableStateListOf<Image>() }
-    val context = LocalContext.current
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -227,7 +233,7 @@ fun AddProductView(
                 shape = RoundedCornerShape(40)
             ) {
                 Text(
-                    text = if (selectImages != null) "Изменить фото блюда" else "Добавить фото блюда",
+                    text = "Добавить фото блюда",
                     fontSize = 15.sp,
                     color = grayList
                 )
@@ -305,9 +311,15 @@ fun AddProductView(
                 colors = CardDefaults.cardColors(orderCreateBackField),
                 shape = RoundedCornerShape(14.dp)) {
                 TextField(
-                    value = weigth?.toString() ?: "",
+                    value = weigth,
                     onValueChange = {
-                        weigth = it.toFloat()
+                        try {
+                            it.toFloat()
+                            weigth = it
+                        } catch (nfe: NumberFormatException) {
+                            if(it.length == 0)
+                                weigth = it
+                        }
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier
@@ -335,9 +347,15 @@ fun AddProductView(
                 TextField(
                     value = price,
                     onValueChange = {
-                        price = it
+                        try {
+                            it.toDouble()
+                            price = it
+                        } catch (nfe: NumberFormatException) {
+                            if(it.length == 0)
+                                price = it
+                        }
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(20)),
@@ -354,8 +372,8 @@ fun AddProductView(
                         id,
                         nameValue,
                         descriptionValue,
-                        price.toDouble(),
-                        weigth?: 0.0f,
+                        if(price.isEmpty()) null else price.toDouble(),
+                        if(weigth.isEmpty()) null else weigth.toFloat(),
                         selectImages,
                         context
                     ) )

@@ -41,12 +41,12 @@ import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.starColor
+import com.wayplaner.learn_room.ui.theme.summRedColor
 import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardCompleteOrderAdmin(
-    nameOrg: String?,
     orderId: Long,
     timeFrom: String?,
     summ: Double?,
@@ -57,14 +57,44 @@ fun CardCompleteOrderAdmin(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(backOrgHome)) {
         Column(modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)) {
-            cardForStatusDelivery(isDelivery)
+            Row {
+                cardForStatusDelivery(isDelivery)
+
+                if (feedback != null) {
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Text(
+                        text = "Оценка: ",
+                        fontSize = 14.sp, modifier = Modifier
+                            .padding(vertical = 0.dp),
+                        textAlign = TextAlign.Center, color = summRedColor
+                    )
+
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        tint = summRedColor,
+                        modifier = Modifier
+                            .size(22.dp)
+                    )
+                    Text(
+                        text = feedback.toString(),
+                        fontSize = 14.sp, modifier = Modifier
+                            .padding(vertical = 0.dp),
+                        textAlign = TextAlign.Center, color = summRedColor
+                    )
+                }
+            }
             Card(
                 colors = CardDefaults.cardColors(errorStatusBack)
             ) {
-                Text(text = "Заказ доставлен",
-                    color = errorStatus,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+
+                    Text(
+                        text = "Заказ доставлен",
+                        color = errorStatus,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
             }
 
             Row(
@@ -98,29 +128,6 @@ fun CardCompleteOrderAdmin(
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
-
-                if(feedback != null) {
-
-                    Card(shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier,
-                        colors = CardDefaults.cardColors(orderCreateCard),
-                        onClick = {  }) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = starColor,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .padding(2.dp)
-                        )
-                        Text(text = feedback.toString(), modifier = Modifier
-                            .fillMaxWidth()
-                            .height(42.dp)
-                            .padding(vertical = 4.dp),
-                            textAlign = TextAlign.Center, color = whiteColor
-                        )
-                    }
-                }
             }
 
         }

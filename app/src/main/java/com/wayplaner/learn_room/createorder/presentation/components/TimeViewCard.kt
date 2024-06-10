@@ -53,6 +53,16 @@ import java.time.temporal.ChronoUnit
 fun TimeViewCard(
     vmCreateOrder: CreateOrderModelView
 ) {
+    var textColorValue = TextFieldDefaults.textFieldColors(
+        focusedTextColor = whiteColor,
+        unfocusedTextColor = grayList,
+        containerColor = Color.Transparent,
+        cursorColor = whiteColor,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedLabelColor = whiteColor,
+        unfocusedLabelColor = grayList,
+    )
 
     Card(
         shape = RoundedCornerShape(10.dp),
@@ -123,13 +133,7 @@ fun TimeViewCard(
                                         tint = grayList
                                     )
                                 },
-                                colors = TextFieldDefaults.colors(
-                                    focusedTextColor = whiteColor,
-                                    unfocusedTextColor = grayList,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent),
+                                colors =textColorValue,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                 placeholder = {
                                     Text(text = "Выберите город", fontSize = 16.sp, color = grayList)

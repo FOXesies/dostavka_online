@@ -4,6 +4,7 @@ import com.wayplaner.learn_room.createorder.domain.model.Address
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder
 import com.wayplaner.learn_room.organization.domain.model.LocationOrganization
 import com.wayplaner.learn_room.organization.domain.model.ResponseProductOrg
+import org.example.order.model.StatusPayment
 
 data class BasicInfoOrderUser(
     val orderId: Long = 0,
@@ -27,6 +28,8 @@ data class BasicInfoOrderUser(
     var feedBacksRating: Int? = null,
     var feedBacksComment: String? = null,
     var timeComment: String? = null,
+
+    var payment: StatusPayment? = null,
 
     var summ: Double? = null,
     var comment: String? = null

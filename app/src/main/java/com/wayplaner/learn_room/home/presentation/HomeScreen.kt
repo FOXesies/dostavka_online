@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,7 +24,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -35,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +56,8 @@ import com.wayplaner.learn_room.ui.theme.backHeader
 import com.wayplaner.learn_room.ui.theme.backHome
 import com.wayplaner.learn_room.ui.theme.blackGrayColor
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
+import com.wayplaner.learn_room.ui.theme.redActionColor
+import com.wayplaner.learn_room.ui.theme.whiteColor
 
 
 @Composable
@@ -58,18 +65,20 @@ fun HomeScreen(drawerState: DrawerState?,
     navController: NavController,
     homeViewModel: MainModelView = hiltViewModel()){
 
-
     val organizations = homeViewModel.getCountry().observeAsState()
     if (organizations.value != null && organizations.value!!.isNotEmpty()) {
         val city = homeViewModel.selectedText.observeAsState()
-        Scaffold(
+        Scaffold(modifier = Modifier.background(backHome),
             containerColor = backHeader,
-            topBar = { TopBarHome(drawerState, homeViewModel) })
+            topBar = { TopBarHome(drawerState, homeViewModel, navController) })
         { innerPadding ->
 
             val lazyListState = rememberLazyListState()
             val filer_id = homeViewModel.filter_id.observeAsState()
-            Box(Modifier.background(backHome).fillMaxSize()) {
+            Box(
+                Modifier
+                    .background(backHome)
+                    .fillMaxSize()) {
                 Column(
                     modifier = Modifier
                         .padding(innerPadding)
@@ -118,10 +127,34 @@ fun HomeScreen(drawerState: DrawerState?,
 
                     }
                 }
+
+                FloatingActionButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .clip(MaterialTheme.shapes.small)
+                        .padding(bottom = 8.dp, end = 10.dp)
+                        .size(48.dp),
+                    containerColor = redActionColor,
+                    onClick = { navController.navigate(MainRoute.Loveli.name) }) {
+                    Icon(
+                        Icons.Filled.FavoriteBorder,
+                        tint = whiteColor,
+                        modifier = Modifier.size(32.dp),
+                        contentDescription = "Добавить"
+                    )
+                }
             }
         }
         } else {
-            CircularProgressIndicator()
+        Box(
+            Modifier
+                .background(backHome)
+                .fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(
+                trackColor = whiteColor,
+                color = backHome
+            )
+        }
     }
 }
 

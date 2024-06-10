@@ -2,6 +2,7 @@ package com.wayplaner.learn_room.home.data.repository
 
 import com.google.gson.Gson
 import com.wayplaner.learn_room.home.domain.model.OrganizationDTO
+import com.wayplaner.learn_room.home.domain.model.UpdateCityDTO
 import com.wayplaner.learn_room.home.domain.repository.HomeApi
 import com.wayplaner.learn_room.organization.domain.model.FiltercategoryOrg
 import retrofit2.Response
@@ -18,6 +19,8 @@ class HomeApiRepositoryImpl(
         val organizations = gson.fromJson(responseBody, Array<OrganizationDTO>::class.java).toList()
         return Response.success(organizations)
     }
+
+    suspend fun updateCity(city: UpdateCityDTO) = mainService.updateCity(city)
 
     // получение всех ресторанов
     suspend fun getOrganizations(filterCategory: FiltercategoryOrg): Response<List<Long>> {

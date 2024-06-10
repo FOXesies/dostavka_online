@@ -4,6 +4,7 @@ import com.wayplaner.learn_room.orderlist.domain.model.CancelOrderPreview
 import com.wayplaner.learn_room.orderlist.domain.model.CompleteOrderPreview
 import com.wayplaner.learn_room.orderlist.domain.model.OrderPreviewDTO
 import com.wayplaner.learn_room.orderlist.domain.model.ResponseCancel
+import com.wayplaner.learn_room.orderlist.presentation.FeedbackCreate
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -21,5 +22,8 @@ interface ListOrderApi {
     suspend fun getAllCompleteOrder(@Path("id") idUser: Long): Response<List<CompleteOrderPreview>>
     @POST("order/cancel/")
     suspend fun cancelOrder(@Body responseCancel: ResponseCancel)
+
+    @POST("order/createfeedback")
+    suspend fun createfeedback(@Body responseFeedbackCreate: FeedbackCreate)
 
 }

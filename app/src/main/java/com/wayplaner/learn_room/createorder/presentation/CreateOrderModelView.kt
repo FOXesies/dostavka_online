@@ -85,6 +85,9 @@ class CreateOrderModelView
             is OrderFormState.AddressChanged -> {
                 order_.value.addressUser = eventOrder.address
             }
+            is OrderFormState.PaymentChange -> {
+                order_.value.payment = eventOrder.payment
+            }
             is OrderFormState.PhoneChanged -> {
                 val checked = validatephone.execute(eventOrder.phone)
                 hasErrors[0] = checked.success

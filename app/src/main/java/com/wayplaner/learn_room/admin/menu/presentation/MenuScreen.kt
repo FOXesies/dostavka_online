@@ -43,7 +43,7 @@ import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
 fun MenuAddScreen(
-    idProduct: Long?,
+    idProduct: Long,
     category: String?,
     navController: NavController,
     modelView: MenuModelView = hiltViewModel()
@@ -55,7 +55,7 @@ fun MenuAddScreen(
             LaunchedEffect(Unit) {
                 modelView.onEvent(UiEventMenuAdd.GetCategories)
             }
-        if(idProduct == null) {
+        if(idProduct == 0L) {
             val result = modelView.responseProduct.observeAsState()
             MenuExist(modelView, result.value, "category", navController)
 
@@ -148,7 +148,7 @@ private fun MenuExist(modelView: MenuModelView, result: Product?, category: Stri
                "",
                 "",
                 null,
-                0.0,
+                null,
                 null,
                 navController)
         }

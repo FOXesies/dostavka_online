@@ -2,6 +2,7 @@ package com.wayplaner.learn_room.splash.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.auth.domain.model.DTO.SingInRequest
 import com.wayplaner.learn_room.auth.domain.repository.AuthCustomerRepository
 import com.wayplaner.learn_room.utils.CustomerAccount
@@ -24,6 +25,7 @@ class SplashViewModel @Inject constructor(
             val response = authCustomerRepository.sing_in(singInValu)
             val responseBody = response.body()!!
             if (responseBody.userResponse != null) {
+                AdminAccount.idOrg = authCustomerRepository.getOrgByUser(responseBody.userResponse!!.profileUUID).body()
                 CustomerAccount.info = responseBody.userResponse
                 mutableStateFlow.value = (true)
             }

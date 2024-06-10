@@ -21,7 +21,7 @@ fun CompleteOrdersAdmin(vmListorder: AdminOrdersModelView, navController: NavCon
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(orders.value!!) { order ->
-                CardCompleteOrderAdmin(order.orderPreview!!.organizationName!!, order.orderPreview!!.idOrder!!, order.orderPreview!!.fromTimeCooking!!, order.orderPreview!!.summ,  order.orderPreview!!.isSelf, order.rating) {
+                CardCompleteOrderAdmin(order.orderPreview!!.idOrder!!, order.orderPreview!!.fromTimeCooking!!, order.orderPreview!!.summ,  order.orderPreview!!.isSelf, order.rating) {
                     navController.navigate(MainRoute.Admin_OrderInfo.name + "/${order.orderPreview!!.idOrder!!}") }
             }
         }

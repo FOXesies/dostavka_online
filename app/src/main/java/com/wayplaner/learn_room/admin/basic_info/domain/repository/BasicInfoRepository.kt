@@ -21,6 +21,12 @@ interface BasicInfoRepository {
         @Part image: List<MultipartBody.Part>,
         @Part("organization") organization: RequestBody
     ): Call<ResponseBody>
+    @Multipart
+    @POST("admin/organizations/add_info/")
+    fun addInfo(
+        @Part image: List<MultipartBody.Part>,
+        @Part("organization") organization: RequestBody
+    ): Call<ResponseBody>
 
     @GET("organizations/get_info/{id}")
     suspend fun getInfo(@Path("id") idOrg: Long): Response<ResponseBody>

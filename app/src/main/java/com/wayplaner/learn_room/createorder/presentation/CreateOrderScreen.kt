@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.basket.util.Basketproduct
 import com.wayplaner.learn_room.createorder.presentation.components.DeliveryPick
@@ -81,7 +82,16 @@ fun CreateOrderScreen(
         vmCreateOrder.event.collect{event ->
             when(event){
                 is OrderRegisterEvent.Failed -> Toast.makeText(context, event.error, Toast.LENGTH_SHORT).show()
-                is OrderRegisterEvent.Success -> Toast.makeText(context, "Заказ оформлен", Toast.LENGTH_SHORT).show()
+                is OrderRegisterEvent.Success -> {
+                    Toast.makeText(context, "Заказ оформлен", Toast.LENGTH_SHORT).show()
+
+                    navController.navigate(MainRoute.Home.name) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
                 else -> {}
             }
 
@@ -110,7 +120,7 @@ fun CreateOrderScreen(
                     colors = CardDefaults.cardColors(orderCreateCard),
                     modifier = Modifier
                         .wrapContentHeight()
-                        .padding(10.dp),
+                        .padding(vertical = 10.dp, horizontal = 15.dp),
                     shape = RoundedCornerShape(20.dp)
                 )
                 {
@@ -179,7 +189,7 @@ fun CreateOrderScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 96.dp)
+                            .padding(start = 15.dp, end = 15.dp, top = 4.dp, bottom = 96.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(backOrgHome)
                     ) {
@@ -194,6 +204,7 @@ fun CreateOrderScreen(
             }
 
             BottomPayCard(vmCreateOrder, pagerState.currentPage == 1)
+
         }
     }
 }

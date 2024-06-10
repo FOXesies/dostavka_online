@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.admin.home.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,13 +19,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.MainRoute
+import com.wayplaner.learn_room.admin.util.AdminAccount
+import com.wayplaner.learn_room.ui.theme.backOrgHome
 import com.wayplaner.learn_room.ui.theme.redLogoColor
 
 @Composable
 fun HomeScreen(
     navController: NavController
 ) {
-    Column(modifier = Modifier.fillMaxSize(),
+    if(AdminAccount.idOrg == null)
+        navController.navigate("${MainRoute.Admin_BasicInfo.name}")
+
+
+    Column(modifier = Modifier.fillMaxSize().background(backOrgHome),
         verticalArrangement = Arrangement.Center,){
         Column(
             modifier = Modifier
@@ -67,7 +74,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = { /*TODO*/ },
+            Button(onClick = { navController.navigate("${MainRoute.FeedBacks.name}/${AdminAccount.idOrg}") },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .width(280.dp),
@@ -78,16 +85,6 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            Button(onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(280.dp),
-                colors = ButtonDefaults.buttonColors(redLogoColor),
-                shape = RoundedCornerShape(40)
-            ) {
-                Text(text = "Настройки", fontSize = 16.sp)
-            }
         }
     }
 }

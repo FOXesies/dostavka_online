@@ -21,9 +21,11 @@ fun CompleteOrders(vmListorder: ListOrderModelView, navController: NavController
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(orders.value!!) { order ->
-                CardCompleteOrder(order.orderPreview!!.organizationName!!, order.orderPreview!!.idOrder!!, order.orderPreview!!.fromTimeCooking!!, order.orderPreview!!.summ,  order.orderPreview!!.isSelf, order.rating) {
-                    navController.navigate(MainRoute.OrdersInfo.name + "/${order.orderPreview!!.idOrder!!}")
-                }
+                CardCompleteOrder(order.orderPreview!!.organizationName!!, order.orderPreview!!.idOrder!!, order.orderPreview!!.fromTimeCooking!!, order.orderPreview!!.summ,
+                    order.orderPreview!!.isSelf, order.rating, logicOpen = {navController.navigate(MainRoute.OrdersInfo.name + "/${order.orderPreview!!.idOrder!!}")},
+                    logicCreateFeedback = { rating, comment ->
+                        vmListorder.createFeedback(order.orderPreview.idOrder!!, rating, comment)
+                    })
             }
         }
     }

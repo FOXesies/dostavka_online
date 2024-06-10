@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.wayplaner.learn_room.admin.basic_info.data.repository.BasicInfoImpl
 import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponse
+import com.wayplaner.learn_room.admin.basic_info.domain.model.BasicInfoResponseADD
 import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
 import com.wayplaner.learn_room.admin.basic_info.util.StatusBasicInfo
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
@@ -17,6 +18,7 @@ import com.wayplaner.learn_room.auth.usecase.ValidateCity
 import com.wayplaner.learn_room.auth.usecase.ValidateName
 import com.wayplaner.learn_room.auth.usecase.ValidatePhone
 import com.wayplaner.learn_room.organization.model.CityOrganization
+import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -53,7 +55,7 @@ class BasicInfoModelView @Inject constructor(
     val cities: LiveData<Map<String, MutableList<CityOrganization>>> = cities_
 
     init {
-        getInfoBasic(AdminAccount.idOrg)
+        AdminAccount.idOrg?.let { getInfoBasic(it) }
     }
 
     fun onEvent(event: UiEventBasicInfoA){
@@ -63,6 +65,7 @@ class BasicInfoModelView @Inject constructor(
             is UiEventBasicInfoA.AddAddresss -> addAddress(event.city, event.address)
             is UiEventBasicInfoA.RemoveAddresss -> removeCity(event.city, event.address)
             is UiEventBasicInfoA.UpdateOrg -> updateBasicInfo(event.name, event.phone, event.description, event.images, event.context)
+            is UiEventBasicInfoA.AddOrg -> addINfo(event.name, event.phone, event.description, event.images, event.context)
         }
     }
 
@@ -76,7 +79,10 @@ class BasicInfoModelView @Inject constructor(
 
     private fun addCity(city_: String){
         val city = city_.lowercase().capitalize(Locale.ROOT)
-        if(infoOrg_.value!!.locationAll?.keys?.contains(city) != true){
+        if(infoOrg_.value == null){
+            cities_.postValue(mutableMapOf(city to mutableListOf()))
+        }
+        else if(infoOrg_.value!!.locationAll?.keys?.contains(city) != true){
             val info = infoOrg_.value!!.locationAll!!.toMutableMap()
             info[city] = mutableListOf()
             cities_.postValue(info)
@@ -84,9 +90,14 @@ class BasicInfoModelView @Inject constructor(
     }
 
     private fun addAddress(city: String, address: CityOrganization?) {
-        val info = infoOrg_.value!!.locationAll.toMutableMap()
-        info[city]!!.add(address!!)
-        cities_.postValue(info)
+        if(infoOrg_.value != null) {
+            val info = infoOrg_.value!!.locationAll.toMutableMap()
+            info[city]!!.add(address!!)
+            cities_.postValue(info)
+        }
+        else{
+            cities_.postValue(mutableMapOf(city to mutableListOf(address!!)))
+        }
     }
 
     private fun getInfoBasic(idOrg: Long){
@@ -97,7 +108,7 @@ class BasicInfoModelView @Inject constructor(
             }
             //imageByteArray.value = repositoryBasicInfo.getImage(infoOrg_.value!!.idImage)
         }.invokeOnCompletion {
-            if(it != null) {
+            if (it != null) {
                 cities_.postValue(infoOrg_.value!!.locationAll)
             }
         }
@@ -130,7 +141,7 @@ class BasicInfoModelView @Inject constructor(
             }
 
             val org = BasicInfoResponse(
-                idOrg = AdminAccount.idOrg,
+                idOrg = AdminAccount.idOrg!!,
                 name = name,
                 phone = phone,
                 idImages = images.toMutableList(),
@@ -152,5 +163,63 @@ class BasicInfoModelView @Inject constructor(
                 }
             })
         }
+    }
+
+    private fun addINfo(name: String, phone: String, description: String, images: List<ImageDTO>, context: Context){
+        val nameValid = validateName.executeOrg(name)
+        val phoneValid = validatePhone.execute(phone)
+
+        if(!nameValid.successful){
+            errorMessage.postValue(nameValid.errormessage)
+            return
+        }
+
+        if(!phoneValid.successful){
+            errorMessage.postValue(phoneValid.errormessage)
+            return
+        }
+
+        viewModelScope.launch {
+            val lists = mutableListOf<MultipartBody.Part>()
+            images.forEach {
+                val file = File.createTempFile("tempImage", null, context.cacheDir)
+                file.writeBytes(it.byteArray!!.clone())
+
+                val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                lists.add(body)
+                it.byteArray = null
+            }
+
+            val org = BasicInfoResponseADD(
+                idOrg = AdminAccount.idOrg!!,
+                name = name,
+                phone = phone,
+                idImages = images.toMutableList(),
+                description = description,
+                locationAll = cities.value ?: emptyMap(),
+                idUser = CustomerAccount.info!!.profileUUID
+            )
+
+            val prosuctDTODataJson = Gson().toJson(org)
+            val prosuctDTORequestBody = prosuctDTODataJson.toRequestBody("application/json".toMediaTypeOrNull())
+
+            val call: Call<ResponseBody> = repositoryBasicInfo.addInfo(prosuctDTORequestBody, lists)
+            call.enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    Toast.makeText(context, "Сохранено", Toast.LENGTH_LONG).show()
+                    back.postValue(true)
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    // Обработка ошибки
+                }
+            })
+        }
+    }
+
+    fun addAllCity(locationAll: Map<String, MutableList<CityOrganization>>) {
+        cities_.postValue(locationAll)
+
     }
 }

@@ -1,11 +1,12 @@
 package com.wayplaner.learn_room.admin.menu.domain.repository
 
-import com.wayplaner.learn_room.product.domain.model.Product
+import com.wayplaner.learn_room.product.domain.model.ProductDToUpdate
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -23,14 +24,8 @@ interface MenuProductRepository {
     @GET("products/{id}")
     suspend fun getInfo(@Path("id") idOrg: Long): Response<ResponseBody>
 
-
-    @Multipart
-    @POST("admin/products/update/")
-    suspend fun updateProduct(
-        @Part image: List<MultipartBody.Part>,
-        @Part("product") product: Product,
-        @Part("category") category: String
-    ): Call<Void>
+    @POST("admin/products/upload_info")
+    suspend fun uploadInfo(@Body order: ProductDToUpdate)
 
     @Multipart
     @POST("admin/products/upload_foto/")

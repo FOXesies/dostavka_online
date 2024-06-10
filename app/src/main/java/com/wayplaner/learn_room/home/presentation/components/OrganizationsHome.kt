@@ -36,6 +36,7 @@ import com.gowtham.ratingbar.RatingBar
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.home.domain.model.OrganizationDTO
 import com.wayplaner.learn_room.ui.theme.backOrgHome
+import com.wayplaner.learn_room.ui.theme.grayList
 import com.wayplaner.learn_room.ui.theme.lightGrayColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +86,7 @@ fun Organization(
                         Text(
                             text = organization.name,
                             fontSize = 18.sp,
+                            modifier = Modifier.padding(bottom = 10.dp),
                             color = lightGrayColor,
                             style = MaterialTheme.typography.titleMedium
                         )
@@ -114,7 +116,8 @@ fun Organization(
                                 text = organization.ratingCount.toString() + " " + parseCountToString(
                                     organization.ratingCount!!
                                 ),
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
+                                color = grayList,
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }

@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,7 +34,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.wayplaner.learn_room.R
+import com.wayplaner.learn_room.orderlist.presentation.components.getLocalDateTime
 import com.wayplaner.learn_room.ui.theme.backHome
 import com.wayplaner.learn_room.ui.theme.backOrgHome
 import com.wayplaner.learn_room.ui.theme.grayList
@@ -42,6 +47,7 @@ import com.wayplaner.learn_room.ui.theme.whiteColor
 
 @Composable
 fun ReviewItem(userName: String, reviewText: String, rating: Int, date: String) {
+
     Card(modifier = Modifier
         .padding(horizontal = 16.dp, vertical = 14.dp),
         shape = RoundedCornerShape(20.dp),
@@ -52,7 +58,9 @@ fun ReviewItem(userName: String, reviewText: String, rating: Int, date: String) 
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Row(modifier = Modifier.padding(bottom = 6.dp).fillMaxWidth()) {
+                Row(modifier = Modifier
+                    .padding(bottom = 6.dp)
+                    .fillMaxWidth()) {
                     Text(
                         text = userName,
                         color = Color.White,
@@ -94,12 +102,19 @@ fun ReviewItem(userName: String, reviewText: String, rating: Int, date: String) 
 }
 
 @Composable
-fun ReviewsScreen(reviews: List<Review>) {
+fun ReviewsScreen(idOrg: Long, navController: NavController, feedbacksModelView: FeedbacksModelView = hiltViewModel()) {
+
+    LaunchedEffect(Unit){
+        feedbacksModelView.getFeedbacks(idOrg)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(backOrgHome)
     ) {
+        val value = feedbacksModelView.feedbacks.observeAsState()
+
         Column(Modifier.verticalScroll(rememberScrollState())) {
 
             Text(
@@ -129,13 +144,27 @@ fun ReviewsScreen(reviews: List<Review>) {
                 textAlign = TextAlign.Center
             )
 
-            reviews.forEach { review ->
-                ReviewItem(
-                    userName = review.userName,
-                    reviewText = review.reviewText,
-                    rating = review.rating,
-                    date = review.date
+            if(value.value == null || value.value!!.isEmpty()){
+                Text(
+                    text = "Отзывов нет",
+                    color = whiteColor,
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(top = 6.dp, bottom = 8.dp)
+                        .padding(horizontal = 16.dp)
+                        .fillMaxSize(),
+                    textAlign = TextAlign.Center
                 )
+            }
+            else {
+                value.value!!.forEach { review ->
+                    ReviewItem(
+                        userName = review.userName,
+                        reviewText = review.comment?: "",
+                        rating = review.rating,
+                        date = getLocalDateTime(review.dateCreate!!)
+                    )
+                }
             }
         }
 
@@ -146,7 +175,7 @@ fun ReviewsScreen(reviews: List<Review>) {
                 .padding(top = 12.dp, start = 16.dp, bottom = 5.dp, end = 5.dp)
                 .size(45.dp),
             containerColor = summRedColor,
-            onClick = { /*navController.navigateUp()*/ }) {
+            onClick = { navController.navigateUp() }) {
             Icon(
                 Icons.Filled.KeyboardArrowLeft,
                 tint = whiteColor,
@@ -167,10 +196,10 @@ data class Review(
 @Preview(showBackground = true)
 @Composable
 fun ReviewsScreenPreview() {
-    val reviews = listOf(
+/*    val reviews = listOf(
         Review("Никита", "Отличное место!", 5, "29 мая 15:12"),
         Review("Владислав", "Все понравилось", 4, "29 мая 15:14"),
         Review("Никита", "Средне", 3, "1 июня 10:52")
     )
-    ReviewsScreen(reviews)
+    ReviewsScreen(reviews)*/
 }

@@ -20,6 +20,7 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +38,8 @@ import com.wayplaner.learn_room.navigation.DrawerMenu
 import com.wayplaner.learn_room.navigation.Navigation
 import com.wayplaner.learn_room.ui.theme.Learn_roomTheme
 import com.wayplaner.learn_room.ui.theme.backHeader
+import com.wayplaner.learn_room.ui.theme.orderCreateCard
+import com.wayplaner.learn_room.ui.theme.whiteColor
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -78,6 +81,9 @@ enum class MainRoute(value: String) {
     CreateOrder("createorder"),
     Orders("orders"),
     OrdersInfo("orders_info"),
+    FeedBacks("feed_backs"),
+    Loveli("loveli"),
+    EditProfileScreen("settings"),
 
     Settings("settings"),
 
@@ -114,8 +120,10 @@ fun DrawerContent(
         Spacer(modifier = Modifier.height(12.dp))
         menus.forEach {
             NavigationDrawerItem(
-                label = { Text(text = it.title) },
-                icon = { Icon(imageVector = it.icon, contentDescription = null) },
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 8.dp),
+                colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = backHeader, selectedContainerColor = orderCreateCard),
+                label = { Text(text = it.title, color = whiteColor) },
+                icon = { Icon(imageVector = it.icon, contentDescription = null, tint = whiteColor) },
                 selected = false,
                 onClick = {
                     onMenuClick(it.route)

@@ -28,6 +28,10 @@ import com.wayplaner.learn_room.di.deserializer.OrderDEserialezer
 import com.wayplaner.learn_room.di.deserializer.OrganizationIdDTODeserializer
 import com.wayplaner.learn_room.di.deserializer.ProductDeserializer
 import com.wayplaner.learn_room.di.deserializer.ProductResponseDeserializer
+import com.wayplaner.learn_room.favotitea.data.reposirory.FavoriteApiImpl
+import com.wayplaner.learn_room.favotitea.domain.repository.FavoriteApi
+import com.wayplaner.learn_room.feedbasks.data.repository.FeedbacksApiImpl
+import com.wayplaner.learn_room.feedbasks.domain.repository.FeedbackApi
 import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
 import com.wayplaner.learn_room.home.domain.model.Image
 import com.wayplaner.learn_room.home.domain.repository.HomeApi
@@ -41,6 +45,8 @@ import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import com.wayplaner.learn_room.product.data.repository.ProductRepositoryImpl
 import com.wayplaner.learn_room.product.domain.model.Product
 import com.wayplaner.learn_room.product.domain.repository.ProductRepository
+import com.wayplaner.learn_room.settings.data.repository.SettingsUserApiIMpl
+import com.wayplaner.learn_room.settings.domain.repository.SettingsUserApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -116,6 +122,15 @@ class AppModule {
 
     @Singleton
     @Provides
+    fun likeRepository(mainService: FavoriteApi) = FavoriteApiImpl(mainService, gsonOrd, gsonProductsAdmin)
+
+
+    @Singleton
+    @Provides
+    fun providelikeApiService(retrofit: Retrofit): FavoriteApi = retrofit.create(FavoriteApi::class.java)
+
+    @Singleton
+    @Provides
     fun homeRepository(mainService: HomeApi) = HomeApiRepositoryImpl(mainService, gsonOrd)
 
     @Singleton
@@ -138,6 +153,22 @@ class AppModule {
     @Singleton
     @Provides
     fun provideOrderList(listOrderApi: ListOrderApi) = ListOrderImpl(listOrderApi)
+
+    @Provides
+    @Singleton
+    fun provideSettingApiService(retrofit: Retrofit) = retrofit.create(SettingsUserApi::class.java)
+
+    @Singleton
+    @Provides
+    fun provideSetting(listOrderApi: SettingsUserApi) = SettingsUserApiIMpl(listOrderApi)
+
+    @Provides
+    @Singleton
+    fun provideFeedApiService(retrofit: Retrofit) = retrofit.create(FeedbackApi::class.java)
+
+    @Singleton
+    @Provides
+    fun provideFeed(feedbackApi: FeedbackApi) = FeedbacksApiImpl(feedbackApi)
 
     @Singleton
     @Provides

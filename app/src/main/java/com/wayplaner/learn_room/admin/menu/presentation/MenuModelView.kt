@@ -65,6 +65,7 @@ class MenuModelView @Inject constructor(
         when (event) {
             is UiEventMenuAdd.AddCategoryInList -> {
                 addCategory(event.category)
+                category = ""
             }
             is UiEventMenuAdd.ListProducts -> {
                 getAllProducts()
@@ -100,7 +101,7 @@ class MenuModelView @Inject constructor(
 
     private fun getCategories() {
         viewModelScope.launch {
-            categories_.postValue(repository.getCategories(AdminAccount.idOrg).body())
+            categories_.postValue(repository.getCategories(AdminAccount.idOrg!!).body())
         }
     }
 
@@ -124,48 +125,77 @@ class MenuModelView @Inject constructor(
             return
         }
 
-        viewModelScope.launch {
-            val lists = mutableListOf<MultipartBody.Part>()
-            ifEmpty.forEach {
-                val file = File.createTempFile("tempImage", null, context.cacheDir)
-                file.writeBytes(it.value!!)
+        if(category == "") {
+            errorMessage.postValue("Пустое значение категории")
+            return
+        }
 
-                val requestFile = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
-                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
-                lists.add(body)
+        if(ifEmpty.isEmpty()){
+            viewModelScope.launch {
+                val prosuctDTO = ProductDToUpdate(
+                    name = product.name,
+                    description = product.description,
+                    price = product.price,
+                    image = product.images,
+                    category = category,
+                    weight = product.weight,
+                    id = product.idProduct
+                )
+
+                repository.uploadInfo(prosuctDTO)
             }
+        }
+        else {
+            viewModelScope.launch {
+                val lists = mutableListOf<MultipartBody.Part>()
+                ifEmpty.forEach {
+                    val file = File.createTempFile("tempImage", null, context.cacheDir)
+                    file.writeBytes(it.value!!)
 
-            product.images?.forEach { it.value = null }
-            val prosuctDTO = ProductDToUpdate(
-                name = product.name,
-                description = product.description,
-                price = product.price,
-                image = product.images,
-                category = category,
-                weight = product.weight,
-                id = product.idProduct)
+                    val requestFile =
+                        RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+                    val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                    lists.add(body)
+                }
 
-            val prosuctDTODataJson = Gson().toJson(prosuctDTO)
-            val prosuctDTORequestBody = prosuctDTODataJson.toRequestBody("application/json".toMediaTypeOrNull())
-            val call = repository.updateProduct(lists, prosuctDTORequestBody)
-            call.enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(context, "Сохранено", Toast.LENGTH_LONG).show()
-                        back.postValue(true)
-                    } else {
+
+                product.images?.forEach { it.value = null }
+                val prosuctDTO = ProductDToUpdate(
+                    name = product.name,
+                    description = product.description,
+                    price = product.price,
+                    image = product.images,
+                    category = category,
+                    weight = product.weight,
+                    id = product.idProduct
+                )
+
+                val prosuctDTODataJson = Gson().toJson(prosuctDTO)
+                val prosuctDTORequestBody =
+                    prosuctDTODataJson.toRequestBody("application/json".toMediaTypeOrNull())
+                val call = repository.updateProduct(lists, prosuctDTORequestBody)
+                call.enqueue(object : Callback<ResponseBody> {
+                    override fun onResponse(
+                        call: Call<ResponseBody>,
+                        response: Response<ResponseBody>
+                    ) {
+                        if (response.isSuccessful) {
+                            Toast.makeText(context, "Сохранено", Toast.LENGTH_LONG).show()
+                            back.postValue(true)
+                        } else {
+                            // Обработка ошибки
+                        }
+                    }
+
+                    override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                         // Обработка ошибки
                     }
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    // Обработка ошибки
-                }
-           /* repository.updateProduct(ifEmpty,
+                    /* repository.updateProduct(ifEmpty,
                 product,
                 category)*/
-        })
-    }
+                })
+            }
+        }
     }
 
     fun createPartFromProduct(product: ProductDToUpdate): MultipartBody.Part {
@@ -207,16 +237,16 @@ class MenuModelView @Inject constructor(
 
     private fun getAllProducts(){
         viewModelScope.launch {
-            listProducts_.postValue(repository.getAllInfo(AdminAccount.idOrg).body())
+            listProducts_.postValue(repository.getAllInfo(AdminAccount.idOrg!!).body())
         }
     }
 
     private fun addCategory(category: String){
-        /*if(!categories.value!!.contains(category)) {
-            val items = categories_.value?: mutableListOf()
+        if(!categories.value!!.contains(category)) {
+            val items = categories_.value?.toMutableList()?: mutableListOf()
             items.add(category)
             categories_.postValue(items)
-        }*/
+        }
     }
 
     private fun submit(applicationContext: Context) {

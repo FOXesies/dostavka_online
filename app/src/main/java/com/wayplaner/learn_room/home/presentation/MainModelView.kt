@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wayplaner.learn_room.home.data.repository.HomeApiRepositoryImpl
 import com.wayplaner.learn_room.home.domain.model.OrganizationDTO
+import com.wayplaner.learn_room.home.domain.model.UpdateCityDTO
 import com.wayplaner.learn_room.organization.domain.model.FiltercategoryOrg
 import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +40,15 @@ class MainModelView @Inject constructor(
 
     fun getOrganizationsByCity(city: String){
         loadOrganizations(city)
+    }
+
+
+    fun updateCity(city: String){
+        viewModelScope.launch {
+            repository.updateCity(UpdateCityDTO(CustomerAccount.info!!.profileUUID, city))
+            CustomerAccount.info!!.city = city
+            selectedText.postValue(city)
+        }
     }
 
     fun getOrganizationsByCategory(filterCategory: FiltercategoryOrg){

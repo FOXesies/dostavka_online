@@ -32,6 +32,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.home.presentation.MainModelView
 import com.wayplaner.learn_room.ui.theme.backHeader
@@ -42,7 +44,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView) {
+fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView, navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
 
     TopAppBar(
@@ -67,9 +69,8 @@ fun TopBarHome(drawerState: DrawerState?, homeViewModel: MainModelView) {
             }
         },
         actions = {
-            IconButton(modifier = Modifier.padding(end = 6.dp, top = 10.dp).size(33.dp), onClick = { /*navigateToBasket(1)*/ }) {
+            IconButton(modifier = Modifier.padding(end = 6.dp, top = 10.dp).size(33.dp), onClick = { navController.navigate(MainRoute.Basket.name) }) {
                 Icon(painterResource(id = R.drawable.bag_buy_cart_market_shop_shopping_tote_icon_123191), tint = whiteColor, contentDescription = "")
-
             }
         }
     )
@@ -114,7 +115,7 @@ fun DropDownCity(state: List<String>, homeViewModel: MainModelView){
                         text =  { Text(city, style = style) },
                         onClick = {
                             expanded = false
-                            homeViewModel.selectedText.postValue(city)
+                            homeViewModel.updateCity(city)
                             homeViewModel.getOrganizationsByCity(city)
                         }
                     )

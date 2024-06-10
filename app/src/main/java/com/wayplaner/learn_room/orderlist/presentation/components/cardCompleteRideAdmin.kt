@@ -1,5 +1,6 @@
 package com.wayplaner.learn_room.orderlist.presentation.components
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +42,7 @@ import com.wayplaner.learn_room.ui.theme.backOrgHome
 import com.wayplaner.learn_room.ui.theme.errorStatus
 import com.wayplaner.learn_room.ui.theme.errorStatusBack
 import com.wayplaner.learn_room.ui.theme.grayList
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
 import com.wayplaner.learn_room.ui.theme.orderCreateCard
 import com.wayplaner.learn_room.ui.theme.redActionColor
 import com.wayplaner.learn_room.ui.theme.starColor
@@ -53,7 +58,8 @@ fun CardCompleteOrder(
     summ: Double?,
     isDelivery: Boolean,
     feedback: Int? = null,
-    logicOpen: () -> Unit)
+    logicOpen: () -> Unit,
+    logicCreateFeedback: (Int, String?) -> Unit?)
 {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -147,10 +153,14 @@ fun CardCompleteOrder(
                     if (stateFeedbacks) {
                         RatingDialog(0,
                             nameOrg!!,
-                            onRatingSelected = {
-                                rating = it
+                            onRatingSelected = { rating_, comment_ ->
+                                rating = rating_
+                                logicCreateFeedback(rating_, comment_)
+                                stateFeedbacks = false
                             },
-                            onDismiss = {})
+                            onDismiss = {
+                                stateFeedbacks = false
+                            })
                     }
 
                     Button(shape = RoundedCornerShape(10.dp),
@@ -171,14 +181,19 @@ fun CardCompleteOrder(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RatingDialog(
     rating: Int,
     nameOrg: String,
-    onRatingSelected: (Int) -> Unit,
+    onRatingSelected: (Int, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var selectedRating by remember { mutableStateOf(rating) }
+
+    val comment = remember {
+        mutableStateOf("")
+    }
 
     AlertDialog(
         containerColor = orderCreateCard,
@@ -187,43 +202,76 @@ fun RatingDialog(
             Text(text = "Ваш отзыв важен для нас! \"$nameOrg\"", color = whiteColor)
         },
         text = {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                for (i in 1..5) {
-                    val starColor = if (i <= selectedRating) summRedColor else starColor
-                    Icon(
-                        imageVector = Icons.Filled.Star,
-                        contentDescription = null,
-                        tint = starColor,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .padding(4.dp)
-                            .clickable(
-                                indication = null, // Remove the ripple effect
-                                interactionSource = remember { MutableInteractionSource() } // Prevents any state change or effect
-                            ) {
-                                selectedRating = i
-                            }
+            Column {
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    for (i in 1..5) {
+                        val starColor = if (i <= selectedRating) summRedColor else starColor
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = starColor,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .padding(4.dp)
+                                .clickable(
+                                    indication = null, // Remove the ripple effect
+                                    interactionSource = remember { MutableInteractionSource() } // Prevents any state change or effect
+                                ) {
+                                    selectedRating = i
+                                }
+                        )
+                    }
+                }
+
+                Text(
+                    text = "Комментарий", color = whiteColor, fontSize = 14.sp, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 4.dp, top = 15.dp),
+                )
+                Card(shape = RoundedCornerShape(15.dp),
+                    colors = CardDefaults.cardColors(orderCreateBackField)) {
+                    TextField(
+                        modifier = Modifier.padding(vertical = 10.dp, horizontal = 5.dp),
+                        value = comment.value,
+                        onValueChange = { comment.value = it },
+                        colors = TextFieldDefaults
+                            .textFieldColors(
+                                focusedTextColor = whiteColor,
+                                unfocusedTextColor = grayList,
+                                containerColor = Color.Transparent,
+                                cursorColor = whiteColor,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedLabelColor = whiteColor,
+                                unfocusedLabelColor = grayList
+                            )
                     )
                 }
             }
         },
         confirmButton = {
-            TextButton(colors = ButtonDefaults.buttonColors(redActionColor),
+            val color = remember { redActionColor }
+            val context = LocalContext.current
+            TextButton(colors = if (selectedRating != 0) ButtonDefaults.buttonColors(color) else ButtonDefaults.buttonColors(color.copy(alpha = 0.5f)),
                 onClick = {
-                    onRatingSelected(selectedRating)
+                    if (selectedRating != 0)
+                        onRatingSelected(selectedRating, comment.value)
+                    else
+                        Toast.makeText(context, "Выберите значение оценки", Toast.LENGTH_LONG).show()
                 }
             ) {
-                Text("Отправить", color = whiteColor)
+                Text("Отправить", color = whiteColor, fontSize = 16.sp, modifier = Modifier.padding(4.dp))
             }
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss
             ) {
-                Text("Закрыть", color = whiteColor)
+                Text("Закрыть", color = whiteColor, fontSize = 16.sp, modifier = Modifier.padding(4.dp))
             }
         }
     )

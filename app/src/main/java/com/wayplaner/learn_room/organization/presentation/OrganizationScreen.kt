@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Star
@@ -28,8 +30,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +43,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.organization.model.OrganizationIdDTO
 import com.wayplaner.learn_room.organization.presentation.components.ProductCard
@@ -78,45 +81,51 @@ fun OrganizationCardOrg(
     }
 
     val organization = organizationViewModel.getOrganization().observeAsState()
+    val isLike = organizationViewModel.isLike().observeAsState()
 
-    if (organization.value != null) {
+    if (organization.value != null && isLike.value != null) {
         val organization_const = organization.value!!
+        val isLikes = isLike.value!!
         Column {
+            val state = rememberPagerState(pageCount = { organization.value?.idImages?.size?: 1 })
             Box() {
-                val pickImage = organization_const.idImages?.get(0)?.value
-                val bitmap = remember { pickImage?.size?.let {
-                    BitmapFactory.decodeByteArray(
-                        pickImage,
-                        0,
-                        it
-                    )
-                } }
-                val imageBitmap = remember { bitmap?.asImageBitmap() }
-                if(imageBitmap == null){
-                    Image(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(220.dp),
-                            contentScale = ContentScale.Crop,
-                            painter = painterResource(id = R.drawable.no_fof),
-                            contentDescription = ""
-                        )
-                }
-                else {
-                    Image(
-                        bitmap = imageBitmap,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(220.dp),
-                        contentScale = ContentScale.Crop,
-                        contentDescription = ""
-                    )
+                HorizontalPager(
+                    state = state, modifier = Modifier
+                        .height(280.dp)
+                        .fillMaxWidth()
+                ) { page ->
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(contentAlignment = Alignment.BottomCenter) {
+
+                            val images = remember { mutableListOf<ImageBitmap>() }
+                            organization.value!!.idImages?.forEach {
+                                images.add(BitmapFactory.decodeByteArray(it?.value, 0, it?.value!!.size).asImageBitmap())
+                            }
+                            if(images.size > 0) {
+                                Image(
+                                    bitmap = images[page], contentDescription = "", Modifier
+                                        .fillMaxSize(), contentScale = ContentScale.Crop
+                                )
+                            }
+                            else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.no_fof), contentDescription = "", Modifier
+                                        .fillMaxSize(), contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Card(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top = 200.dp),
+                        .padding(top = 254.dp),
                     shape = RoundedCornerShape(topEnd = 28.0.dp, topStart = 28.0.dp, bottomEnd = 0.dp, bottomStart = 0.dp),
                     colors = CardDefaults.cardColors(backOrgHome)
                 ) {
@@ -143,6 +152,10 @@ fun OrganizationCardOrg(
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable {
+                                        navController.navigate(MainRoute.FeedBacks.name + "/${id}")
+                                    }
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -229,7 +242,7 @@ fun OrganizationCardOrg(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .clip(MaterialTheme.shapes.small)
-                        .padding(top = 12.dp, start = 16.dp, bottom = 5.dp, end = 5.dp)
+                        .padding(top = 8.dp, start = 10.dp, bottom = 5.dp, end = 5.dp)
                         .size(45.dp),
                     containerColor = backHeader,
                     onClick = { navController.navigateUp() }) {
@@ -247,10 +260,10 @@ fun OrganizationCardOrg(
                         .clip(MaterialTheme.shapes.small)
                         .padding(top = 8.dp, end = 10.dp)
                         .size(45.dp),
-                    containerColor = redActionColor,
-                    onClick = {  }) {
+                    containerColor = if(isLikes) redActionColor else backHome,
+                    onClick = { organizationViewModel.likeOrg(id)  }) {
                     Icon(
-                        Icons.Filled.FavoriteBorder,
+                        if(isLikes) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         tint = whiteColor,
                         modifier = Modifier.size(32.dp),
                         contentDescription = "Добавить"
@@ -284,14 +297,14 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
     }
 
     Column() {
-        TabRow(
+        ScrollableTabRow(
             selectedTabIndex = pagerState.currentPage,
-            containerColor = Transparent,
+            containerColor = Color.Transparent,
             contentColor = Color(0xFFFEFEFA),
-            indicator = {
+            indicator = { tabPositions ->
                 Spacer(
                     Modifier
-                        .tabIndicatorOffset(it[pagerState.currentPage])
+                        .tabIndicatorOffset(tabPositions[pagerState.currentPage])
                         .height(2.5.dp)
                         .background(redActionColor)
                 )
@@ -316,18 +329,20 @@ fun MainContent(oraganization_const: OrganizationIdDTO, navController: NavContro
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.background(backHome)
-        ) {
+        ) { page ->
             LazyColumn(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
                     .fillMaxSize()
             ) {
-                items(
-                    if(categories[pagerState.currentPage] == "Все")
-                        oraganization_const.products.flatMap { it.value }.sortedBy { it.name }
-                    else
-                        oraganization_const.products[categories[pagerState.currentPage]]!!
-                ) {
-                    ProductCard(it, oraganization_const.idOrganization!!, navController)
+                val products = if (categories[pagerState.currentPage] == "Все") {
+                    oraganization_const.products.flatMap { it.value }.sortedBy { it.name }
+                } else {
+                    oraganization_const.products[categories[pagerState.currentPage]] ?: listOf()
+                }
+
+                items(products) { product ->
+                    ProductCard(product, oraganization_const.idOrganization!!, navController)
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }

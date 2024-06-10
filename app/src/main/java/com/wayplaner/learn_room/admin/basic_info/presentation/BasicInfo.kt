@@ -73,6 +73,7 @@ import com.wayplaner.learn_room.MapSearchActivity
 import com.wayplaner.learn_room.R
 import com.wayplaner.learn_room.admin.basic_info.domain.model.ImageDTO
 import com.wayplaner.learn_room.admin.basic_info.util.UiEventBasicInfoA
+import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.admin.util.toBitmapImage
 import com.wayplaner.learn_room.createorder.presentation.components.AddressSuggestModelView
 import com.wayplaner.learn_room.organization.model.CityOrganization
@@ -106,19 +107,16 @@ fun BasicInfo(
         unfocusedContainerColor = Color.Transparent
     )
 
+
+    var nameValue by remember { mutableStateOf("") }
+    var phoneValue by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
     var infoUpdate by remember { mutableStateOf(false) }
     val result = vmBasic.infoOrg.observeAsState()
 
-    if (result.value == null) {
-        Text(
-            text = "НИЧЕГО НЕ НАЙДЕНО", fontSize = 16.sp,
-            modifier = Modifier.padding(start = 5.dp)
-        )
-    } else {
-        val resultFound = result.value!!
-        var nameValue by remember { mutableStateOf(resultFound.name) }
-        var phoneValue by remember { mutableStateOf(resultFound.phone) }
-        var description by remember { mutableStateOf(resultFound.description) }
+        val resultFound = result.value
+
 
         val error = vmBasic.errorMessage.observeAsState()
         if (error.value != null) {
@@ -131,8 +129,15 @@ fun BasicInfo(
 
 
         LaunchedEffect(resultFound) {
-            if(resultFound.idImages != null)
-                selectImages.addAll(resultFound.idImages!!)
+            if(resultFound != null) {
+                if (resultFound.idImages != null)
+                    selectImages.addAll(resultFound.idImages!!)
+                vmBasic.addAllCity(resultFound.locationAll)
+
+                nameValue = resultFound.name
+                phoneValue = resultFound.phone.replace("+", "")
+                description = resultFound.description?: ""
+            }
         }
 
         if(vmBasic.back.observeAsState().value!!){
@@ -150,11 +155,11 @@ fun BasicInfo(
                 }
             }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize()
+            .background(backHome)) {
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
-                    .background(backHome)
             ) {
                 if (selectImages.size == 0) {
                     Image(
@@ -375,15 +380,28 @@ fun BasicInfo(
 
                     Button(
                         onClick = {
-                            vmBasic.onEvent(
-                                UiEventBasicInfoA.UpdateOrg(
-                                    name = nameValue,
-                                    phone = phoneValue,
-                                    description = description ?: "",
-                                    images = selectImages.toList(),
-                                    context
+                            if(AdminAccount.idOrg != null) {
+                                vmBasic.onEvent(
+                                    UiEventBasicInfoA.UpdateOrg(
+                                        name = nameValue,
+                                        phone = phoneValue,
+                                        description = description ?: "",
+                                        images = selectImages.toList(),
+                                        context
+                                    )
                                 )
-                            )
+                            }
+                            else{
+                                vmBasic.onEvent(
+                                    UiEventBasicInfoA.UpdateOrg(
+                                        name = nameValue,
+                                        phone = phoneValue,
+                                        description = description,
+                                        images = selectImages.toList(),
+                                        context
+                                    )
+                                )
+                            }
                         },
                         Modifier
                             .fillMaxWidth()
@@ -412,7 +430,6 @@ fun BasicInfo(
                     contentDescription = "Добавить"
                 )
             }
-        }
     }
 }
 
@@ -422,156 +439,168 @@ fun BasicInfo(
 fun AddressCity(vmBasic: BasicInfoModelView) {
     val context = LocalContext.current
     val cities_ = vmBasic.cities.observeAsState()
+    var cities = mutableListOf("")
+    var selectedText = remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
     if (cities_.value != null) {
-        val cities = cities_.value!!.keys.toList()
-        var expanded by remember { mutableStateOf(false) }
-        var selectedText by remember { mutableStateOf(cities[0]) }
-
+        cities = cities_.value!!.keys.toList().toMutableList()
+        if(selectedText.value == "")
+            selectedText.value = cities[0]
         val address = AddressSuggestModelView.addressTo?.observeAsState()
-        if (address!!.value != null && address.value!!.lat != null){
+        if (address!!.value != null && address.value!!.lat != null) {
             val value = address.value!!
-            vmBasic.onEvent(UiEventBasicInfoA.AddAddresss(selectedText, CityOrganization(address = value.displayText, points = Point(value.lat!!, value.lon!!))))
+            vmBasic.onEvent(
+                UiEventBasicInfoA.AddAddresss(
+                    selectedText.value,
+                    CityOrganization(
+                        address = value.displayText,
+                        points = Point(value.lat!!, value.lon!!)
+                    )
+                )
+            )
             AddressSuggestModelView.removeAddressTo()
         }
+    }
 
-        Column() {
-            Row(
-                Modifier
+    Column() {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20))
+                .background(orderCreateBackField)
+                .padding(horizontal = 15.dp, vertical = 10.dp)
+                .clickable { expanded = !expanded })
+        {
+
+            Text(
+                text = selectedText.value.ifEmpty { "Добавьте город" },
+                fontSize = 16.sp,
+                modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20))
-                    .background(orderCreateBackField)
-                    .padding(horizontal = 15.dp, vertical = 10.dp)
-                    .clickable { expanded = !expanded })
-            {
+                    .padding(horizontal = 5.dp),
+                color = grayList
+            )
 
-                Text(
-                    text = selectedText,
-                    fontSize = 16.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 5.dp),
-                    color =  grayList
-                )
+            Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = null)
+            DropdownMenu(expanded = expanded,
+                modifier = Modifier.background(orderCreateBackField),
+                onDismissRequest = {
+                    expanded = false
+                }) {
+                addCity(vmBasic)
 
-                Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = null)
-                DropdownMenu(expanded = expanded,
-                    modifier = Modifier.background(orderCreateBackField),
-                    onDismissRequest = {
-                        expanded = false
-                    }) {
-                    addCity(vmBasic)
+                cities.forEach { city ->
 
-                    cities.forEach { city ->
-
-                        val isSelected = city == selectedText
-                        val style = if (isSelected) {
-                            MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = whiteColor
-                            )
-                        } else {
-                            MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.Normal,
-                                color = grayList
-                            )
-                        }
-
-                        DropdownMenuItem(
-                            text = { Text(city, style = style) },
-                            onClick = {
-                                expanded = false
-                                selectedText = city
-                            }
+                    val isSelected = city == selectedText.value
+                    val style = if (isSelected) {
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = whiteColor
+                        )
+                    } else {
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.Normal,
+                            color = grayList
                         )
                     }
-                }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(14.dp))
-
-        Text(
-            text = "Адреса в городе", fontSize = 16.sp, color = grayList,
-            modifier = Modifier.padding(start = 5.dp)
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        for (value in cities_.value!![selectedText] ?: listOf()) {
-            var openStateDelete by remember {
-                mutableStateOf(false)
-            }
-
-            if (openStateDelete) {
-                AlertDeleteAddress(
-                    confirmLogic = {
-                        vmBasic.onEvent(UiEventBasicInfoA.RemoveAddresss(selectedText, value))
-                        openStateDelete = false
-                    },
-                    dismissLogic = { openStateDelete = false }
-                )
-            }
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(adminAdressCity)
-            ) {
-                Row {
-                    Text(
-                        text = value.address ?: "Адрес не найден ",
-                        fontSize = 16.sp,
-                        color = whiteColor,
-                        modifier = Modifier
-                            .weight(3f)
-                            .padding(horizontal = 15.dp, vertical = 12.dp)
-                    )
-
-                    Image(modifier = Modifier
-                        .width(20.dp)
-                        .height(24.dp)
-                        .clickable {
-                            openStateDelete = true
+                    DropdownMenuItem(
+                        text = { Text(city, style = style) },
+                        onClick = {
+                            expanded = false
+                            selectedText.value = city
                         }
-                        .align(Alignment.CenterVertically),
-                        painter = painterResource(id = R.drawable.trash_can_115312),
-                        contentDescription = null)
-
-                    Spacer(modifier = Modifier.width(15.dp))
+                    )
                 }
             }
+        }
+    }
 
-            Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(14.dp))
+
+    Text(
+        text = "Адреса в городе", fontSize = 16.sp, color = grayList,
+        modifier = Modifier.padding(start = 5.dp)
+    )
+
+    Spacer(modifier = Modifier.height(4.dp))
+
+    for (value in cities_.value?.get(selectedText.value) ?: listOf()) {
+        var openStateDelete by remember {
+            mutableStateOf(false)
         }
 
-        OutlinedCard(
-            border = BorderStroke(2.dp, redActionColor),
+        if (openStateDelete) {
+            AlertDeleteAddress(
+                confirmLogic = {
+                    vmBasic.onEvent(UiEventBasicInfoA.RemoveAddresss(selectedText.value, value))
+                    openStateDelete = false
+                },
+                dismissLogic = { openStateDelete = false }
+            )
+        }
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(adminAdressAddCity),
-            onClick = {
-                AddressSuggestModelView.setPickCity(selectedText)
-                val intent = Intent(context, MapSearchActivity::class.java)
-                context.startActivity(intent)
-            }
+            colors = CardDefaults.cardColors(adminAdressCity)
         ) {
             Row {
                 Text(
-                    text = "Добавить адрес",
+                    text = value.address ?: "Адрес не найден ",
                     fontSize = 16.sp,
                     color = whiteColor,
-                    modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)
+                    modifier = Modifier
+                        .weight(3f)
+                        .padding(horizontal = 15.dp, vertical = 12.dp)
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Icon(modifier = Modifier
-                    .width(26.dp)
-                    .height(26.dp)
+                Image(modifier = Modifier
+                    .width(20.dp)
+                    .height(24.dp)
+                    .clickable {
+                        openStateDelete = true
+                    }
                     .align(Alignment.CenterVertically),
-                    imageVector = Icons.Filled.Add,
-                    tint = whiteColor,
+                    painter = painterResource(id = R.drawable.trash_can_115312),
                     contentDescription = null)
 
                 Spacer(modifier = Modifier.width(15.dp))
             }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+    }
+
+    OutlinedCard(
+        border = BorderStroke(2.dp, redActionColor),
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(adminAdressAddCity),
+        onClick = {
+            AddressSuggestModelView.setPickCity(selectedText.value)
+            val intent = Intent(context, MapSearchActivity::class.java)
+            context.startActivity(intent)
+        }
+    ) {
+        Row {
+            Text(
+                text = "Добавить адрес",
+                fontSize = 16.sp,
+                color = whiteColor,
+                modifier = Modifier.padding(horizontal = 15.dp, vertical = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Icon(
+                modifier = Modifier
+                    .width(26.dp)
+                    .height(26.dp)
+                    .align(Alignment.CenterVertically),
+                imageVector = Icons.Filled.Add,
+                tint = whiteColor,
+                contentDescription = null
+            )
+
+            Spacer(modifier = Modifier.width(15.dp))
         }
     }
 }

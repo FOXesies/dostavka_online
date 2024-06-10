@@ -55,7 +55,7 @@ import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.g
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getNext
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getText
 import com.wayplaner.learn_room.createorder.domain.model.StatusOrder.Companion.getTextColor
-import com.wayplaner.learn_room.orderlist.presentation.components.getLocalDateTime
+import com.wayplaner.learn_room.orderlist.presentation.components.getLocalDateTimeFull
 import com.wayplaner.learn_room.organization.domain.model.ResponseProductOrg
 import com.wayplaner.learn_room.organization.presentation.components.ProductCard
 import com.wayplaner.learn_room.ui.theme.backOrgHome
@@ -172,7 +172,7 @@ fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController, inf
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    CustomCard("Телефон", value.phoneUser!!) {
+    CustomCard("Телефон", "+${value.phoneUser!!}") {
 
         val context = LocalContext.current
         Button(shape = RoundedCornerShape(15.dp),
@@ -212,7 +212,7 @@ fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController, inf
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    CustomCard("Время создания заказа", getLocalDateTime(value.fromTimeDelivery!!)) {
+    CustomCard("Время создания заказа", getLocalDateTimeFull(value.fromTimeDelivery!!)) {
         Text(text = "Ожидаемое время доставки", fontSize = 18.sp, color = grayList)
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -229,7 +229,7 @@ fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController, inf
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = getLocalDateTime(value.toTimeDelivery!!),
+                    text = getLocalDateTimeFull(value.toTimeDelivery!!),
                     modifier = Modifier.weight(1f),
                     fontSize = 16.sp,
                     color = grayList
@@ -240,13 +240,13 @@ fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController, inf
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    CustomStatusCard("Статус доставки", value.status!!){
+    CustomStatusCard("Статус доставки", value.status!!, value){
         infoOrderAdminModelView.switchStsatus(value.orderId, it)
     }
 
     Spacer(modifier = Modifier.height(10.dp))
 
-    CustomAdminListProduct(value.productOrder, navController)
+    CustomAdminListProduct(value.productOrder, value.counts, navController)
 
     Spacer(modifier = Modifier.height(10.dp))
 
@@ -257,10 +257,21 @@ fun DeliverySummary(value: SendBasicInfoOrder, navController: NavController, inf
     CustomCard("Сумма", value.summ!!.toString().plus(" руб.")){}
 
     Spacer(modifier = Modifier.height(10.dp))
+
+    com.wayplaner.learn_room.order_info.presentation.CustomCard(
+        "Способ оплаты",
+        value.payment?.getName(value.payment!!)!!
+    ) {}
+
+    Spacer(modifier = Modifier.height(10.dp))
 }
 
 @Composable
-fun CustomAdminListProduct(products: List<ResponseProductOrg>, navController: NavController){
+fun CustomAdminListProduct(
+    products: List<ResponseProductOrg>,
+    list: List<Int>,
+    navController: NavController
+){
     Card(
         shape = RoundedCornerShape(15.dp),
         colors = CardDefaults.cardColors(orderCreateCard)
@@ -275,13 +286,15 @@ fun CustomAdminListProduct(products: List<ResponseProductOrg>, navController: Na
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 5.dp)) {
-                products.forEach {
+                products.forEachIndexed { index, responseProductOrg ->
                     ProductCard(
-                        product = it,
-                        orgId = AdminAccount.idOrg,
+                        product = responseProductOrg,
+                        orgId = AdminAccount.idOrg!!,
                         navController = navController
                     )
+                    Text(text = "Количетсво: ${list[index]}", fontSize = 16.sp, color = grayList )
 
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
@@ -291,7 +304,7 @@ fun CustomAdminListProduct(products: List<ResponseProductOrg>, navController: Na
 }
 
 @Composable
-fun CustomStatusCard(label: String, value: StatusOrder, onSwitch: (StatusOrder) -> Unit){
+fun CustomStatusCard(label: String, value: StatusOrder, order: SendBasicInfoOrder, onSwitch: (StatusOrder) -> Unit){
     var status by remember { mutableStateOf(value) }
     Card(
         shape = RoundedCornerShape(15.dp),
@@ -328,37 +341,79 @@ fun CustomStatusCard(label: String, value: StatusOrder, onSwitch: (StatusOrder) 
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text(text = "Для переключения статуса заказа нажмите кнопку ниже", fontSize = 14.sp, color = grayList)
+            if(status != StatusOrder.COMPLETE && status != StatusOrder.CANCELE) {
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Для переключения статуса заказа нажмите кнопку ниже",
+                    fontSize = 14.sp,
+                    color = grayList
+                )
 
-            val nextValue = (status.getNext()?: StatusOrder.COMPLETE)
-            Button(shape = RoundedCornerShape(15.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(nextValue.getBackColor()),
-                onClick = {
-                    status = nextValue
-                    onSwitch(status)
-                }) {
-                Text(text = nextValue.getText(), fontSize = 16.sp, color = nextValue.getTextColor())
-            }
+                Spacer(modifier = Modifier.height(4.dp))
 
-            val backValue = status.getBack()
-            if(backValue != null) {
-                Spacer(modifier = Modifier.height(10.dp))
-
+                val nextValue = (status.getNext() ?: StatusOrder.COMPLETE)
                 Button(shape = RoundedCornerShape(15.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(backValue.getBackColor()),
+                    colors = ButtonDefaults.buttonColors(nextValue.getBackColor()),
                     onClick = {
-                        status = backValue
+                        status = nextValue
                         onSwitch(status)
                     }) {
-                    Text(text = "Вернуть назад", fontSize = 16.sp, color = backValue.getTextColor())
+                    Text(
+                        text = nextValue.getText(),
+                        fontSize = 16.sp,
+                        color = nextValue.getTextColor()
+                    )
+                }
+
+                val backValue = status.getBack()
+                if (backValue != null) {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Button(shape = RoundedCornerShape(15.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(backValue.getBackColor()),
+                        onClick = {
+                            status = backValue
+                            onSwitch(status)
+                        }) {
+                        Text(
+                            text = "Вернуть назад",
+                            fontSize = 16.sp,
+                            color = backValue.getTextColor()
+                        )
+                    }
+                }
+            }
+            else{
+                if(status == StatusOrder.COMPLETE){
+                    if(order.feedBacksRating != null) {
+                        Text(text = "Время оценки: ${order.timeComment?.let{getLocalDateTimeFull(it)}}", modifier = Modifier
+                            .padding(vertical = 4.dp), color = whiteColor)
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(text = "Оценка: ${order.feedBacksRating}", modifier = Modifier
+                            .padding(vertical = 4.dp), color = whiteColor)
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(text = "Комментарий: ${order.feedBacksComment}", modifier = Modifier
+                            .padding(vertical = 4.dp), color = whiteColor)
+                    }
+                }
+                else if(status == StatusOrder.CANCELE){
+                    Text(text = "Время отмены: ${getLocalDateTimeFull(order.canceledTime!!)}", modifier = Modifier
+                        .padding(vertical = 4.dp), color = whiteColor)
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(text = "Комментарий: ${order.canceledInfo}", modifier = Modifier
+                        .padding(vertical = 4.dp), color = whiteColor)
                 }
             }
 

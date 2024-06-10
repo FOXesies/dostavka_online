@@ -3,10 +3,10 @@ package com.wayplaner.learn_room.navigation
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.HomeRepairService
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.DrawerState
@@ -35,11 +35,15 @@ import com.wayplaner.learn_room.auth.presentation.LoginComponents
 import com.wayplaner.learn_room.auth.presentation.RegisterScreen
 import com.wayplaner.learn_room.basket.presentation.BasketScreen
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderScreen
+import com.wayplaner.learn_room.favotitea.presentations.FavoritesScreen
+import com.wayplaner.learn_room.feedbasks.presentation.ReviewsScreen
 import com.wayplaner.learn_room.home.presentation.HomeScreen
 import com.wayplaner.learn_room.order_info.presentation.InfoOrderUser
 import com.wayplaner.learn_room.orderlist.presentation.ListOrderScreen
 import com.wayplaner.learn_room.organization.presentation.OrganizationCardOrg
 import com.wayplaner.learn_room.product.presentation.ProductScreen
+import com.wayplaner.learn_room.settings.presentation.EditProfileScreen
+import com.wayplaner.learn_room.ui.theme.backHome
 import com.wayplaner.learn_room.utils.CustomerAccount
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -54,15 +58,19 @@ fun Navigation(
 ) {
     val menus = arrayOf(
         DrawerMenu(Icons.Filled.Face, "Главная", MainRoute.Home.name),
+        DrawerMenu(Icons.Filled.Favorite, "Любимое", MainRoute.Loveli.name),
         DrawerMenu(Icons.Filled.ShoppingBasket, "Корзина", MainRoute.Basket.name),
         DrawerMenu(ImageVector.vectorResource(R.drawable.checklist_list_orderlist_order_icon_219982), "Заказы", MainRoute.Orders.name),
-        DrawerMenu(Icons.Filled.Settings, "Settings", MainRoute.Admin_Home.name)
+        DrawerMenu(Icons.Filled.Settings, "Нстройка", MainRoute.Settings.name),
+        DrawerMenu(Icons.Filled.HomeRepairService, "Для ресторана", MainRoute.Admin_Home.name)
     )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = backHome
+            ) {
                 DrawerContent(menus) { route ->
                     coroutineScope.launch {
                         drawerState.close()
@@ -74,9 +82,7 @@ fun Navigation(
         }
     ) {
         NavHost(navController = navController, startDestination = if (CustomerAccount.info == null) MainRoute.LoginCustomer.name else MainRoute.Home.name) {
-            composable(route = MainRoute.Home.name,
-                enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }) + fadeIn() },
-                exitTransition = {slideOutHorizontally(targetOffsetX = { -1000 }) + fadeOut() }
+            composable(route = MainRoute.Home.name
                 ) {
                 HomeScreen(drawerState, navController)
             }
@@ -100,6 +106,9 @@ fun Navigation(
             composable(MainRoute.Settings.name) {
                 SettingsScreen(drawerState)
             }
+            composable(MainRoute.Loveli.name) {
+                FavoritesScreen(navController, drawerState)
+            }
             composable(MainRoute.Organization.name + "/{city}/{id}") { navBackStack ->
 
                 // Extracting the argument
@@ -120,6 +129,9 @@ fun Navigation(
             composable(MainRoute.Orders.name) {
                 ListOrderScreen(navController, drawerState)
             }
+            composable(MainRoute.Settings.name) {
+                EditProfileScreen(navController)
+            }
 
             //Admin
             composable(MainRoute.Admin_BasicInfo.name) {
@@ -138,10 +150,14 @@ fun Navigation(
             composable(MainRoute.Admin_MenuList.name) {
                 MenuList(navController)
             }
+            composable(MainRoute.FeedBacks.name + "/{id}") {navBackStack ->
+                val id = navBackStack.arguments?.getString("id")
+                ReviewsScreen(id!!.toLong(), navController)
+            }
             composable(MainRoute.Admin_MenuProduct.name + "/{id}/{category}") {navBackStack ->
                 val idProduct = navBackStack.arguments?.getString("id")
                 val category = navBackStack.arguments?.getString("category")
-                MenuAddScreen(idProduct?.toLong(), category, navController)
+                MenuAddScreen(idProduct!!.toLong(), category, navController)
             }
         }
     }
