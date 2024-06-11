@@ -31,7 +31,10 @@ import com.wayplaner.learn_room.admin.infoorder.presintation.InfoOrderAdmin
 import com.wayplaner.learn_room.admin.menu.presentation.MenuAddScreen
 import com.wayplaner.learn_room.admin.menu.presentation.MenuList
 import com.wayplaner.learn_room.admin.orders.presentation.AdminOrders
+import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.auth.presentation.LoginComponents
+import com.wayplaner.learn_room.auth.presentation.LoginOrgComponents
+import com.wayplaner.learn_room.auth.presentation.RegisterOrgScreen
 import com.wayplaner.learn_room.auth.presentation.RegisterScreen
 import com.wayplaner.learn_room.basket.presentation.BasketScreen
 import com.wayplaner.learn_room.createorder.presentation.CreateOrderScreen
@@ -81,7 +84,10 @@ fun Navigation(
             }
         }
     ) {
-        NavHost(navController = navController, startDestination = if (CustomerAccount.info == null) MainRoute.LoginCustomer.name else MainRoute.Home.name) {
+        NavHost(navController = navController,
+            startDestination = if(CustomerAccount.info != null) MainRoute.Home.name
+            else if(AdminAccount.idOrg != null) MainRoute.Admin_Home.name
+        else MainRoute.LoginCustomer.name) {
             composable(route = MainRoute.Home.name
                 ) {
                 HomeScreen(drawerState, navController)
@@ -134,6 +140,12 @@ fun Navigation(
             }
 
             //Admin
+            composable(MainRoute.Admin_Register.name) {
+                RegisterOrgScreen(navController)
+            }
+            composable(MainRoute.Admin_Login.name) {
+                LoginOrgComponents(navController)
+            }
             composable(MainRoute.Admin_BasicInfo.name) {
                 BasicInfo(navController)
             }

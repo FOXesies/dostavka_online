@@ -37,7 +37,6 @@ class SettingsModelView @Inject constructor(
     fun logout(){
         viewModelScope.launch {
             CustomerAccount.info!!.deleteUser()
-            AdminAccount.idOrg = null
             CustomerAccount.info = null
         }
     }

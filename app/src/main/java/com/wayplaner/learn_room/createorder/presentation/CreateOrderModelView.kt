@@ -83,14 +83,16 @@ class CreateOrderModelView
     fun onValidateEvent(eventOrder: OrderFormState){
         when(eventOrder){
             is OrderFormState.AddressChanged -> {
-                order_.value.addressUser = eventOrder.address
+                order_.value.addressUser?.displayText = eventOrder.address?.address
+                order_.value.addressUser?.lat = eventOrder.address?.points?.latitude
+                order_.value.addressUser?.lon = eventOrder.address?.points?.longitude
             }
             is OrderFormState.PaymentChange -> {
                 order_.value.payment = eventOrder.payment
             }
             is OrderFormState.PhoneChanged -> {
                 val checked = validatephone.execute(eventOrder.phone)
-                hasErrors[0] = checked.success
+                hasErrors[0] = checked.successful
                 order_.value.phoneUser = eventOrder.phone
             }
             is OrderFormState.PodiezdChanged -> {

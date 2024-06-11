@@ -110,7 +110,7 @@ fun DeliveryPick(
                         val address = AddressSuggestModelView.addressTo!!.observeAsState()
                         vmCreateOrder.onValidateEvent(OrderFormState.AddressChanged(address.value))
                         Text(
-                            text = if(address.value!!.displayText != null) address.value?.displayText!! else "Выберите адрес ",
+                            text = if(address.value!!.address != null) address.value?.address!! else "Выберите адрес ",
                             modifier = Modifier.weight(1f),
                             fontSize = 16.sp,
                             color = grayList

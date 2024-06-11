@@ -447,14 +447,14 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
         if(selectedText.value == "")
             selectedText.value = cities[0]
         val address = AddressSuggestModelView.addressTo?.observeAsState()
-        if (address!!.value != null && address.value!!.lat != null) {
+        if (address!!.value != null && address.value!!.points?.latitude != null) {
             val value = address.value!!
             vmBasic.onEvent(
                 UiEventBasicInfoA.AddAddresss(
                     selectedText.value,
                     CityOrganization(
-                        address = value.displayText,
-                        points = Point(value.lat!!, value.lon!!)
+                        address = value.address,
+                        points = Point(value.points!!.latitude!!, value.points!!.latitude!!)
                     )
                 )
             )
@@ -606,7 +606,7 @@ fun AddressCity(vmBasic: BasicInfoModelView) {
 }
 
 @Composable
-private fun AlertDeleteAddress(confirmLogic: () -> Unit, dismissLogic: () -> Unit) {
+fun AlertDeleteAddress(confirmLogic: () -> Unit, dismissLogic: () -> Unit) {
     AlertDialog(
         containerColor = orderCreateCard,
         onDismissRequest = {  },

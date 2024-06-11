@@ -1,6 +1,6 @@
 package com.wayplaner.learn_room.createorder.domain.usecase
 
-import com.wayplaner.learn_room.utils.ValidationResult
+import com.wayplaner.learn_room.auth.domain.model.ValidationResult
 import javax.inject.Inject
 import javax.inject.Singleton
 

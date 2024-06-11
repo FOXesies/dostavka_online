@@ -18,7 +18,9 @@ import com.wayplaner.learn_room.admin.menu.domain.repository.MenuProductReposito
 import com.wayplaner.learn_room.admin.orders.data.repository.AdminOrderImpl
 import com.wayplaner.learn_room.admin.orders.domain.repository.AdminOrderApi
 import com.wayplaner.learn_room.auth.data.repository.AuthCustomerRepositoryImpl
+import com.wayplaner.learn_room.auth.data.repository.AuthOrgRepositoryImpl
 import com.wayplaner.learn_room.auth.domain.repository.AuthCustomerRepository
+import com.wayplaner.learn_room.auth.domain.repository.AuthOrgRepository
 import com.wayplaner.learn_room.basket.data.repository.BasketApiImpl
 import com.wayplaner.learn_room.basket.domain.repository.BasketApi
 import com.wayplaner.learn_room.createorder.data.repository.OrderApiImpl
@@ -157,6 +159,14 @@ class AppModule {
     @Provides
     @Singleton
     fun provideSettingApiService(retrofit: Retrofit) = retrofit.create(SettingsUserApi::class.java)
+
+    @Singleton
+    @Provides
+    fun provideAdminLoginService(authOrgRepository: AuthOrgRepository) = AuthOrgRepositoryImpl(authOrgRepository)
+
+    @Provides
+    @Singleton
+    fun provideAdminLoginApiService(retrofit: Retrofit) = retrofit.create(AuthOrgRepository::class.java)
 
     @Singleton
     @Provides

@@ -1,11 +1,11 @@
 package com.wayplaner.learn_room.createorder.util
 
-import com.wayplaner.learn_room.createorder.domain.model.Address
+import com.wayplaner.learn_room.organization.model.CityOrganization
 import org.example.order.model.StatusPayment
 import java.time.LocalDateTime
 
 sealed class OrderFormState {
-    data class AddressChanged(val address: Address?): OrderFormState()
+    data class AddressChanged(val address: CityOrganization?): OrderFormState()
     data class PhoneChanged(val phone: String): OrderFormState()
     data class PaymentChange(val payment: StatusPayment): OrderFormState()
     data class HomePhoneChanged(val homePhone: String): OrderFormState()

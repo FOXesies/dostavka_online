@@ -8,9 +8,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.wayplaner.learn_room.R
-import com.wayplaner.learn_room.createorder.domain.model.Address
 import com.wayplaner.learn_room.createorder.util.MapKitConstant
 import com.wayplaner.learn_room.createorder.util.UiEventSuggest
+import com.wayplaner.learn_room.organization.model.CityOrganization
 import com.yandex.mapkit.directions.driving.DrivingRouter
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.layers.GeoObjectTapEvent
@@ -55,7 +55,7 @@ class AddressSuggestModelView @Inject constructor(
 
     private var routesCollection: MapObjectCollection? = null
 
-    val mutableSuggestState = mutableStateOf(listOf<Address>())
+    val mutableSuggestState = mutableStateOf(listOf<CityOrganization>())
 
     private var addressValid = false
     private var addressTab = false
@@ -63,15 +63,15 @@ class AddressSuggestModelView @Inject constructor(
     private val uiEventSuggest_ = MutableLiveData<UiEventSuggest>(UiEventSuggest.NoActive("Введите адрес"))
     val uiEventSuggest: LiveData<UiEventSuggest> = uiEventSuggest_
 
-    private val curAddressTo_ = MutableLiveData(Address(null, null, null))
+    private val curAddressTo_ = MutableLiveData(CityOrganization(null, null))
     companion object {
 
-        private val addressTo_ = MutableLiveData(Address(null, null, null))
-        val addressTo: LiveData<Address>? = addressTo_
+        private val addressTo_ = MutableLiveData(CityOrganization(null, null))
+        val addressTo: LiveData<CityOrganization> = addressTo_
         private var cityPick: String? = null
 
         fun removeAddressTo(){
-            addressTo_.postValue(Address(null, null, null))
+            addressTo_.postValue(CityOrganization(null, null))
         }
         fun setPickCity(city: String){
             cityPick = city
@@ -140,15 +140,15 @@ class AddressSuggestModelView @Inject constructor(
             return
         }
 
-        mutableSuggestState.value = p0.mapNotNull { if(!it.displayText.isNullOrEmpty() && it.center != null) { Address(it.displayText, it.center?.latitude, it.center?.longitude)
+        mutableSuggestState.value = p0.mapNotNull { if(!it.displayText.isNullOrEmpty() && it.center != null) { CityOrganization(it.displayText, Point(it.center!!.latitude, it.center!!.longitude))
         } else null }
-        setValueUi(UiEventSuggest.SuccessSuggest(mutableSuggestState.value.map { it.displayText!! }))
+        setValueUi(UiEventSuggest.SuccessSuggest(mutableSuggestState.value.map { it.address!! }))
     }
     fun getSuggestByPosition(position: Int): String {
         val pick = mutableSuggestState.value.elementAtOrNull(position)
-        createPlacemark(Point(pick!!.lat!!, pick.lon!!))
+        createPlacemark(Point(pick!!.points!!.latitude!!, pick.points!!.longitude!!))
         addressValid = true
-        return pick?.displayText!!
+        return pick?.address!!
     }
     fun setAddressTo(addressPosition: Int){
         curAddressTo_.value = mutableSuggestState.value[addressPosition]

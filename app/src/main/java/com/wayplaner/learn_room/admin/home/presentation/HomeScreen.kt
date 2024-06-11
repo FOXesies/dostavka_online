@@ -5,14 +5,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,71 +26,104 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.wayplaner.learn_room.MainRoute
 import com.wayplaner.learn_room.admin.util.AdminAccount
+import com.wayplaner.learn_room.auth.util.deleteUser
+import com.wayplaner.learn_room.settings.presentation.verifyLogout
 import com.wayplaner.learn_room.ui.theme.backOrgHome
-import com.wayplaner.learn_room.ui.theme.redLogoColor
+import com.wayplaner.learn_room.ui.theme.orderCreateBackField
+import com.wayplaner.learn_room.ui.theme.redActionColor
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
     navController: NavController
 ) {
-    if(AdminAccount.idOrg == null)
-        navController.navigate("${MainRoute.Admin_BasicInfo.name}")
 
-
-    Column(modifier = Modifier.fillMaxSize().background(backOrgHome),
-        verticalArrangement = Arrangement.Center,){
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(backOrgHome),
+        verticalArrangement = Arrangement.Center){
         Column(
             modifier = Modifier
                 .wrapContentWidth()
                 .align(Alignment.CenterHorizontally)
         ) {
+            val modifiers = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(horizontal = 40.dp)
+                .fillMaxWidth()
+
+            Spacer(modifier = Modifier.weight(1f))
+
             Button(onClick = { navController.navigate("${MainRoute.Admin_BasicInfo.name}") },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(280.dp),
-                colors = ButtonDefaults.buttonColors(redLogoColor),
+                modifier = modifiers,
+                colors = ButtonDefaults.buttonColors(orderCreateBackField),
                 shape = RoundedCornerShape(40)
             ) {
-                Text(text = "Основная информация", fontSize = 16.sp)
+                Text(text = "Основная информация", fontSize = 18.sp)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(onClick = { navController.navigate("${MainRoute.Admin_MenuList.name}") },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(280.dp),
-                colors = ButtonDefaults.buttonColors(redLogoColor),
+                modifier = modifiers,
+                colors = ButtonDefaults.buttonColors(orderCreateBackField),
                 shape = RoundedCornerShape(40)
             ) {
-                Text(text = "Меню", fontSize = 16.sp)
+                Text(text = "Меню", fontSize = 18.sp)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(onClick = { navController.navigate("${MainRoute.Admin_Orders.name}") },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(280.dp),
-                colors = ButtonDefaults.buttonColors(redLogoColor),
+                modifier = modifiers,
+                colors = ButtonDefaults.buttonColors(orderCreateBackField),
                 shape = RoundedCornerShape(40)
             ) {
-                Text(text = "Заказы", fontSize = 16.sp)
+                Text(text = "Заказы", fontSize = 18.sp)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(onClick = { navController.navigate("${MainRoute.FeedBacks.name}/${AdminAccount.idOrg}") },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .width(280.dp),
-                colors = ButtonDefaults.buttonColors(redLogoColor),
+                modifier = modifiers,
+                colors = ButtonDefaults.buttonColors(orderCreateBackField),
                 shape = RoundedCornerShape(40)
             ) {
-                Text(text = "Отзывы", fontSize = 16.sp)
+                Text(text = "Отзывы", fontSize = 18.sp)
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.weight(1f))
+            val coroutineScope = rememberCoroutineScope()
+
+            var stateFeedbacks by remember { mutableStateOf(false) }
+            if (stateFeedbacks) {
+                verifyLogout(
+                    onConfirm = {
+                        coroutineScope.launch {
+                            AdminAccount.deleteUser()
+                            AdminAccount.idOrg = null
+                            navController.navigate(MainRoute.LoginCustomer.name) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        }
+                    },
+                    onDismiss = {
+                        stateFeedbacks = false
+                    })
+            }
+
+            Button(onClick = { stateFeedbacks = true },
+                modifier = modifiers,
+                colors = ButtonDefaults.buttonColors(redActionColor),
+                shape = RoundedCornerShape(40)
+            ) {
+                Text(text = "Выйти из аккаунта", fontSize = 18.sp)
+            }
+
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }

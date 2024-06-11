@@ -28,7 +28,7 @@ class BasicInfoDeserializer : JsonDeserializer<BasicInfoResponse> {
             idOrg = jsonObject.get("idOrg")?.asLong ?: 0,
             name = jsonObject.get("name").asString,
             phone = jsonObject.get("phone").asString,
-            description = jsonObject.get("description").asString,
+            description = jsonObject.get("description")?.asString?: "",
             locationAll = locationsAll,
             idImages = images.map { ImageDTO(id = it.id, byteArray = it.value, main = it.main) }.toMutableList()
         )

@@ -4,17 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wayplaner.learn_room.admin.auth_org.util.OrgFormState
 import com.wayplaner.learn_room.admin.util.AdminAccount
-import com.wayplaner.learn_room.auth.domain.model.DTO.SingInRequest
-import com.wayplaner.learn_room.auth.domain.model.DTO.SingUpRequest
-import com.wayplaner.learn_room.auth.domain.repository.AuthCustomerRepository
+import com.wayplaner.learn_room.auth.domain.model.DTO.SingInOrgRequest
+import com.wayplaner.learn_room.auth.domain.model.DTO.SingUpOrgRequest
+import com.wayplaner.learn_room.auth.domain.repository.AuthOrgRepository
 import com.wayplaner.learn_room.auth.usecase.ValidateCity
+import com.wayplaner.learn_room.auth.usecase.ValidateLogin
 import com.wayplaner.learn_room.auth.usecase.ValidateName
 import com.wayplaner.learn_room.auth.usecase.ValidatePhone
-import com.wayplaner.learn_room.auth.util.UserFormState
 import com.wayplaner.learn_room.auth.util.save
-import com.wayplaner.learn_room.organization.model.CityOrganization
-import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.comet.android.auth.domain.usecase.ValidatePassword
@@ -23,13 +22,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthModelView @Inject constructor(
+class AuthOrgModelView @Inject constructor(
     private val validateName: ValidateName = ValidateName(),
     private val validatePhone: ValidatePhone = ValidatePhone(),
     private val validateCity: ValidateCity = ValidateCity(),
     private val validatePasswordRepeat: ValidatePasswordRepeat = ValidatePasswordRepeat(),
+    private val validateLogin: ValidateLogin = ValidateLogin(),
     private val validatePassword: ValidatePassword = ValidatePassword(),
-    private val authCustomerRepository: AuthCustomerRepository
+    private val authCustomerRepository: AuthOrgRepository
 ): ViewModel() {
 
     private var cities = MutableLiveData<List<String>>()
@@ -56,20 +56,19 @@ class AuthModelView @Inject constructor(
         }
     }
 
-    private val userFormState_ = MutableLiveData(UserFormState())
-    val userFormState: LiveData<UserFormState> = userFormState_
+    private val userFormState_ = MutableLiveData(OrgFormState())
+    val userFormState: LiveData<OrgFormState> = userFormState_
 
     private val success_ = MutableLiveData(false)
     val success: LiveData<Boolean> = success_
 
     private fun sing_in(){
         viewModelScope.launch {
-            val valueSend = SingInRequest(userFormState_.value!!.phone, userFormState_.value!!.password)
+            val valueSend = SingInOrgRequest(userFormState_.value!!.login, userFormState_.value!!.password)
             val response = authCustomerRepository.sing_in(valueSend)
             val responseBody = response.body()!!
-            if(responseBody.userResponse != null) {
-                AdminAccount.idOrg = authCustomerRepository.getOrgByUser(responseBody.userResponse!!.profileUUID).body()
-                CustomerAccount.info = responseBody.userResponse
+            if(responseBody.idOrg != null) {
+                AdminAccount.idOrg = responseBody.idOrg
                 valueSend.save()
                 success_.postValue(true)
                 return@launch
@@ -80,16 +79,18 @@ class AuthModelView @Inject constructor(
     }
     private fun sing_up(){
         viewModelScope.launch {
-            val valueSend = SingUpRequest(
-                userFormState_.value!!.phone,
-                userFormState_.value!!.name,
+            val valueSend = SingUpOrgRequest(
                 userFormState_.value!!.city,
+                userFormState_.value!!.address!!,
+                userFormState_.value!!.login,
+                userFormState_.value!!.name,
+                userFormState_.value!!.phone,
                 userFormState_.value!!.password)
 
             val response = authCustomerRepository.sing_up(valueSend)
             val responseBody = response.body()!!
-            if(responseBody.userResponse != null) {
-                CustomerAccount.info = responseBody.userResponse
+            if(responseBody.idOrg != null) {
+                AdminAccount.idOrg = responseBody.idOrg
                 valueSend.save()
                 success_.postValue(true)
                 return@launch
@@ -108,16 +109,21 @@ class AuthModelView @Inject constructor(
             is EventFormUserState.ChangedPhone -> userFormState_.postValue(userFormState_.value!!.copy(phone = event.phone))
             is EventFormUserState.SumbitSingIn -> { sumbitSingIn() }
             is EventFormUserState.SumbitSingUp -> { sumbitSingUp() }
-            else -> {}
+            is EventFormUserState.ChangedAddress -> {
+                userFormState_.value!!.address = event.address
+            }
+            is EventFormUserState.ChangedLogin -> {
+                userFormState_.value!!.login = event.login
+            }
         }
     }
-
 
     private fun sumbitSingUp(){
         clearErrorValue()
 
         val name = validateName.execute(userFormState_.value!!.name)
         val phone = validatePhone.execute(userFormState_.value!!.phone)
+        val login = validateLogin.execute(userFormState_.value!!.login)
         val city = validateCity.execute(userFormState_.value!!.city)
         val password = validatePassword.execute(userFormState_.value!!.password)
         val passwordRepeat = validatePasswordRepeat.execute(userFormState_.value!!.password, userFormState_.value!!.passwordRepeat)
@@ -126,15 +132,24 @@ class AuthModelView @Inject constructor(
             name,
             phone,
             city,
+            login,
             password,
             passwordRepeat
         ).any { !it.successful }
+
+        if(userFormState_.value!!.address?.address == null){
+            userFormState_.value = userFormState_.value?.copy(
+                errorAddress = "Выберите адрес")
+
+            return
+        }
 
         if(hasError){
             userFormState_.value = userFormState_.value?.copy(
                 errorName = name.errormessage,
                 errorCity = city.errormessage,
                 errorPhone = phone.errormessage,
+                errorLogin = login.errormessage,
                 passwordError = password.errormessage,
                 passwordRepeatError = passwordRepeat.errormessage,
             )
@@ -149,10 +164,10 @@ class AuthModelView @Inject constructor(
     private fun sumbitSingIn(){
         clearErrorValue()
 
-        val phone = validatePhone.execute(userFormState_.value!!.phone)
-        if(!phone.successful){
+        val login = validateLogin.execute(userFormState_.value!!.login)
+        if(!login.successful){
             userFormState_.value = userFormState_.value?.copy(
-                errorPhone = phone.errormessage,
+                errorLogin = login.errormessage,
             )
             return
         }
@@ -162,6 +177,8 @@ class AuthModelView @Inject constructor(
 
     private fun clearErrorValue(){
         userFormState_.value = userFormState_.value?.copy(
+            errorLogin = null,
+            errorAddress = null,
             errorName = null,
             errorCity = null,
             errorPhone = null,
@@ -170,16 +187,4 @@ class AuthModelView @Inject constructor(
         )
     }
 
-}
-
-sealed class EventFormUserState{
-    data class ChangedCity(val city: String): EventFormUserState()
-    data class ChangedName(val name: String): EventFormUserState()
-    data class ChangedPassword(val password: String): EventFormUserState()
-    data class ChangedPasswordRepeat(val passwordRepeat: String): EventFormUserState()
-    data class ChangedPhone(val phone: String): EventFormUserState()
-    data class ChangedAddress(val address: CityOrganization): EventFormUserState()
-    data class ChangedLogin(val login: String): EventFormUserState()
-    data object SumbitSingIn: EventFormUserState()
-    data object SumbitSingUp: EventFormUserState()
 }

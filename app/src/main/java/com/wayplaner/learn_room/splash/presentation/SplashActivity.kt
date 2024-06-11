@@ -6,8 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.wayplaner.learn_room.MainActivityPage
 import com.wayplaner.learn_room.R
+import com.wayplaner.learn_room.admin.util.AdminAccount
 import com.wayplaner.learn_room.auth.util.getUser
 import com.wayplaner.learn_room.auth.util.setContext
+import com.wayplaner.learn_room.utils.CustomerAccount
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -25,14 +27,18 @@ class SplashActivity: AppCompatActivity(), CoroutineScope by MainScope() {
         launch {
 
             setContext(this@SplashActivity)
-            val user = getUser()
-            if(user == null){
-                delay(2000)
-            }
-            else {
+            val user = CustomerAccount.getUser()
+            val org = AdminAccount.getUser()
+
+            if(user != null){
                 modelView.sing_in(user)
                 delay(1000)
             }
+            else if (org != null){
+                modelView.sing_in_org(org)
+                delay(1000)
+            }
+            else delay(2000)
 
             startActivity(Intent(this@SplashActivity, MainActivityPage::class.java))
             finish()
